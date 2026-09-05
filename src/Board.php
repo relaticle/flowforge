@@ -11,6 +11,7 @@ use Relaticle\Flowforge\Concerns\HasBoardActions;
 use Relaticle\Flowforge\Concerns\HasBoardColumns;
 use Relaticle\Flowforge\Concerns\HasBoardFilters;
 use Relaticle\Flowforge\Concerns\HasBoardRecords;
+use Relaticle\Flowforge\Concerns\HasCardLabels;
 use Relaticle\Flowforge\Concerns\HasCardSchema;
 use Relaticle\Flowforge\Concerns\InteractsWithKanbanQuery;
 use Relaticle\Flowforge\Contracts\HasBoard;
@@ -23,6 +24,7 @@ class Board extends ViewComponent
     use HasBoardColumns;
     use HasBoardFilters;
     use HasBoardRecords;
+    use HasCardLabels;
     use HasCardSchema;
     use InteractsWithKanbanQuery;
 
@@ -101,8 +103,8 @@ class Board extends ViewComponent
             'config' => [
                 'recordTitleAttribute' => $this->getRecordTitleAttribute(),
                 'columnIdentifierAttribute' => $this->getColumnIdentifierAttribute(),
-                'cardLabel' => __('flowforge::flowforge.card_label'),
-                'pluralCardLabel' => __('flowforge::flowforge.plural_card_label'),
+                'cardLabel' => $this->getCardLabel(),
+                'pluralCardLabel' => $this->getPluralCardLabel(),
                 'headerToolbar' => $this->hasHeaderToolbar(),
             ],
         ];
