@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v4.1.2 - 2026-09-14
+
+<!-- Release notes generated using configuration in .github/release.yml at 4.x -->
+### What's Changed
+
+#### Other Changes
+
+* chore(ci): stop persisting checkout credentials in pint and changelog by @ManukMinasyan in https://github.com/relaticle/flowforge/pull/182
+* feat(board): collapse empty columns into a rail by @ManukMinasyan in https://github.com/relaticle/flowforge/pull/183
+* chore(ci): group dependabot security updates per ecosystem by @ManukMinasyan in https://github.com/relaticle/flowforge/pull/184
+* build(deps): bump zizmorcore/zizmor-action from 0.6.2 to 0.6.3 in the github-actions group by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/185
+
+**Full Changelog**: https://github.com/relaticle/flowforge/compare/v4.1.1...v4.1.2
+
 ## v4.0.12 - 2026-05-12
 
 ### What's Changed
