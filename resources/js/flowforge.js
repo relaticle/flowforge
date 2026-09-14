@@ -3,6 +3,7 @@ export default function flowforge({state}) {
         state,
         isLoading: {},
         fullyLoaded: {},
+        collapsedSwimlanes: {},
 
         init() {
             this.$wire.$on('kanban-items-loaded', (event) => {
@@ -11,6 +12,11 @@ export default function flowforge({state}) {
                     this.fullyLoaded[columnId] = true;
                 }
             });
+
+            // Restore collapsed swimlane state from localStorage
+            if (this.state.swimlanes) {
+                this._restoreSwimlaneState();
+            }
 
             this.$nextTick(() => this.enhanceSortableScroll());
         },
@@ -112,6 +118,44 @@ export default function flowforge({state}) {
 
             if (scrollPercentage >= 0.8 && !this.isLoadingColumn(columnId)) {
                 this.handleSmoothScroll(columnId);
+            }
+        },
+
+        // --- Swimlane collapse/expand ---
+
+        toggleSwimlane(swimlaneId) {
+            this.collapsedSwimlanes[swimlaneId] = !this.collapsedSwimlanes[swimlaneId];
+            this._saveSwimlaneState();
+        },
+
+        isSwimlaneCollapsed(swimlaneId) {
+            return this.collapsedSwimlanes[swimlaneId] || false;
+        },
+
+        _getSwimlaneStorageKey() {
+            // Use the page URL path as a board-specific key
+            return 'flowforge:swimlanes:' + window.location.pathname;
+        },
+
+        _saveSwimlaneState() {
+            try {
+                localStorage.setItem(
+                    this._getSwimlaneStorageKey(),
+                    JSON.stringify(this.collapsedSwimlanes)
+                );
+            } catch (e) {
+                // localStorage may be unavailable; ignore silently
+            }
+        },
+
+        _restoreSwimlaneState() {
+            try {
+                const stored = localStorage.getItem(this._getSwimlaneStorageKey());
+                if (stored) {
+                    this.collapsedSwimlanes = JSON.parse(stored);
+                }
+            } catch (e) {
+                this.collapsedSwimlanes = {};
             }
         },
     }

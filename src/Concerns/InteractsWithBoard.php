@@ -52,6 +52,34 @@ trait InteractsWithBoard
     }
 
     /**
+     * Rebuild the board after Livewire applies a table state update.
+     *
+     * booted() runs before incoming property updates are applied, so a board
+     * whose column set, query or swimlanes depend on $tableFilters or
+     * $tableSearch is built from the previous request's state and renders one
+     * round trip stale. Toggling a filter that adds or removes columns returns
+     * the old column set, and it stays wrong until something unrelated triggers
+     * another render.
+     *
+     * booted() still builds the board, because cacheBoardActions() has to run
+     * before Filament processes the request; this only rebuilds it once the new
+     * state is actually in place.
+     *
+     * Only table state is rebuilt on. Rebuilding on every property update would
+     * also fire for $columnCardLimits, which load-more-on-scroll writes to, and
+     * discard the pagination it just set.
+     */
+    public function updatedInteractsWithBoard(string $property): void
+    {
+        if (! str_starts_with($property, 'tableFilters') && ! str_starts_with($property, 'tableSearch')) {
+            return;
+        }
+
+        $this->board = $this->board($this->makeBoard());
+        $this->cacheBoardActions();
+    }
+
+    /**
      * Cache board actions for Filament's action system.
      */
     protected function cacheBoardActions(): void
@@ -302,30 +330,36 @@ trait InteractsWithBoard
                str_contains($e->getMessage(), 'UNIQUE constraint failed');
     }
 
-    public function loadMoreItems(string $columnId, ?int $count = null): void
+    /**
+     * Load more items for a column or cell.
+     *
+     * When swimlanes are active, the $cellKey uses the format "columnId|swimlaneId"
+     * to identify a specific cell. Without swimlanes, it's just the columnId.
+     */
+    public function loadMoreItems(string $cellKey, ?int $count = null): void
     {
         $count = $count ?? $this->getBoard()->getCardsPerColumn();
 
         // Set loading state
-        $this->loadingStates[$columnId] = true;
+        $this->loadingStates[$cellKey] = true;
 
         try {
             $board = $this->getBoard();
-            $currentLimit = $this->columnCardLimits[$columnId] ?? $board->getCardsPerColumn();
+            $currentLimit = $this->columnCardLimits[$cellKey] ?? $board->getCardsPerColumn();
             $newLimit = $currentLimit + $count;
 
-            // Check if we have more items to load
-            $totalCount = $board->getBoardRecordCount($columnId);
+            // Determine total count based on whether this is a cell or column key
+            $totalCount = $this->getCellOrColumnCount($cellKey);
             $actualNewLimit = min($newLimit, $totalCount);
 
-            $this->columnCardLimits[$columnId] = $actualNewLimit;
+            $this->columnCardLimits[$cellKey] = $actualNewLimit;
 
             // Calculate how many items were actually loaded
             $actualLoadedCount = $actualNewLimit - $currentLimit;
 
             // Emit event for frontend update
             $this->dispatch('kanban-items-loaded', [
-                'columnId' => $columnId,
+                'columnId' => $cellKey,
                 'loadedCount' => $actualLoadedCount,
                 'totalCount' => $totalCount,
                 'isFullyLoaded' => $actualNewLimit >= $totalCount,
@@ -333,42 +367,58 @@ trait InteractsWithBoard
 
         } finally {
             // Clear loading state
-            $this->loadingStates[$columnId] = false;
+            $this->loadingStates[$cellKey] = false;
         }
     }
 
     /**
-     * Load all items in a column (disables pagination for that column).
+     * Get total record count for a cell key ("columnId|swimlaneId") or plain column.
      */
-    public function loadAllItems(string $columnId): void
+    protected function getCellOrColumnCount(string $cellKey): int
     {
-        $this->loadingStates[$columnId] = true;
+        $board = $this->getBoard();
+
+        if (str_contains($cellKey, '|') && $board->hasSwimlanes()) {
+            [$columnId, $swimlaneId] = explode('|', $cellKey, 2);
+            $counts = $board->getBatchedSwimlaneRecordCounts();
+
+            return $counts[$cellKey] ?? 0;
+        }
+
+        return $board->getBoardRecordCount($cellKey);
+    }
+
+    /**
+     * Load all items in a column or cell (disables pagination for that column/cell).
+     */
+    public function loadAllItems(string $cellKey): void
+    {
+        $this->loadingStates[$cellKey] = true;
 
         try {
-            $board = $this->getBoard();
-            $totalCount = $board->getBoardRecordCount($columnId);
+            $totalCount = $this->getCellOrColumnCount($cellKey);
 
             // Set limit to total count to load everything
-            $this->columnCardLimits[$columnId] = $totalCount;
+            $this->columnCardLimits[$cellKey] = $totalCount;
 
             $this->dispatch('kanban-all-items-loaded', [
-                'columnId' => $columnId,
+                'columnId' => $cellKey,
                 'totalCount' => $totalCount,
             ]);
 
         } finally {
-            $this->loadingStates[$columnId] = false;
+            $this->loadingStates[$cellKey] = false;
         }
     }
 
     /**
-     * Check if a column is fully loaded.
+     * Check if a column or cell is fully loaded.
      */
-    public function isColumnFullyLoaded(string $columnId): bool
+    public function isColumnFullyLoaded(string $cellKey): bool
     {
         $board = $this->getBoard();
-        $totalCount = $board->getBoardRecordCount($columnId);
-        $loadedCount = $this->columnCardLimits[$columnId] ?? $board->getCardsPerColumn();
+        $totalCount = $this->getCellOrColumnCount($cellKey);
+        $loadedCount = $this->columnCardLimits[$cellKey] ?? $board->getCardsPerColumn();
 
         return $loadedCount >= $totalCount;
     }

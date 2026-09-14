@@ -149,6 +149,88 @@ trait HasBoardRecords
     }
 
     /**
+     * Get records for a specific cell (column × swimlane intersection) with cursor-based pagination.
+     */
+    public function getBoardRecordsForCell(string $columnId, string $swimlaneId): Collection
+    {
+        $query = $this->getQuery();
+
+        if (! $query) {
+            return new Collection;
+        }
+
+        $statusField = $this->getColumnIdentifierAttribute();
+        $swimlaneField = $this->getSwimlaneIdentifierAttribute();
+        $livewire = $this->getLivewire();
+
+        $cellKey = $columnId . '|' . $swimlaneId;
+        $limit = property_exists($livewire, 'columnCardLimits')
+            ? ($livewire->columnCardLimits[$cellKey] ?? $this->getCardsPerColumn())
+            : $this->getCardsPerColumn();
+
+        $queryClone = (clone $query)
+            ->where($statusField, $columnId)
+            ->where($swimlaneField, $swimlaneId);
+
+        // Apply table filters and search using Filament's native system
+        if ($livewire->getTable()->isFilterable() || $livewire->hasTableSearch()) {
+            $baseQuery = $livewire->getFilteredTableQuery();
+            $queryClone = (clone $baseQuery)
+                ->where($statusField, $columnId)
+                ->where($swimlaneField, $swimlaneId);
+        }
+
+        $positionField = $this->getPositionIdentifierAttribute();
+        $keyName = $queryClone->getModel()->getKeyName();
+
+        if ($positionField && $this->modelHasColumn($queryClone->getModel(), $positionField)) {
+            $queryClone->orderBy($positionField, 'asc')
+                ->orderBy($keyName, 'asc');
+        }
+
+        return $queryClone->limit($limit)->get();
+    }
+
+    /**
+     * Get record counts for all column × swimlane cells in a single query using GROUP BY.
+     *
+     * @return array<string, int> Keyed by "columnId|swimlaneId" => count
+     */
+    public function getBatchedSwimlaneRecordCounts(): array
+    {
+        $query = $this->getQuery();
+
+        if (! $query) {
+            return [];
+        }
+
+        $statusField = $this->getColumnIdentifierAttribute();
+        $swimlaneField = $this->getSwimlaneIdentifierAttribute();
+        $livewire = $this->getLivewire();
+
+        $queryClone = clone $query;
+
+        // Apply table filters and search using Filament's native system
+        if ($livewire->getTable()->isFilterable() || $livewire->hasTableSearch()) {
+            $baseQuery = $livewire->getFilteredTableQuery();
+            $queryClone = clone $baseQuery;
+        }
+
+        $rows = $queryClone
+            ->select(DB::raw("{$statusField} as column_value, {$swimlaneField} as swimlane_value, COUNT(*) as total"))
+            ->groupBy($statusField, $swimlaneField)
+            ->get();
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $key = $row->column_value . '|' . ($row->swimlane_value ?? '__uncategorized__');
+            $counts[$key] = (int) $row->total;
+        }
+
+        return $counts;
+    }
+
+    /**
      * Format a record for display with Infolist entries.
      */
     public function formatBoardRecord(Model $record): array
@@ -161,6 +243,15 @@ trait HasBoardRecords
             'model' => $record,
         ];
 
+        // Process card header schema if available
+        $formatted['headerSchema'] = null;
+        $headerSchema = $this->getCardHeaderSchema($record);
+
+        if ($headerSchema !== null) {
+            $headerSchema->model($record);
+            $formatted['headerSchema'] = $headerSchema;
+        }
+
         // Process card schema if available
         $formatted['schema'] = null;
         $schema = $this->getCardSchema($record);
@@ -171,6 +262,15 @@ trait HasBoardRecords
 
             // Store the schema object with record context for proper Livewire rendering
             $formatted['schema'] = $schema;
+        }
+
+        // Process card footer schema if available
+        $formatted['footerSchema'] = null;
+        $footerSchema = $this->getCardFooterSchema($record);
+
+        if ($footerSchema !== null) {
+            $footerSchema->model($record);
+            $formatted['footerSchema'] = $footerSchema;
         }
 
         return $formatted;

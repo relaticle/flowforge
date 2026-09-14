@@ -12,12 +12,36 @@ trait HasCardSchema
 {
     protected ?Closure $cardSchemaBuilder = null;
 
+    protected ?Closure $cardHeaderSchemaBuilder = null;
+
+    protected ?Closure $cardFooterSchemaBuilder = null;
+
     /**
      * Configure the card schema using the Schema builder pattern.
      */
     public function cardSchema(Closure $builder): static
     {
         $this->cardSchemaBuilder = $builder;
+
+        return $this;
+    }
+
+    /**
+     * Configure the card header schema using the Schema builder pattern.
+     */
+    public function cardHeaderSchema(Closure $builder): static
+    {
+        $this->cardHeaderSchemaBuilder = $builder;
+
+        return $this;
+    }
+
+    /**
+     * Configure the card footer schema using the Schema builder pattern.
+     */
+    public function cardFooterSchema(Closure $builder): static
+    {
+        $this->cardFooterSchemaBuilder = $builder;
 
         return $this;
     }
@@ -36,6 +60,38 @@ trait HasCardSchema
         $schema = Schema::make($livewire)->record($record);
 
         return $this->evaluate($this->cardSchemaBuilder, ['schema' => $schema]);
+    }
+
+    /**
+     * Get the configured card header schema for a specific record.
+     */
+    public function getCardHeaderSchema(Model $record): ?Schema
+    {
+        if ($this->cardHeaderSchemaBuilder === null) {
+            return null;
+        }
+
+        $livewire = $this->getLivewire();
+        /** @phpstan-ignore argument.type (Filament Schema expects HasSchemas&Livewire\Component but getLivewire returns HasBoard) */
+        $schema = Schema::make($livewire)->record($record);
+
+        return $this->evaluate($this->cardHeaderSchemaBuilder, ['schema' => $schema]);
+    }
+
+    /**
+     * Get the configured card footer schema for a specific record.
+     */
+    public function getCardFooterSchema(Model $record): ?Schema
+    {
+        if ($this->cardFooterSchemaBuilder === null) {
+            return null;
+        }
+
+        $livewire = $this->getLivewire();
+        /** @phpstan-ignore argument.type (Filament Schema expects HasSchemas&Livewire\Component but getLivewire returns HasBoard) */
+        $schema = Schema::make($livewire)->record($record);
+
+        return $this->evaluate($this->cardFooterSchemaBuilder, ['schema' => $schema]);
     }
 
     /**
