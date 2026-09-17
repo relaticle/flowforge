@@ -11,8 +11,8 @@
     },
     "dependencies": {
         "@nuxt/image": "^2.1.0",
-        "@nuxt/scripts": "^1.3.8",
-        "@nuxt/ui": "^4.11.0",
+        "@nuxt/scripts": "^1.3.9",
+        "@nuxt/ui": "^4.11.1",
         "@unhead/vue": "^3.4.0",
         "better-sqlite3": "^12.11.1",
         "docus": "^5.13.0",
