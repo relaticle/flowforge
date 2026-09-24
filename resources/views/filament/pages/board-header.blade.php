@@ -4,6 +4,7 @@
     use Filament\Tables\Enums\FiltersLayout;
     use Filament\Tables\Filters\Indicator;
     use Filament\Tables\View\TablesRenderHook;
+    use Filament\View\PanelsRenderHook;
 
     $table = $this->getTable();
     $isFilterable = $table->isFilterable();
@@ -33,12 +34,16 @@
         <x-filament::breadcrumbs :breadcrumbs="$breadcrumbs" class="mb-2" />
     @endif
 
-    {{-- Title row: heading + filter + search --}}
-    <div class="flex items-center gap-4">
-        <div class="flex-1 min-w-0">
+    {{-- Title row: heading + filter + search + actions --}}
+    <div class="flex flex-wrap items-center gap-4">
+        <div class="flex-1 basis-auto min-w-0">
+            {{ FilamentView::renderHook(PanelsRenderHook::PAGE_HEADER_HEADING_BEFORE, scopes: $this->getRenderHookScopes()) }}
+
             <h1 class="fi-header-heading text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">
                 {{ $heading }}
             </h1>
+
+            {{ FilamentView::renderHook(PanelsRenderHook::PAGE_HEADER_HEADING_AFTER, scopes: $this->getRenderHookScopes()) }}
 
             @if (filled($subheading))
                 <p class="fi-header-subheading mt-1 max-w-2xl text-sm text-gray-600 dark:text-gray-400">
@@ -47,7 +52,7 @@
             @endif
         </div>
 
-        <div class="flex items-center gap-x-6 shrink-0">
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
             @if ($isFilterable && $hasFiltersDialog)
                 @if ($isModalLayout)
                     @php
@@ -131,6 +136,17 @@
                     :placeholder="$table->getSearchPlaceholder()"
                 />
             @endif
+
+            {{ FilamentView::renderHook(PanelsRenderHook::PAGE_HEADER_ACTIONS_BEFORE, scopes: $this->getRenderHookScopes()) }}
+
+            @if ($actions)
+                <x-filament::actions
+                    :actions="$actions"
+                    :alignment="$actionsAlignment"
+                />
+            @endif
+
+            {{ FilamentView::renderHook(PanelsRenderHook::PAGE_HEADER_ACTIONS_AFTER, scopes: $this->getRenderHookScopes()) }}
         </div>
     </div>
 
