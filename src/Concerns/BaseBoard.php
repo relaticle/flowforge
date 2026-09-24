@@ -37,8 +37,8 @@ trait BaseBoard
     /**
      * Override Filament's page header when headerToolbar is enabled.
      *
-     * Renders the page title with the filter/search toolbar inline,
-     * replacing the default stacked layout.
+     * Renders the page title with the filter/search toolbar and the
+     * page header actions inline, replacing the default stacked layout.
      */
     public function getHeader(): ?View
     {
@@ -53,6 +53,8 @@ trait BaseBoard
             'heading' => $this->getHeading(),
             'subheading' => $this->getSubheading(),
             'breadcrumbs' => filament()->hasBreadcrumbs() ? $this->getBreadcrumbs() : [],
+            'actions' => $this->getCachedHeaderActions(),
+            'actionsAlignment' => $this->getHeaderActionsAlignment(),
         ]);
     }
 }

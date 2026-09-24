@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\Flowforge\Tests\Fixtures;
 
+use Filament\Actions\Action;
 use Illuminate\Database\Eloquent\Builder;
 use Relaticle\Flowforge\Board;
 use Relaticle\Flowforge\BoardPage;
@@ -17,6 +18,8 @@ class TestBoard extends BoardPage
 
     public bool $collapseEmpty = false;
 
+    public bool $withHeaderToolbar = false;
+
     public function getEloquentQuery(): Builder
     {
         return Task::query();
@@ -26,6 +29,7 @@ class TestBoard extends BoardPage
     {
         return $board
             ->collapseEmptyColumns($this->collapseEmpty)
+            ->headerToolbar($this->withHeaderToolbar)
             ->query($this->getEloquentQuery())
             ->recordTitleAttribute('title')
             ->searchable(['title'])
@@ -38,5 +42,12 @@ class TestBoard extends BoardPage
                 Column::make('in_progress')->label('In Progress')->color('blue')->visible(fn () => ! $this->hideEverything),
                 Column::make('completed')->label('Completed')->color('green')->visible(fn () => ! $this->hideEverything),
             ]);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('exportBoard')->label('Export board'),
+        ];
     }
 }
