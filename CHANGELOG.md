@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v4.1.3 - 2026-09-24
+
+<!-- Release notes generated using configuration in .github/release.yml at 4.x -->
+### What's Changed
+
+#### Other Changes
+
+* build(deps): bump zizmorcore/zizmor-action from 0.6.3 to 0.6.4 in the github-actions group by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/186
+* build(deps): bump the npm-minor-patch group in /docs with 2 updates by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/187
+* build(deps): bump @unhead/vue from 3.4.0 to 3.4.1 in /docs in the npm-minor-patch group by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/189
+* fix(board): render page header actions with headerToolbar() [4.x] by @ManukMinasyan in https://github.com/relaticle/flowforge/pull/190
+
+**Full Changelog**: https://github.com/relaticle/flowforge/compare/v4.1.2...v4.1.3
+
 ## v4.0.12 - 2026-05-12
 
 ### What's Changed
