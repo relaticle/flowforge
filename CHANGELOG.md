@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v4.1.4 - 2026-10-06
+
+<!-- Release notes generated using configuration in .github/release.yml at 4.x -->
+### What's Changed
+
+#### Other Changes
+
+* build(deps): bump @nuxt/ui from 4.11.1 to 4.11.2 in /docs in the npm-minor-patch group by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/191
+* build(deps-dev): bump brace-expansion from 1.1.18 to 1.1.21 in the npm_and_yarn group across 1 directory by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/192
+* build(deps): bump the npm-security group across 1 directory with 5 updates by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/193
+* fix(board): keep long columns from scrolling the page [4.x] by @ManukMinasyan in https://github.com/relaticle/flowforge/pull/194
+
+**Full Changelog**: https://github.com/relaticle/flowforge/compare/v4.1.3...v4.1.4
+
 ## v4.0.12 - 2026-05-12
 
 ### What's Changed
