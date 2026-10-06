@@ -101,7 +101,7 @@
             @scroll.throttle.100ms="handleColumnScroll($event, '{{ $columnId }}')"
         @endif
         @class([
-            'flowforge-column-content flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain kanban-cards',
+            'flowforge-column-content relative flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain kanban-cards',
             'p-3' => ! $isCollapsed,
             'p-0' => $isCollapsed,
         ])
