@@ -15,7 +15,7 @@
         "@nuxt/ui": "^4.11.3",
         "@unhead/vue": "^3.4.2",
         "better-sqlite3": "^12.11.1",
-        "docus": "^5.13.0",
+        "docus": "^5.14.0",
         "nuxt": "^4.5.2",
         "typescript": "^7.0.2"
     },
