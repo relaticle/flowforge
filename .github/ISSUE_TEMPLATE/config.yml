@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: Ask a question
-    url: https://github.com/Relaticle/flowforge/discussions/new?category=q-a
-    about: Ask the community for help
+    url: https://relaticle.com/discord
+    about: Ask the community for help on Discord
   - name: Request a feature
-    url: https://github.com/Relaticle/flowforge/discussions/new?category=ideas
-    about: Share ideas for new features
+    url: https://relaticle.com/discord
+    about: Share ideas for new features on Discord
   - name: Report a security issue
     url: https://github.com/Relaticle/flowforge/security/policy
     about: Learn how to notify us for sensitive bugs
