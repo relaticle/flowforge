@@ -2,6 +2,7 @@
 
 namespace Relaticle\Flowforge;
 
+use Filament\Panel;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Facades\FilamentAsset;
@@ -77,6 +78,33 @@ class FlowforgeServiceProvider extends PackageServiceProvider
 
         // Register Blueprint Macros
         $this->registerBlueprintMacros();
+
+        // Register Panel Views
+        $this->registerPanelViews();
+    }
+
+    /**
+     * Register the views that render Filament Panels components.
+     *
+     * They live outside the default views directory and are only registered when
+     * filament/filament is installed, so `php artisan view:cache` keeps working
+     * for standalone usage of the InteractsWithBoard trait.
+     */
+    private function registerPanelViews(): void
+    {
+        if (! class_exists(Panel::class)) {
+            return;
+        }
+
+        $panelViewsPath = __DIR__ . '/../resources/panel-views';
+
+        $this->loadViewsFrom($panelViewsPath, static::$viewNamespace);
+
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                $panelViewsPath => resource_path('views/vendor/' . static::$viewNamespace),
+            ], static::$viewNamespace . '-views');
+        }
     }
 
     /**

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\File;
 use Relaticle\Flowforge\Board;
 use Relaticle\Flowforge\BoardPage;
 use Relaticle\Flowforge\Column;
 use Relaticle\Flowforge\Commands\MakeKanbanBoardCommand;
 use Relaticle\Flowforge\FlowforgeServiceProvider;
+use Symfony\Component\Finder\SplFileInfo;
 
 test('service provider is registered', function () {
     $providers = app()->getLoadedProviders();
@@ -49,6 +51,18 @@ test('package views are registered', function () {
     expect(view()->exists('flowforge::filament.pages.board-page'))->toBeTrue();
     expect(view()->exists('flowforge::livewire.column'))->toBeTrue();
     expect(view()->exists('flowforge::livewire.card'))->toBeTrue();
+});
+
+test('views registered without the panel builder do not use panel components', function () {
+    // `php artisan view:cache` compiles every view in the namespace, so one
+    // panel component here breaks it for apps without filament/filament.
+    $viewsUsingPanelComponents = collect(File::allFiles(__DIR__ . '/../../resources/views'))
+        ->filter(fn (SplFileInfo $file) => str_contains($file->getContents(), 'filament-panels::'))
+        ->map(fn (SplFileInfo $file) => $file->getRelativePathname())
+        ->values()
+        ->all();
+
+    expect($viewsUsingPanelComponents)->toBe([]);
 });
 
 test('package translations are available', function () {
