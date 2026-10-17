@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v4.2.0 - 2026-10-17
+
+<!-- Release notes generated using configuration in .github/release.yml at 4.x -->
+### What's Changed
+
+#### Other Changes
+
+* build(deps): bump the npm-minor-patch group in /docs with 3 updates by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/196
+* build(deps): bump the npm_and_yarn group across 1 directory with 2 updates by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/197
+* build(deps): bump the npm-security group across 1 directory with 2 updates by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/198
+* build(deps): bump the npm-security group across 1 directory with 5 updates by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/199
+* [4.x] docs: point issue chooser links at discord by @ManukMinasyan in https://github.com/relaticle/flowforge/pull/200
+* build(deps): bump the github-actions group with 4 updates by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/201
+* build(deps): bump the npm-minor-patch group in /docs with 2 updates by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/202
+* feat: add an opt-in modern board beside the classic one by @ManukMinasyan in https://github.com/relaticle/flowforge/pull/206
+
+**Full Changelog**: https://github.com/relaticle/flowforge/compare/v4.1.4...v4.2.0
+
 ## v4.0.12 - 2026-05-12
 
 ### What's Changed
