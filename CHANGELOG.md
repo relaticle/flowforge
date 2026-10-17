@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v4.2.1 - 2026-10-17
+
+Same package code as v4.2.0. This release republishes it on Packagist, which kept v4.2.0 pointed at its first commit after the tag moved. Release notes for the modern board are in v4.2.0.
+
+<!-- Release notes generated using configuration in .github/release.yml at 97ccb40559609cd3c04d19a68682a5cf41915b65 -->
+### What's Changed
+
+#### Other Changes
+
+* build(deps): bump the npm-minor-patch group in /docs with 3 updates by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/196
+* build(deps): bump the npm_and_yarn group across 1 directory with 2 updates by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/197
+* build(deps): bump the npm-security group across 1 directory with 2 updates by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/198
+* build(deps): bump the npm-security group across 1 directory with 5 updates by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/199
+* [4.x] docs: point issue chooser links at discord by @ManukMinasyan in https://github.com/relaticle/flowforge/pull/200
+* build(deps): bump the github-actions group with 4 updates by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/201
+* build(deps): bump the npm-minor-patch group in /docs with 2 updates by @dependabot[bot] in https://github.com/relaticle/flowforge/pull/202
+* feat: add an opt-in modern board beside the classic one by @ManukMinasyan in https://github.com/relaticle/flowforge/pull/206
+* test: measure pointer targets after the next frame by @ManukMinasyan in https://github.com/relaticle/flowforge/pull/207
+
+**Full Changelog**: https://github.com/relaticle/flowforge/compare/v4.1.4...v4.2.1
+
 ## v4.0.12 - 2026-05-12
 
 ### What's Changed
