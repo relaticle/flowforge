@@ -1,3 +1,8 @@
+---
+title: "API Reference"
+description: "Complete reference for Flowforge configuration methods."
+canonical_url: "https://relaticle.github.io/essentials/api-reference"
+---
 # API Reference
 
 > Complete reference for Flowforge configuration methods.
@@ -439,6 +444,110 @@ use Filament\Support\Enums\Width;
 ->collapseEmptyColumns()                          // Collapse columns holding no cards
 ```
 
+### Modern board additions
+
+These settings apply to Modern boards only. A classic board ignores them.
+
+<table>
+<thead>
+  <tr>
+    <th>
+      Method
+    </th>
+    
+    <th>
+      Purpose
+    </th>
+  </tr>
+</thead>
+
+<tbody>
+  <tr>
+    <td>
+      <code>
+        createCardAction(Action|Closure|null)
+      </code>
+    </td>
+    
+    <td>
+      The action behind the header <code>
+        +
+      </code>
+      
+       and the add row
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        columnSummary(?Closure)
+      </code>
+    </td>
+    
+    <td>
+      Header text per column, from the filtered column query
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        groupings(array|Closure)
+      </code>
+    </td>
+    
+    <td>
+      "Group by" options, each a <code>
+        Grouping
+      </code>
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        lanesPerPage(int)
+      </code>
+    </td>
+    
+    <td>
+      Lanes rendered before "Show more lanes" (default 10)
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        Column::limit(int|Closure|null)
+      </code>
+    </td>
+    
+    <td>
+      Hard limit per column
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        authorizeCardMove()
+      </code>
+      
+       / <code>
+        persistCardMove()
+      </code>
+    </td>
+    
+    <td>
+      Page hooks for checks and custom writes
+    </td>
+  </tr>
+</tbody>
+</table>
+
+See [Customization](https://relaticle.github.io/essentials/customization) for the add card action, card components, summaries and limits. See [Swimlanes](https://relaticle.github.io/essentials/swimlanes) for groupings and lanes, and [Design System](https://relaticle.github.io/essentials/design-system) for styling.
+
 ## Column Configuration
 
 ```php
@@ -448,6 +557,7 @@ Column::make('identifier')
     ->icon('heroicon-o-flag')                    // Column header icon
     ->hidden(fn () => ! auth()->user()?->isStaff()) // Hide from rendering
     ->visible(fn () => $this->showArchived)      // Inverse of hidden()
+    ->limit(3)                                   // Modern boards: hard limit, refuses drops when full
 ```
 
 ### Building a column from a backed enum
@@ -458,14 +568,14 @@ Column::enum(TaskStatus::Todo)                   // identifier = $enum->value
 
 When the enum implements `HasLabel`, `HasColor`, or `HasIcon` those values are
 applied automatically; missing contracts are skipped. See the
-[Column Configuration guide](/essentials/customization#building-columns-from-enums)
+[Column Configuration guide](https://relaticle.github.io/essentials/customization#building-columns-from-enums)
 for a full example.
 
 ### Conditional visibility
 
 Hidden columns are excluded from all column getters (`getColumns()`,
-`getColumnIdentifiers()`, `getColumnLabels()`, `getColumnColors()`) — see
-[Conditional Visibility](/essentials/customization#conditional-visibility)
+`getColumnIdentifiers()`, `getColumnLabels()`, `getColumnColors()`). See
+[Conditional Visibility](https://relaticle.github.io/essentials/customization#conditional-visibility)
 for a worked example.
 
 ### Available Colors
@@ -489,11 +599,29 @@ These methods are available in your board components for programmatic control:
 $this->moveCard(string $cardId, string $targetColumnId, ?string $afterCardId = null, ?string $beforeCardId = null)
 ```
 
+On a Modern board, `moveCard()` takes two more arguments and returns `bool`. It returns `false` when it refuses a move.
+
+```php
+$this->moveCard(
+    string $cardId,
+    string $targetColumnId,
+    ?string $afterCardId = null,
+    ?string $beforeCardId = null,
+    ?string $fromLaneId = null,
+    ?string $toLaneId = null,
+): bool
+```
+
+Override `authorizeCardMove()` and `persistCardMove()` instead of `moveCard()`. See [Custom Card Movement Logic](https://relaticle.github.io/essentials/integration-patterns#custom-card-movement-logic).
+
 ### Pagination Control
 
 ```php
 // Load more cards for pagination
 $this->loadMoreItems(string $columnId, ?int $count = null)
+
+// Modern boards: load more cards into one lane cell
+$this->loadMoreItems(string $columnId, ?int $count = null, ?string $laneId = null)
 
 // Load all cards to enable reordering
 $this->loadAllItems(string $columnId)
@@ -642,3 +770,8 @@ document.addEventListener('livewire:init', () => {
     });
 });
 ```
+
+
+## Sitemap
+
+See the full [sitemap](https://relaticle.github.io/sitemap.md) for all pages.

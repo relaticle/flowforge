@@ -1,3 +1,8 @@
+---
+title: "Contributing"
+description: "How to contribute to Flowforge"
+canonical_url: "https://relaticle.github.io/community/contributing"
+---
 # Contributing
 
 > How to contribute to Flowforge
@@ -36,3 +41,8 @@ composer analyse
 - Check [existing issues](https://github.com/relaticle/flowforge/issues) first
 
 That's it! Keep it simple and focused. 🚀
+
+
+## Sitemap
+
+See the full [sitemap](https://relaticle.github.io/sitemap.md) for all pages.

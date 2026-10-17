@@ -1,3 +1,8 @@
+---
+title: "Installation"
+description: "Get started with Flowforge in 90 seconds."
+canonical_url: "https://relaticle.github.io/getting-started/installation"
+---
 # Installation
 
 > Get started with Flowforge in 90 seconds.
@@ -34,6 +39,12 @@ Once you have a custom Filament theme set up, add the plugin's views to your the
 ```css [resources/css/filament/admin/theme.css]
 @source "../../../../vendor/relaticle/flowforge/resources/views/**/*.blade.php";
 ```
+
+<alert type="info">
+
+Modern boards ship their own stylesheet and need no `@source` line. See [Modern board](https://relaticle.github.io/essentials/integration-patterns#modern-board).
+
+</alert>
 
 ### Add Position Column
 
@@ -96,3 +107,8 @@ php artisan flowforge:make-board TaskBoard --model=Task
   </tr>
 </tbody>
 </table>
+
+
+## Sitemap
+
+See the full [sitemap](https://relaticle.github.io/sitemap.md) for all pages.

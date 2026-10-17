@@ -1,606 +1,865 @@
-# Installation
+# Contributing
 
-## Requirements
+> How to contribute to Flowforge
 
-- **PHP:** 8.3+
-- **Laravel:** 12+
-- **Filament:** 5.x
-- **Database:** MySQL, PostgreSQL, SQLite, SQL Server, MariaDB
+## Quick Start
 
-## Quick Setup
+1. **Fork** the repository
+2. **Create** a feature branch
+3. **Make** your changes
+4. **Run** tests: `composer test`
+5. **Submit** a pull request
 
-::steps
-### Install Package
+## Guidelines
 
-```bash [Terminal]
-composer require relaticle/flowforge
+- Follow the existing code style
+- Add tests for new features
+- Update documentation as needed
+- One feature per pull request
+
+## Development Commands
+
+```bash
+# Run tests
+composer test
+
+# Format code  
+composer pint
+
+# Static analysis
+composer analyse
 ```
 
-### Include CSS Assets
+## Need Help?
 
-Prerequisite: You need a custom Filament theme to include the FlowForge styles.
+- [Open an issue](https://github.com/relaticle/flowforge/issues) for bugs or questions
+- Check [existing issues](https://github.com/relaticle/flowforge/issues) first
 
-  :::alert{type="warning"}
-  If you haven't set up a custom theme for Filament, follow the 
+That's it! Keep it simple and focused. 🚀
 
-  [Filament Docs](https://filamentphp.com/docs/5.x/styling/overview#creating-a-custom-theme){rel=""nofollow""}
 
-   first.
-  :::
+# License
 
-Once you have a custom Filament theme set up, add the plugin's views to your theme CSS file:
+> MIT License terms and what it means for you
 
-```css [resources/css/filament/admin/theme.css]
-@source "../../../../vendor/relaticle/flowforge/resources/views/**/*.blade.php";
+## MIT License
+
+```text
+Copyright (c) Relaticle
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 ```
 
-### Add Position Column
+## What This Means
 
-Create a migration to add the position column:
+✅ **You can** use Flowforge in commercial projects<br />
 
-```bash [Terminal]
-php artisan make:migration add_position_to_tasks_table
+
+✅ **You can** modify and distribute it<br />
+
+
+✅ **You can** use it in closed source projects<br />
+
+
+✅ **You can** sell applications that include it
+
+Just include the license notice in your copy. That's it!
+
+
+# API Reference
+
+> Complete reference for Flowforge configuration methods.
+
+## Board Configuration
+
+<table>
+<thead>
+  <tr>
+    <th>
+      Method
+    </th>
+    
+    <th>
+      Description
+    </th>
+    
+    <th>
+      Required
+    </th>
+  </tr>
+</thead>
+
+<tbody>
+  <tr>
+    <td>
+      <code>
+        query(Builder)
+      </code>
+    </td>
+    
+    <td>
+      Set the Eloquent query as data source
+    </td>
+    
+    <td>
+      Yes
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        columnIdentifier(string)
+      </code>
+    </td>
+    
+    <td>
+      Field name for column status
+    </td>
+    
+    <td>
+      Yes
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        positionIdentifier(string)
+      </code>
+    </td>
+    
+    <td>
+      Field name for drag-drop ordering
+    </td>
+    
+    <td>
+      Yes
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        columns(array)
+      </code>
+    </td>
+    
+    <td>
+      Define board columns
+    </td>
+    
+    <td>
+      Yes
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        recordTitleAttribute(string)
+      </code>
+    </td>
+    
+    <td>
+      Field name for card titles
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        cardLabel(string|Closure|null)
+      </code>
+    </td>
+    
+    <td>
+      Name of a single card, e.g. "Task"
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        pluralCardLabel(string|Closure|null)
+      </code>
+    </td>
+    
+    <td>
+      Name of a set of cards, e.g. "Tasks"
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        cardSchema(Closure)
+      </code>
+    </td>
+    
+    <td>
+      Rich card content using Schema
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        cardActions(array)
+      </code>
+    </td>
+    
+    <td>
+      Actions available on each card
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        columnActions(array)
+      </code>
+    </td>
+    
+    <td>
+      Actions available on column headers
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        searchable(array)
+      </code>
+    </td>
+    
+    <td>
+      Enable search on specified fields
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        filters(array)
+      </code>
+    </td>
+    
+    <td>
+      Add filtering capabilities
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        cardAction(string)
+      </code>
+    </td>
+    
+    <td>
+      Make cards clickable with action
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        cardsPerColumn(int)
+      </code>
+    </td>
+    
+    <td>
+      Cards to load per column (pagination)
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        filtersFormWidth(Width)
+      </code>
+    </td>
+    
+    <td>
+      Filter panel width
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        filtersFormColumns(int)
+      </code>
+    </td>
+    
+    <td>
+      Columns in filter form
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        filtersLayout(FiltersLayout)
+      </code>
+    </td>
+    
+    <td>
+      Filter display layout (Dropdown, AboveContent, etc.)
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        headerToolbar(bool)
+      </code>
+    </td>
+    
+    <td>
+      Render filters/search inline with page title
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        collapseEmptyColumns(bool)
+      </code>
+    </td>
+    
+    <td>
+      Collapse columns holding no cards into a rail
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+</tbody>
+</table>
+
+## Board Methods
+
+### Essential Configuration
+
+```php
+public function board(Board $board): Board
+{
+    return $board
+        ->query(Task::query())                    // Required: Data source
+        ->columnIdentifier('status')              // Required: Column field
+        ->positionIdentifier('position')          // Required: Position field
+        ->columns([                               // Required: Column definitions
+            Column::make('todo')->label('To Do')->color('gray'),
+            Column::make('done')->label('Done')->color('green'),
+        ]);
+}
 ```
 
-```php [migration]
-Schema::table('tasks', function (Blueprint $table) {
-    $table->flowforgePositionColumn('position'); // Handles database-specific collations automatically
-});
+### Content Configuration
+
+```php
+->recordTitleAttribute('title')                   // Card title field
+->cardLabel('Task')                               // Defaults to the model label
+->pluralCardLabel('Tasks')                        // Defaults to the plural model label
+->cardSchema(fn(Schema $schema) => $schema        // Rich card content
+    ->components([
+        TextEntry::make('description'),
+        TextEntry::make('due_date')->date(),
+    ])
+)
 ```
 
-### Generate Board
+### Card Labels
 
-```bash [Terminal]
-php artisan flowforge:make-board TaskBoard --model=Task
+Explicit labels take precedence over resource and model labels.
+Otherwise, Flowforge uses the board page's resource, then the model's resource in the current panel, then the model name.
+Without a resource or model, it uses the package translations.
+
+Model names are not translated automatically.
+Existing boards, including standalone boards, can therefore display different labels after upgrading.
+Set translated labels explicitly to preserve the previous wording:
+
+```php
+->cardLabel(fn (): string => __('flowforge::flowforge.card_label'))
+->pluralCardLabel(fn (): string => __('flowforge::flowforge.plural_card_label'))
 ```
 
-### Register Page
+Use your application's translation keys for custom names.
+Set both labels for languages whose plural forms cannot be derived from the singular label.
+Closures resolve in the current locale when the board renders.
 
-```php [AdminPanelProvider.php]
-->pages([
-    App\Filament\Pages\TaskBoard::class,
+### Actions Configuration
+
+```php
+->cardActions([                                   // Card-level actions
+    EditAction::make()->model(Task::class),
+    DeleteAction::make()->model(Task::class),
 ])
-```
-::
-
-**Done!** Visit your Filament panel to see your Kanban board in action.
-
-## Optional Commands
-
-| Command                                  | Action                                 |
-| ---------------------------------------- | -------------------------------------- |
-| `php artisan flowforge:repair-positions` | Fix corrupted or missing position data |
-
-
-# Upgrading
-
-## From v3.x to v4.x
-
-::callout{type="info"}
-v4.x upgrades Filament support from 4.x to 5.x. No database or code changes required.
-::
-
-### Requirements
-
-- Filament 5.x (was 4.x)
-- PHP 8.3+
-- Laravel 12+
-
-### Upgrade Steps
-
-```bash
-composer require relaticle/flowforge:^4.0
+->columnActions([                                 // Column-level actions
+    CreateAction::make()->model(Task::class),
+])
+->cardAction('edit')                              // Make cards clickable
 ```
 
-Review the [Filament 5 Upgrade Guide](https://filamentphp.com/docs/5.x/upgrade-guide){rel="&#x22;nofollow&#x22;"} if you customized Filament components.
-
-### No Changes Required
-
-- Board configuration API unchanged
-- Position column type unchanged
-- All existing board code works without modification
-
----
-
-## From v2.x to v4.x
-
-::callout{type="warning"}
-This covers all breaking changes from v2.x directly to v4.x. Includes database migration.
-::
-
-### Requirements
-
-- PHP 8.3+ (was 8.2+)
-- Laravel 12+ (was 10+)
-- Filament 5.x (was 3.x)
-- **New:** `ext-bcmath` PHP extension
-
-### High Impact Changes
-
-#### Position Column Type Changed
-
-The `flowforgePositionColumn()` macro now creates `DECIMAL(20,10)` instead of `VARCHAR`.
-
-**Quick upgrade (resets card order):**
+`cardAction()` takes the name of an action registered in `cardActions()`. When that
+action is configured with `->url()`, the card renders as a native link (respecting
+`->openUrlInNewTab()`) instead of opening a modal, so middle-click and "copy link
+address" work as expected:
 
 ```php
-public function up(): void
-{
-    Schema::table('tasks', function (Blueprint $table) {
-        $table->dropColumn('position');
-    });
-
-    Schema::table('tasks', function (Blueprint $table) {
-        $table->flowforgePositionColumn();
-    });
-}
+->cardActions([
+    Action::make('view')
+        ->url(fn (Task $record): string => TaskResource::getUrl('view', ['record' => $record])),
+])
+->cardAction('view')
 ```
 
-Then run:
+A url decides, exactly as it does for a table row. Filament's `ListRecords` builds
+`recordUrl()` from the first `view`/`edit` action whose `getUrl()` is filled and has
+`recordAction()` skip those same actions, without consulting their modal state. A card
+follows that rule, so the same action behaves the same way in a board and in a table.
 
-```bash
-php artisan flowforge:repair-positions
-```
+Two consequences worth knowing:
 
-**Preserve card order:** See v2.x to v3.x section below for detailed migration.
+- An action declaring both a url and a modal (`->requiresConfirmation()`, a custom modal
+heading, a schema) renders as a link and never opens that modal. Filament's own table
+row and actions dropdown do the same. Pick one or the other.
+- A url inherited from the page's `getDefaultActionUrl()` counts, since `getUrl()`
+consults it. Only `->postToUrl()` actions stay on the click handler, because a POST
+needs a form rather than an anchor.
 
-### Medium Impact Changes
-
-#### BCMath Extension Required
-
-```bash
-# Ubuntu/Debian
-sudo apt-get install php-bcmath
-```
-
-### Factory Code Updates
-
-If you used position service directly:
+### Search & Filtering
 
 ```php
-// Before (v2.x)
-use Relaticle\Flowforge\Services\Rank;
-$position = Rank::forEmptySequence()->get();
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Support\Enums\Width;
 
-// After (v4.x)
-use Relaticle\Flowforge\Services\DecimalPosition;
-$position = DecimalPosition::forEmptyColumn();
+->searchable(['title', 'description'])            // Enable search
+->filters([                                       // Add filters
+    SelectFilter::make('priority'),
+    Filter::make('overdue')->query(fn($q) =>
+        $q->where('due_date', '<', now())
+    ),
+])
+->filtersLayout(FiltersLayout::AboveContent)      // Display filters above board
+->filtersFormWidth(Width::Large)                  // Filter panel width
+->filtersFormColumns(3)                           // Columns in filter form
+->headerToolbar()                                 // Inline filters/search in page header
+->collapseEmptyColumns()                          // Collapse columns holding no cards
 ```
 
-### No Changes Required
-
-- Board configuration API unchanged
-- Card/column actions unchanged
-- Customization options unchanged
-
----
-
-## From v2.x to v3.x
-
-::callout{type="warning"}
-v3.x changes how positions are stored in the database. A migration is required.
-::
-
-### Requirements
-
-- PHP 8.3+ (was 8.2+)
-- Laravel 11+ (was 10+)
-- **New:** `ext-bcmath` PHP extension
-
-### High Impact Changes
-
-#### Position Column Type Changed
-
-The `flowforgePositionColumn()` macro now creates a `DECIMAL(20,10)` column instead of `VARCHAR`. You must migrate existing position columns.
-
-**Quick upgrade (resets card order):**
-
-```php
-public function up(): void
-{
-    Schema::table('tasks', function (Blueprint $table) {
-        $table->dropColumn('position');
-    });
-
-    Schema::table('tasks', function (Blueprint $table) {
-        $table->flowforgePositionColumn();
-    });
-}
-```
-
-Then run:
-
-```bash
-php artisan flowforge:repair-positions
-```
-
-**Preserve card order:**
-
-```php
-public function up(): void
-{
-    // Add temporary column
-    Schema::table('tasks', function (Blueprint $table) {
-        $table->decimal('position_new', 20, 10)->nullable();
-    });
-
-    // Copy order (positions will be regenerated by repair command)
-    DB::statement('UPDATE tasks SET position_new = CAST(position AS DECIMAL(20,10))');
-
-    // Swap columns
-    Schema::table('tasks', function (Blueprint $table) {
-        $table->dropColumn('position');
-    });
-    Schema::table('tasks', function (Blueprint $table) {
-        $table->renameColumn('position_new', 'position');
-    });
-}
-```
-
-Then run:
-
-```bash
-php artisan flowforge:repair-positions
-# Select "regenerate" strategy
-```
-
-### Medium Impact Changes
-
-#### BCMath Extension Required
-
-Install the BCMath PHP extension:
-
-```bash
-# Ubuntu/Debian
-sudo apt-get install php-bcmath
-
-# Verify
-php -m | grep bcmath
-```
-
-### Low Impact Changes
-
-#### New Artisan Commands
-
-v3.x adds diagnostic commands:
-
-```bash
-php artisan flowforge:diagnose-positions   # Check for issues
-php artisan flowforge:rebalance-positions  # Redistribute positions
-```
-
-### No Changes Required
-
-- Board configuration API unchanged
-- Card/column actions unchanged
-- Customization options unchanged
-- All existing board code works without modification
-
----
-
-### Advanced: Factory Code Updates
-
-::callout{type="info"}
-Only relevant if you directly used the 
-
-`Rank`
-
- service in your code.
-::
-
-If you used Flowforge's position service in factories or custom code:
-
-```php
-// Before (v2.x)
-use Relaticle\Flowforge\Services\Rank;
-$position = Rank::forEmptySequence()->get();
-$position = Rank::after($lastRank)->get();
-
-// After (v3.x)
-use Relaticle\Flowforge\Services\DecimalPosition;
-$position = DecimalPosition::forEmptyColumn();
-$position = DecimalPosition::after($lastPosition);
-```
-
-Most users don't need this - the package handles positions automatically during drag-and-drop.
-
-
-# Integration Patterns
-
-Flowforge provides three flexible integration patterns to fit different use cases and application architectures.
-
-## Standalone Livewire
-
-Use in any Laravel application - complete flexibility for custom interfaces.
-
-```php
-<?php
-
-namespace App\Livewire;
-
-use App\Models\Task;
-use Filament\Actions\Concerns\InteractsWithActions;
-use Filament\Actions\Contracts\HasActions;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Livewire\Component;
-use Relaticle\Flowforge\Board;
-use Relaticle\Flowforge\Column;
-use Relaticle\Flowforge\Concerns\InteractsWithBoard;
-use Relaticle\Flowforge\Contracts\HasBoard;
-
-class TaskBoard extends Component implements HasBoard, HasActions, HasForms
-{
-    use InteractsWithActions;
-    use InteractsWithBoard {
-        InteractsWithBoard::getDefaultActionRecord insteadof InteractsWithActions;
-    }
-    use InteractsWithForms;
-
-    public function board(Board $board): Board
-    {
-        return $board
-            ->query(Task::query())
-            ->columnIdentifier('status')
-            ->positionIdentifier('position')
-            ->columns([
-                Column::make('todo')->label('To Do')->color('gray'),
-                Column::make('in_progress')->label('In Progress')->color('blue'),
-                Column::make('completed')->label('Completed')->color('green'),
-            ]);
-    }
-
-    public function render()
-    {
-        return view('livewire.task-board');
-    }
-}
-```
-
-```blade
-{{-- resources/views/livewire/task-board.blade.php --}}
-<div>
-    <h1 class="text-2xl font-bold mb-6">Task Board</h1>
-    {{ $this->board }}
-</div>
-```
-
-**Use when:** Building customer-facing apps or custom dashboards that already use Filament packages
-&#x2A;*Requires:** `filament/forms` and `filament/actions` packages, plus Filament assets in your layout
-&#x2A;*Benefits:** Maximum flexibility, custom styling, independent routing
-
-### Layout Requirements
-
-For standalone Livewire components outside Filament panels, your Blade layout must include Filament's assets:
-
-```blade [resources/views/components/layouts/app.blade.php]
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    @filamentStyles
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="antialiased">
-    {{ $slot }}
-
-    @filamentScripts
-</body>
-</html>
-```
-
-Your Livewire component should use this layout:
-
-```php
-public function render()
-{
-    return view('livewire.task-board')
-        ->layout('components.layouts.app');
-}
-```
-
-::alert{type="info"}
-The 
-
-`@filamentStyles`
-
- and 
-
-`@filamentScripts`
-
- directives load Filament's CSS and JavaScript, including the Alpine.js components FlowForge depends on.
-::
-
-## Filament Page
-
-Perfect for dedicated Kanban pages in your Filament admin panel.
-
-```php
-<?php
-
-namespace App\Filament\Pages;
-
-use App\Models\Task;
-use Relaticle\Flowforge\Board;
-use Relaticle\Flowforge\BoardPage;
-use Relaticle\Flowforge\Column;
-
-class TaskBoard extends BoardPage
-{
-    protected static ?string $navigationIcon = 'heroicon-o-view-columns';
+### Modern board additions
+
+These settings apply to Modern boards only. A classic board ignores them.
+
+<table>
+<thead>
+  <tr>
+    <th>
+      Method
+    </th>
     
-    public function board(Board $board): Board
-    {
-        return $board
-            ->query(Task::query())
-            ->columnIdentifier('status')
-            ->positionIdentifier('position')
-            ->columns([
-                Column::make('todo')->label('To Do')->color('gray'),
-                Column::make('in_progress')->label('In Progress')->color('blue'),
-                Column::make('completed')->label('Completed')->color('green'),
-            ]);
-    }
-}
-```
+    <th>
+      Purpose
+    </th>
+  </tr>
+</thead>
 
-**Use when:** You want a standalone Kanban page in your admin panel :br&#x2A;*Benefits:** Full Filament integration, automatic registration, built-in actions
-
-## Resource Integration
-
-Integrate with your existing Filament resources. Perfect for campaign management where teams track tasks within campaigns.
-
-```php
-<?php
-
-namespace App\Filament\Resources\CampaignResource\Pages;
-
-use App\Filament\Resources\CampaignResource;
-use Relaticle\Flowforge\Board;
-use Relaticle\Flowforge\BoardResourcePage;
-use Relaticle\Flowforge\Column;
-
-class CampaignTaskBoard extends BoardResourcePage
-{
-    protected static string $resource = CampaignResource::class;
+<tbody>
+  <tr>
+    <td>
+      <code>
+        createCardAction(Action|Closure|null)
+      </code>
+    </td>
     
-    public function board(Board $board): Board
-    {
-        return $board
-            ->query(
-                // Get tasks for this specific campaign and current user's team
-                $this->getRecord()
-                    ->tasks()
-                    ->whereHas('team', fn($q) => $q->where('id', auth()->user()->current_team_id))
-                    ->getQuery()
-            )
-            ->columnIdentifier('status')
-            ->positionIdentifier('position')
-            ->columns([
-                Column::make('backlog')->label('Backlog')->color('gray'),
-                Column::make('in_progress')->label('In Progress')->color('blue'),
-                Column::make('review')->label('Review')->color('amber'),
-                Column::make('completed')->label('Completed')->color('green'),
-            ]);
-    }
-}
+    <td>
+      The action behind the header <code>
+        +
+      </code>
+      
+       and the add row
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        columnSummary(?Closure)
+      </code>
+    </td>
+    
+    <td>
+      Header text per column, from the filtered column query
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        groupings(array|Closure)
+      </code>
+    </td>
+    
+    <td>
+      "Group by" options, each a <code>
+        Grouping
+      </code>
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        lanesPerPage(int)
+      </code>
+    </td>
+    
+    <td>
+      Lanes rendered before "Show more lanes" (default 10)
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        Column::limit(int|Closure|null)
+      </code>
+    </td>
+    
+    <td>
+      Hard limit per column
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        authorizeCardMove()
+      </code>
+      
+       / <code>
+        persistCardMove()
+      </code>
+    </td>
+    
+    <td>
+      Page hooks for checks and custom writes
+    </td>
+  </tr>
+</tbody>
+</table>
 
-// Register in your CampaignResource
-public static function getPages(): array
-{
-    return [
-        'index' => Pages\ListCampaigns::route('/'),
-        'create' => Pages\CreateCampaign::route('/create'),
-        'edit' => Pages\EditCampaign::route('/{record}/edit'),
-        'tasks' => Pages\CampaignTaskBoard::route('/{record}/tasks'), // Add this line
-    ];
-}
-```
+See [Customization](https://relaticle.github.io/essentials/customization) for the add card action, card components, summaries and limits. See [Swimlanes](https://relaticle.github.io/essentials/swimlanes) for groupings and lanes, and [Design System](https://relaticle.github.io/essentials/design-system) for styling.
 
-**Use when:** Adding Kanban views to existing Filament resources
-&#x2A;*Benefits:** Inherits resource permissions, policies, and global scopes automatically
-
-## Extending Board Behavior
-
-Override these methods to customize board behavior for your specific needs.
-
-### Custom Card Movement Logic
-
-Override `moveCard()` to add custom logic when cards are moved:
-
-#### Simple Updates
-
-For basic updates on the exact same model, you can call the parent method and append your logic:
+## Column Configuration
 
 ```php
-public function moveCard(
+Column::make('identifier')
+    ->label('Display Name')                       // Column header text
+    ->color('blue')                              // Column color theme
+    ->icon('heroicon-o-flag')                    // Column header icon
+    ->hidden(fn () => ! auth()->user()?->isStaff()) // Hide from rendering
+    ->visible(fn () => $this->showArchived)      // Inverse of hidden()
+    ->limit(3)                                   // Modern boards: hard limit, refuses drops when full
+```
+
+### Building a column from a backed enum
+
+```php
+Column::enum(TaskStatus::Todo)                   // identifier = $enum->value
+```
+
+When the enum implements `HasLabel`, `HasColor`, or `HasIcon` those values are
+applied automatically; missing contracts are skipped. See the
+[Column Configuration guide](https://relaticle.github.io/essentials/customization#building-columns-from-enums)
+for a full example.
+
+### Conditional visibility
+
+Hidden columns are excluded from all column getters (`getColumns()`,
+`getColumnIdentifiers()`, `getColumnLabels()`, `getColumnColors()`). See
+[Conditional Visibility](https://relaticle.github.io/essentials/customization#conditional-visibility)
+for a worked example.
+
+### Available Colors
+
+- `gray` - Neutral/default
+- `blue` - Primary/in-progress
+- `green` - Success/completed
+- `red` - Error/urgent
+- `amber` - Warning/review
+- `purple` - Custom status
+- `pink` - Custom status
+
+## Livewire Methods
+
+These methods are available in your board components for programmatic control:
+
+### Card Management
+
+```php
+// Move card between columns
+$this->moveCard(string $cardId, string $targetColumnId, ?string $afterCardId = null, ?string $beforeCardId = null)
+```
+
+On a Modern board, `moveCard()` takes two more arguments and returns `bool`. It returns `false` when it refuses a move.
+
+```php
+$this->moveCard(
     string $cardId,
     string $targetColumnId,
     ?string $afterCardId = null,
-    ?string $beforeCardId = null
-): void {
-    // Call parent to handle the actual move
-    parent::moveCard($cardId, $targetColumnId, $afterCardId, $beforeCardId);
+    ?string $beforeCardId = null,
+    ?string $fromLaneId = null,
+    ?string $toLaneId = null,
+): bool
+```
 
-    // Add custom logic
-    $task = Task::find($cardId);
+Override `authorizeCardMove()` and `persistCardMove()` instead of `moveCard()`. See [Custom Card Movement Logic](https://relaticle.github.io/essentials/integration-patterns#custom-card-movement-logic).
 
-    if ($targetColumnId === 'completed') {
-        $task->update(['completed_at' => now()]);
-        $task->assignee->notify(new TaskCompletedNotification($task));
-    }
+### Pagination Control
+
+```php
+// Load more cards for pagination
+$this->loadMoreItems(string $columnId, ?int $count = null)
+
+// Modern boards: load more cards into one lane cell
+$this->loadMoreItems(string $columnId, ?int $count = null, ?string $laneId = null)
+
+// Load all cards to enable reordering
+$this->loadAllItems(string $columnId)
+
+// Check if all cards are loaded
+$this->isColumnFullyLoaded(string $columnId): bool
+
+// Get position for new card in column
+$this->getBoardPositionInColumn(string $columnId): string
+```
+
+## Performance Features
+
+- **Intelligent Pagination**: Efficiently handles 100+ cards per column
+- **Infinite Scroll**: Smooth loading with 80% scroll threshold
+- **Optimistic UI**: Immediate feedback with rollback on errors
+- **Fractional Ranking**: Prevents database locks during reordering
+- **Query Optimization**: Cursor-based pagination with eager loading
+
+## Livewire Events
+
+Flowforge dispatches these events for frontend integration and custom logic:
+
+<table>
+<thead>
+  <tr>
+    <th>
+      Event
+    </th>
+    
+    <th>
+      Payload
+    </th>
+    
+    <th>
+      When Fired
+    </th>
+  </tr>
+</thead>
+
+<tbody>
+  <tr>
+    <td>
+      <code>
+        kanban-card-moved
+      </code>
+    </td>
+    
+    <td>
+      <code>
+        cardId
+      </code>
+      
+      , <code>
+        columnId
+      </code>
+      
+      , <code>
+        position
+      </code>
+    </td>
+    
+    <td>
+      After a card is moved
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        kanban-items-loaded
+      </code>
+    </td>
+    
+    <td>
+      <code>
+        columnId
+      </code>
+      
+      , <code>
+        loadedCount
+      </code>
+      
+      , <code>
+        totalCount
+      </code>
+      
+      , <code>
+        isFullyLoaded
+      </code>
+    </td>
+    
+    <td>
+      After pagination loads more cards
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        kanban-all-items-loaded
+      </code>
+    </td>
+    
+    <td>
+      <code>
+        columnId
+      </code>
+      
+      , <code>
+        totalCount
+      </code>
+    </td>
+    
+    <td>
+      After "Load All" completes
+    </td>
+  </tr>
+</tbody>
+</table>
+
+### Listening to Events
+
+```php
+use Livewire\Attributes\On;
+
+#[On('kanban-card-moved')]
+public function onCardMoved(string $cardId, string $columnId, string $position): void
+{
+    // Custom logic when a card moves (e.g., send notification, update analytics)
+}
+
+#[On('kanban-items-loaded')]
+public function onItemsLoaded(string $columnId, int $loadedCount, int $totalCount, bool $isFullyLoaded): void
+{
+    // Track loading progress
 }
 ```
 
-#### Data Integrity with Transactions (Recommended)
+### JavaScript Listeners
 
-If your custom logic involves complex state machines or updating secondary tables (like activity logs), it is highly recommended to wrap the override in a database transaction. Because parent::moveCard() executes a database update immediately, wrapping the entire method ensures that if your custom logic fails, the database safely rolls back. The frontend's optimistic UI will then gracefully snap the card back to its original column.
-
-```php
-use Illuminate\Support\Facades\DB;
-
-public function moveCard(
-    string $cardId,
-    string $targetColumnId,
-    ?string $afterCardId = null,
-    ?string $beforeCardId = null
-): void {
-    DB::transaction(function () use ($cardId, $targetColumnId, $afterCardId, $beforeCardId) {
-        // Let Flowforge handle the stage and position math
-        parent::moveCard($cardId, $targetColumnId, $afterCardId, $beforeCardId);
-
-        // Execute custom atomic logic safely
-        $task = Task::find($cardId);
-
-        if ($targetColumnId === 'completed') {
-            $task->update(['completed_at' => now()]);
-            
-            // Safe multi-table insert - rolls back the card move if it fails!
-            ActivityLog::create([
-                'task_id' => $task->id, 
-                'action' => 'Task marked as completed'
-            ]);
-            
-            $task->assignee->notify(new TaskCompletedNotification($task));
-        }
+```javascript
+document.addEventListener('livewire:init', () => {
+    Livewire.on('kanban-card-moved', ({ cardId, columnId }) => {
+        console.log(`Card ${cardId} moved to ${columnId}`);
     });
-}
-```
-
-### Custom Record Fetching
-
-Override `getBoardRecords()` for complex filtering logic:
-
-```php
-public function getBoardRecords(string $columnId): \Illuminate\Support\Collection
-{
-    return $this->getEloquentQuery()
-        ->where($this->getBoard()->getColumnIdentifier(), $columnId)
-        ->where('team_id', auth()->user()->current_team_id)  // Custom filter
-        ->with(['assignee', 'priority', 'labels'])           // Eager loading
-        ->orderBy($this->getBoard()->getPositionIdentifier())
-        ->get();
-}
-```
-
-### Custom Count Logic
-
-Override `getBoardRecordCount()` if you need custom counting:
-
-```php
-public function getBoardRecordCount(string $columnId): int
-{
-    return $this->getEloquentQuery()
-        ->where($this->getBoard()->getColumnIdentifier(), $columnId)
-        ->where('is_archived', false)  // Exclude archived from count
-        ->count();
-}
+});
 ```
 
 
 # Customization
+
+> Customize your Kanban boards with rich content, actions, and filtering.
+
+<callout type="info">
+
+Sections marked "Modern boards only" work on pages that extend a `Modern` board class. A classic board ignores them. See [Modern board](https://relaticle.github.io/essentials/integration-patterns#modern-board).
+
+</callout>
 
 ## Rich Card Content
 
@@ -650,11 +909,79 @@ use Relaticle\Flowforge\Components\CardFlex;
 
 ### CardFlex Options
 
-| Method                     | Description             | Default    |
-| -------------------------- | ----------------------- | ---------- |
-| `wrap(bool $wrap = true)`  | Enable/disable wrapping | `true`     |
-| `justify(string $justify)` | Horizontal alignment    | `'start'`  |
-| `align(string $align)`     | Vertical alignment      | `'center'` |
+<table>
+<thead>
+  <tr>
+    <th>
+      Method
+    </th>
+    
+    <th>
+      Description
+    </th>
+    
+    <th>
+      Default
+    </th>
+  </tr>
+</thead>
+
+<tbody>
+  <tr>
+    <td>
+      <code>
+        wrap(bool $wrap = true)
+      </code>
+    </td>
+    
+    <td>
+      Enable/disable wrapping
+    </td>
+    
+    <td>
+      <code>
+        true
+      </code>
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        justify(string $justify)
+      </code>
+    </td>
+    
+    <td>
+      Horizontal alignment
+    </td>
+    
+    <td>
+      <code>
+        'start'
+      </code>
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        align(string $align)
+      </code>
+    </td>
+    
+    <td>
+      Vertical alignment
+    </td>
+    
+    <td>
+      <code>
+        'center'
+      </code>
+    </td>
+  </tr>
+</tbody>
+</table>
 
 ### Real-World Example
 
@@ -683,7 +1010,7 @@ use Relaticle\Flowforge\Components\CardFlex;
 
 ## Column Actions
 
-Add actions to column headers for creating new cards or bulk operations:
+Add actions to column headers for creating new cards or bulk operations. On a Modern board, use `createCardAction()` (see Add Card Action below) to create cards. Use `columnActions()` for the rest.
 
 ```php
 use Filament\Actions\CreateAction;
@@ -713,6 +1040,106 @@ public function board(Board $board): Board
         ]);
 }
 ```
+
+## Add Card Action
+
+Modern boards only.
+
+```php
+use Filament\Actions\CreateAction;
+use Filament\Forms\Components\TextInput;
+
+->createCardAction(
+    CreateAction::make('createTask')
+        ->model(Task::class)
+        ->schema([TextInput::make('title')->required()])
+        ->mutateDataUsing(fn (array $data, array $arguments): array => [
+            ...$data,
+            'status' => $arguments['column'],
+            'position' => $this->getBoardPositionInColumn($arguments['column'], 'bottom'),
+        ]),
+)
+```
+
+The action appears as a `+` in each column header and as an add row under the cards, labelled with the card label (`Add Task`). Flowforge passes the column identifier as `$arguments['column']`.
+
+Flowforge owns the action's `disabled()` state. It disables the header button and the add row for a full column, and refuses the action for a column the board does not show. It also keeps the add row disabled when the action's authorization fails and you call `authorizationTooltip()`. Hide the action with `visible()` or block it with `authorize()`. Flowforge renders nothing for an action that is not visible.
+
+## Card Components
+
+These components are designed for Modern boards. On a classic board their look is not guaranteed.
+
+```php
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Schema;
+use Relaticle\Flowforge\Components\{CardAvatar, CardFlex, CardMeta, CardTag, CardTitle};
+
+->cardSchema(fn (Schema $schema): Schema => $schema->components([
+    CardFlex::make([
+        TextEntry::make('reference')->hiddenLabel()->color('gray'),
+        CardTag::make('category')->color(fn (string $state): string => $state === 'billing' ? 'warning' : 'info'),
+    ])->justify('between'),
+    CardTitle::make(),
+    CardFlex::make([
+        CardMeta::make([
+            TextEntry::make('due_date')->date('M j')->icon('heroicon-o-calendar'),
+            TextEntry::make('points')->suffix(' pt'),
+        ]),
+        CardAvatar::make('assignees')->limit(3),
+    ])->justify('between'),
+]))
+```
+
+- `CardTitle` places the title. Without it the title renders first.
+- `CardTag` is a dot and a label. It renders one dot and label per item when the state is an array or a collection.
+- `CardMeta` is a muted row of entries. Labels are hidden, and badges inside it render as plain text.
+- `CardAvatar` shows one avatar, or a stack with `+N` after `limit()` people (default 3).
+
+The components honor a small part of the entry API:
+
+- `CardTag` honors `formatStateUsing()` and `color()`. A `color()` closure runs once per item and receives that item as `$state`.
+- `CardAvatar` honors `limit()`, `nameUsing()` and `avatarUrlUsing()`. Both closures receive the model as `$person`, or typed by its class. Its state must be a model or a collection of models, such as a relationship.
+- Without `avatarUrlUsing()`, `CardAvatar` uses `getFilamentAvatarUrl()` when the model implements `HasAvatar`. Without a url it shows initials and never calls an external service.
+- `url()`, `action()`, `tooltip()` and `icon()` are not applied by `CardTag` or `CardAvatar`.
+
+## Column Summaries
+
+Modern boards only.
+
+```php
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Number;
+
+->columnSummary(fn (Builder $columnQuery): ?string => Number::currency($columnQuery->sum('amount')))
+```
+
+The closure runs once per column. The query carries the active filters and search, so the summary matches the cards on screen. Name the parameter `$query` or `$columnQuery`, or type it as the Eloquent builder. Add a `Column $column` parameter to read the column. Return `null` or an empty string to hide the summary. A collapsed rail shows no summary.
+
+## Column Limits
+
+Modern boards only.
+
+```php
+Column::make('in_progress')->limit(3)
+```
+
+The header reads `3/3` and takes the warning color at the limit. A full column refuses drops while the card still hovers over it, and the add row and header `+` disable. The server checks again under a cache lock and refuses with a message if the column filled in the meantime.
+
+- The limit counts every card in the column, including cards a filter or search hides.
+- Reordering inside a full column is always allowed.
+- The lock needs a cache store that every server shares: redis, memcached, database or dynamodb. The `array` store locks per process and the `null` store never blocks, so the guard does nothing under either.
+- A move holds the lock for at most `getColumnLockSeconds()` (10) and waits `getColumnLockWaitSeconds()` (5) for it. Then it refuses with "Another card is moving into <column>
+
+
+
+</column>
+
+. Try again.", where `:column` is the column label. Override these protected methods on your page to change the values.
+- The add row checks the limit without the lock. A create and a drop at the same instant can leave the column one card over its limit.
+
+## Styling a Modern Board
+
+Modern boards style through CSS variables, class hooks and data attributes. The [Design System](https://relaticle.github.io/essentials/design-system) page lists every one and the rules for overriding them.
 
 ## Card Actions
 
@@ -771,10 +1198,10 @@ public function board(Board $board): Board
 Three things the rail keeps, and they are the point of collapsing rather than hiding:
 
 - It is a full drop target. Drag a card over a rail and that rail alone widens to a full
-  column with its drop zone, so you aim at a slim target and drop into a wide one. Every
-  other rail keeps its width and its name, so the board does not reflow under the pointer
-  mid-drag. A card dropped on a rail leaves it expanded, and a column losing its last card
-  collapses. Neither needs a reload.
+column with its drop zone, so you aim at a slim target and drop into a wide one. Every
+other rail keeps its width and its name, so the board does not reflow under the pointer
+mid-drag. A card dropped on a rail leaves it expanded, and a column losing its last card
+collapses. Neither needs a reload.
 - It keeps its column actions, so you can still create a card in a stage holding none.
 - It keeps its name and count, so the pipeline still reads end to end.
 
@@ -783,6 +1210,8 @@ whether the board is new or a search matched nothing, all columns render at full
 the empty state stays readable.
 
 Style the rail with the `.flowforge-column-collapsed` class.
+
+On a Modern board the rail also keeps the header `+` from `createCardAction()`, shows no column summary and no add row, and carries `data-collapsed` on `.ff-column`. With a grouping active, every column keeps its width so every lane cell stays a drop target.
 
 ## Search and Filtering
 
@@ -943,7 +1372,7 @@ enum TaskStatus: string implements HasColor, HasIcon, HasLabel
 )
 ```
 
-Any contract your enum does not implement is simply skipped — you can start
+Any contract your enum does not implement is simply skipped. You can start
 with `HasLabel` only and add color/icon later without changing the call site.
 Int-backed enums are supported too; the value is coerced to a string column
 identifier.
@@ -952,7 +1381,7 @@ identifier.
 
 Hide or show columns based on runtime state (current user, feature flags,
 permissions, toggles on the page). Use `->hidden()` to hide a column or
-`->visible()` to show one — both accept a boolean literal or a closure. A
+`->visible()` to show one. Both accept a boolean literal or a closure. A
 hidden column is excluded from rendering and from every column getter
 (`getColumns()`, `getColumnIdentifiers()`, `getColumnLabels()`,
 `getColumnColors()`), so counts and other column-derived data stay in sync.
@@ -965,7 +1394,7 @@ use Relaticle\Flowforge\Column;
     Column::make('in_progress')->label('In Progress')->color('blue'),
     Column::make('completed')->label('Completed')->color('green'),
 
-    // Permanently hidden — useful for columns you plan to enable later.
+    // Permanently hidden, useful for columns you plan to enable later.
     Column::make('archived')->label('Archived')->hidden(),
 
     // Conditionally visible based on a Livewire property / user state.
@@ -981,6 +1410,8 @@ When both are set, `hidden(true)` wins over `visible(true)`.
 
 
 # Database Schema
+
+> Set up your database for drag-and-drop Kanban functionality.
 
 ## Required Fields
 
@@ -1023,13 +1454,11 @@ Column::make('in_progress') // → TaskStatus::InProgress
 Column::make('done')      // → TaskStatus::Done
 ```
 
-::callout{type="info"}
-When a card moves between columns, Flowforge detects the 
+<callout type="info">
 
-`BackedEnum`
+When a card moves between columns, Flowforge detects the `BackedEnum` cast and converts the column identifier to the appropriate enum value automatically.
 
- cast and converts the column identifier to the appropriate enum value automatically.
-::
+</callout>
 
 ## Position Column
 
@@ -1050,20 +1479,97 @@ $table->decimal('position', 20, 10)->nullable();
 
 Flowforge v3.x uses `DECIMAL(20,10)` for position storage:
 
-| Property           | Value  | Purpose                                        |
-| ------------------ | ------ | ---------------------------------------------- |
-| **Total Digits**   | 20     | Maximum precision                              |
-| **Decimal Places** | 10     | Supports \~33 bisections before precision loss |
-| **Default Gap**    | 65535  | Initial spacing between positions              |
-| **Min Gap**        | 0.0001 | Triggers automatic rebalancing                 |
+<table>
+<thead>
+  <tr>
+    <th>
+      Property
+    </th>
+    
+    <th>
+      Value
+    </th>
+    
+    <th>
+      Purpose
+    </th>
+  </tr>
+</thead>
+
+<tbody>
+  <tr>
+    <td>
+      <strong>
+        Total Digits
+      </strong>
+    </td>
+    
+    <td>
+      20
+    </td>
+    
+    <td>
+      Maximum precision
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <strong>
+        Decimal Places
+      </strong>
+    </td>
+    
+    <td>
+      10
+    </td>
+    
+    <td>
+      Supports ~33 bisections before precision loss
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <strong>
+        Default Gap
+      </strong>
+    </td>
+    
+    <td>
+      65535
+    </td>
+    
+    <td>
+      Initial spacing between positions
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <strong>
+        Min Gap
+      </strong>
+    </td>
+    
+    <td>
+      0.0001
+    </td>
+    
+    <td>
+      Triggers automatic rebalancing
+    </td>
+  </tr>
+</tbody>
+</table>
 
 The system uses **BCMath** for arbitrary precision arithmetic, ensuring consistent calculations across all database systems.
 
-::callout{type="info"}
-**v2.x Note:**
+<callout type="info">
 
- Previous versions used VARCHAR with binary collations. v3.x uses DECIMAL for mathematical precision and better concurrent handling.
-::
+**v2.x Note:** Previous versions used VARCHAR with binary collations. v3.x uses DECIMAL for mathematical precision and better concurrent handling.
+
+</callout>
 
 ## Example Migration
 
@@ -1098,15 +1604,11 @@ return new class extends Migration
 };
 ```
 
-::callout{type="warning"}
-**Unique Constraint:**
+<callout type="warning">
 
- Adding a unique constraint on 
+**Unique Constraint:** Adding a unique constraint on `[column_field, position]` enables Flowforge's retry mechanism for concurrent operations.
 
-`[column_field, position]`
-
- enables Flowforge's retry mechanism for concurrent operations.
-::
+</callout>
 
 ## Factory Integration
 
@@ -1148,13 +1650,81 @@ class TaskFactory extends Factory
 
 ### DecimalPosition Methods
 
-| Method                          | Purpose                                          |
-| ------------------------------- | ------------------------------------------------ |
-| `forEmptyColumn()`              | Get initial position for empty column (65535)    |
-| `after($position)`              | Get position after given position                |
-| `before($position)`             | Get position before given position               |
-| `between($after, $before)`      | Get position between two positions (with jitter) |
-| `betweenExact($after, $before)` | Get exact midpoint (deterministic)               |
+<table>
+<thead>
+  <tr>
+    <th>
+      Method
+    </th>
+    
+    <th>
+      Purpose
+    </th>
+  </tr>
+</thead>
+
+<tbody>
+  <tr>
+    <td>
+      <code>
+        forEmptyColumn()
+      </code>
+    </td>
+    
+    <td>
+      Get initial position for empty column (65535)
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        after($position)
+      </code>
+    </td>
+    
+    <td>
+      Get position after given position
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        before($position)
+      </code>
+    </td>
+    
+    <td>
+      Get position before given position
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        between($after, $before)
+      </code>
+    </td>
+    
+    <td>
+      Get position between two positions (with jitter)
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        betweenExact($after, $before)
+      </code>
+    </td>
+    
+    <td>
+      Get exact midpoint (deterministic)
+    </td>
+  </tr>
+</tbody>
+</table>
 
 ## Position Management Commands
 
@@ -1193,9 +1763,9 @@ php artisan flowforge:repair-positions
 Strategies available:
 
 - **regenerate** - Fresh start for all positions
-- **fix\_missing** - Only fix null positions
-- **fix\_duplicates** - Fix duplicate positions only
-- **fix\_all** - Both missing + duplicates (recommended)
+- **fix_missing** - Only fix null positions
+- **fix_duplicates** - Fix duplicate positions only
+- **fix_all** - Both missing + duplicates (recommended)
 
 ## Concurrent Safety
 
@@ -1216,257 +1786,1793 @@ If a unique constraint violation occurs (rare with jitter), Flowforge automatica
 - **Supported databases:** SQLite, MySQL, PostgreSQL
 
 
-# API Reference
+# Design System
 
-## Board Configuration
+> The tokens, hooks and states a Modern board exposes for styling, and the rules that keep them stable.
 
-| Method                                 | Description                                          | Required |
-| -------------------------------------- | ---------------------------------------------------- | -------- |
-| `query(Builder)`                       | Set the Eloquent query as data source                | Yes      |
-| `columnIdentifier(string)`             | Field name for column status                         | Yes      |
-| `positionIdentifier(string)`           | Field name for drag-drop ordering                    | Yes      |
-| `columns(array)`                       | Define board columns                                 | Yes      |
-| `recordTitleAttribute(string)`         | Field name for card titles                           |          |
-| `cardLabel(string|Closure|null)`       | Name of a single card, e.g. "Task"                   |          |
-| `pluralCardLabel(string|Closure|null)` | Name of a set of cards, e.g. "Tasks"                 |          |
-| `cardSchema(Closure)`                  | Rich card content using Schema                       |          |
-| `cardActions(array)`                   | Actions available on each card                       |          |
-| `columnActions(array)`                 | Actions available on column headers                  |          |
-| `searchable(array)`                    | Enable search on specified fields                    |          |
-| `filters(array)`                       | Add filtering capabilities                           |          |
-| `cardAction(string)`                   | Make cards clickable with action                     |          |
-| `cardsPerColumn(int)`                  | Cards to load per column (pagination)                |          |
-| `filtersFormWidth(Width)`              | Filter panel width                                   |          |
-| `filtersFormColumns(int)`              | Columns in filter form                               |          |
-| `filtersLayout(FiltersLayout)`         | Filter display layout (Dropdown, AboveContent, etc.) |          |
-| `headerToolbar(bool)`                  | Render filters/search inline with page title         |          |
-| `collapseEmptyColumns(bool)`           | Collapse columns holding no cards into a rail        |          |
+A Modern board is styled through a public contract: CSS variables, class hooks and data attributes. Everything on this page is public API. Anything not listed here is internal and can change in any release.
 
-## Board Methods
+The contract applies to Modern boards only. Classic boards keep their `flowforge-*` classes and are not affected by anything below.
 
-### Essential Configuration
+## Layering
 
-```php
-public function board(Board $board): Board
-{
-    return $board
-        ->query(Task::query())                    // Required: Data source
-        ->columnIdentifier('status')              // Required: Column field
-        ->positionIdentifier('position')          // Required: Position field
-        ->columns([                               // Required: Column definitions
-            Column::make('todo')->label('To Do')->color('gray'),
-            Column::make('done')->label('Done')->color('green'),
-        ]);
+Flowforge ships plain CSS. It contains no Tailwind utilities and no `@apply`, so your app needs no `@source` line and a Tailwind `prefix()` cannot break it.
+
+The stylesheet opens with the layer order Filament uses, and puts every rule in one sublayer:
+
+```css
+@layer properties, theme, base, components, utilities;
+
+@layer components.flowforge {
+    /* every rule */
 }
 ```
 
-### Content Configuration
+Your unlayered CSS always beats flowforge's. Your layered CSS wins when it sits in `components` itself or in a later layer such as `utilities`.
 
-```php
-->recordTitleAttribute('title')                   // Card title field
-->cardLabel('Task')                               // Defaults to the model label
-->pluralCardLabel('Tasks')                        // Defaults to the plural model label
-->cardSchema(fn(Schema $schema) => $schema        // Rich card content
-    ->components([
-        TextEntry::make('description'),
-        TextEntry::make('due_date')->date(),
-    ])
-)
+Filament's own component styles sit in `components`, which outranks the `components.flowforge` sublayer. Flowforge uses `!important` in the few places it must beat them. See [Properties set with !important](#properties-set-with-important).
+
+Filament panels get the stylesheet in the page head. A standalone board links it in its own markup. You do not register or import it.
+
+## Variables
+
+Flowforge never sets a public `--ff-*` variable. Each rule reads the variable through a private alias with a default, so a value you set at any scope wins. That scope can be `:root`, `.ff-board` or one card.
+
+The dark column shows where the default changes under Filament's `.dark` class. A single value applies to both modes.
+
+<table>
+<thead>
+  <tr>
+    <th>
+      Variable
+    </th>
+    
+    <th>
+      Tier
+    </th>
+    
+    <th>
+      Default (light / dark)
+    </th>
+    
+    <th>
+      Since
+    </th>
+    
+    <th>
+      Used for
+    </th>
+  </tr>
+</thead>
+
+<tbody>
+  <tr>
+    <td>
+      <code>
+        --ff-surface
+      </code>
+    </td>
+    
+    <td>
+      semantic
+    </td>
+    
+    <td>
+      <code>
+        var(--gray-50)
+      </code>
+      
+       / <code>
+        var(--gray-950)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Background of the sticky column-header strip in the lane view. Set it to the page background.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-surface-sunken
+      </code>
+    </td>
+    
+    <td>
+      semantic
+    </td>
+    
+    <td>
+      <code>
+        var(--gray-100)
+      </code>
+      
+       / <code>
+        color-mix(in oklab, #fff 5%, transparent)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Background of a column tray and of a lane cell. <code>
+        --ff-tray-bg
+      </code>
+      
+       overrides it.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-surface-raised
+      </code>
+    </td>
+    
+    <td>
+      semantic
+    </td>
+    
+    <td>
+      <code>
+        #fff
+      </code>
+      
+       / <code>
+        var(--gray-900)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Background of a card and of the filters panel. <code>
+        --ff-card-bg
+      </code>
+      
+       overrides it for cards.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-border
+      </code>
+    </td>
+    
+    <td>
+      semantic
+    </td>
+    
+    <td>
+      <code>
+        color-mix(in oklab, var(--gray-950) 5%, transparent)
+      </code>
+      
+       / <code>
+        color-mix(in oklab, #fff 10%, transparent)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Ring around a card and around the filters panel. <code>
+        --ff-card-ring
+      </code>
+      
+       overrides it for cards.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-text
+      </code>
+    </td>
+    
+    <td>
+      semantic
+    </td>
+    
+    <td>
+      <code>
+        var(--gray-950)
+      </code>
+      
+       / <code>
+        #fff
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Column titles, lane titles, card titles and the add row on hover.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-text-muted
+      </code>
+    </td>
+    
+    <td>
+      semantic
+    </td>
+    
+    <td>
+      <code>
+        var(--gray-500)
+      </code>
+      
+       / <code>
+        var(--gray-400)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Secondary text and icons: the group-by label, column icons, counts, summaries, tags, card meta, the add row, the avatar overflow, lane counts and icons, and the header subheading.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-accent
+      </code>
+    </td>
+    
+    <td>
+      semantic
+    </td>
+    
+    <td>
+      <code>
+        var(--primary-500)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Outline of an accepting drop target, the drop gap border and the loading text.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-accent-tint
+      </code>
+    </td>
+    
+    <td>
+      semantic
+    </td>
+    
+    <td>
+      <code>
+        var(--primary-50)
+      </code>
+      
+       / <code>
+        color-mix(in oklab, var(--primary-500) 10%, transparent)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Fill of a tray or lane cell that accepts the card.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-danger
+      </code>
+    </td>
+    
+    <td>
+      semantic
+    </td>
+    
+    <td>
+      <code>
+        var(--danger-500)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Outline of a refusing tray or lane cell, and the limit hint.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-warning
+      </code>
+    </td>
+    
+    <td>
+      semantic
+    </td>
+    
+    <td>
+      <code>
+        var(--warning-600)
+      </code>
+      
+       / <code>
+        var(--warning-400)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Count of a full column.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-radius
+      </code>
+    </td>
+    
+    <td>
+      semantic
+    </td>
+    
+    <td>
+      <code>
+        0.75rem
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Card radius. The tray and lane cell radius is this plus <code>
+        0.25rem
+      </code>
+      
+      .
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-gap
+      </code>
+    </td>
+    
+    <td>
+      semantic
+    </td>
+    
+    <td>
+      <code>
+        1.25rem
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Space between columns, on the flat board and in the lane grid.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-ease
+      </code>
+    </td>
+    
+    <td>
+      semantic
+    </td>
+    
+    <td>
+      <code>
+        cubic-bezier(0.16, 1, 0.3, 1)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Easing of tray and cell fills, add row color, card shadow and card action fades.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-duration
+      </code>
+    </td>
+    
+    <td>
+      semantic
+    </td>
+    
+    <td>
+      <code>
+        200ms
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Duration of the same transitions.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-column-width
+      </code>
+    </td>
+    
+    <td>
+      component
+    </td>
+    
+    <td>
+      <code>
+        300px
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Width of a column, and of each column in the lane grid.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-tray-bg
+      </code>
+    </td>
+    
+    <td>
+      component
+    </td>
+    
+    <td>
+      <code>
+        var(--ff-surface-sunken)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Background of a column tray and of a lane cell.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-tray-radius
+      </code>
+    </td>
+    
+    <td>
+      component
+    </td>
+    
+    <td>
+      <code>
+        calc(var(--ff-radius) + 0.25rem)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Corner radius of a tray and of a lane cell.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-card-bg
+      </code>
+    </td>
+    
+    <td>
+      component
+    </td>
+    
+    <td>
+      <code>
+        var(--ff-surface-raised)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Card background.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-card-ring
+      </code>
+    </td>
+    
+    <td>
+      component
+    </td>
+    
+    <td>
+      <code>
+        var(--ff-border)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Card ring color.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-card-radius
+      </code>
+    </td>
+    
+    <td>
+      component
+    </td>
+    
+    <td>
+      <code>
+        var(--ff-radius)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Card corner radius.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-card-shadow
+      </code>
+    </td>
+    
+    <td>
+      component
+    </td>
+    
+    <td>
+      <code>
+        0 1px 2px 0 rgb(0 0 0 / 0.05)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Card shadow list. It sets the resting and the hover shadow together.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-card-padding
+      </code>
+    </td>
+    
+    <td>
+      component
+    </td>
+    
+    <td>
+      <code>
+        0.75rem
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Space inside a card.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-drag-tilt
+      </code>
+    </td>
+    
+    <td>
+      component
+    </td>
+    
+    <td>
+      <code>
+        2.5deg
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Rotation of the card while it is dragged.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-drag-shadow
+      </code>
+    </td>
+    
+    <td>
+      component
+    </td>
+    
+    <td>
+      <code>
+        0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Shadow list of the dragged card.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-placeholder-border
+      </code>
+    </td>
+    
+    <td>
+      component
+    </td>
+    
+    <td>
+      <code>
+        var(--ff-accent)
+      </code>
+    </td>
+    
+    <td>
+      4.2.0
+    </td>
+    
+    <td>
+      Border of the drop gap.
+    </td>
+  </tr>
+</tbody>
+</table>
+
+Flowforge also reads the Filament palette: `--gray-*`, `--primary-*`, `--danger-*` and `--warning-*`. It never sets them.
+
+Notes that apply to several variables:
+
+- The shadow variables take a shadow list. Use `0 0 #0000` for no shadow, never `none`. Flowforge combines the value with a ring, and `none` makes the whole declaration invalid.
+- `--ff-surface` paints the sticky lane-header strip behind the column headers. Set it to the background your page uses, so cards scroll under the strip without showing through.
+- `--ff-card-shadow` sets the resting shadow and the hover shadow together.
+- The dragged card is a clone on `body`. Flowforge copies the variables above from the card you picked up, so a value set at any scope reaches the clone.
+
+## Hooks
+
+Hooks are class names. Modern markup carries `ff-*` hooks only. The `flowforge-*` classes of classic boards never appear in Modern views, so a rule written for one board does not reach the other.
+
+<table>
+<thead>
+  <tr>
+    <th>
+      Hook
+    </th>
+    
+    <th>
+      Element
+    </th>
+  </tr>
+</thead>
+
+<tbody>
+  <tr>
+    <td>
+      <code>
+        ff-board
+      </code>
+    </td>
+    
+    <td>
+      The board root
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-columns
+      </code>
+    </td>
+    
+    <td>
+      The row that holds the columns of a board without lanes. Set its padding to space the columns from the page edge
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-column
+      </code>
+    </td>
+    
+    <td>
+      One column: its header and its tray. In the lane view it holds only the column header
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-column-header
+      </code>
+    </td>
+    
+    <td>
+      The row with the title, count, summary and actions
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-count
+      </code>
+    </td>
+    
+    <td>
+      The card count in a column header
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-summary
+      </code>
+    </td>
+    
+    <td>
+      The column summary text
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-tray
+      </code>
+    </td>
+    
+    <td>
+      The surface that holds a column's cards. The lane view has no tray, its cells are the surface
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-card
+      </code>
+    </td>
+    
+    <td>
+      One card
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-card-actions
+      </code>
+    </td>
+    
+    <td>
+      The action menu in a card's corner
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-add-row
+      </code>
+    </td>
+    
+    <td>
+      The add-card row, the "Show more cards" button in a lane cell and the "Show more lanes" button
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-lanes
+      </code>
+    </td>
+    
+    <td>
+      The root of the lane view
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-lane-header
+      </code>
+    </td>
+    
+    <td>
+      The header of one lane
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-cell
+      </code>
+    </td>
+    
+    <td>
+      One lane and column intersection, a drop target
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-limit-hint
+      </code>
+    </td>
+    
+    <td>
+      The hint shown over a full column's tray during a drag. The lane view does not render it
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-card-tag
+      </code>
+    </td>
+    
+    <td>
+      One tag from <code>
+        CardTag
+      </code>
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-card-meta
+      </code>
+    </td>
+    
+    <td>
+      The row of entries from <code>
+        CardMeta
+      </code>
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        ff-card-avatar
+      </code>
+    </td>
+    
+    <td>
+      One avatar from <code>
+        CardAvatar
+      </code>
+    </td>
+  </tr>
+</tbody>
+</table>
+
+Other `ff-*` classes exist for layout. They are internal.
+
+## States
+
+Flowforge reports state through data attributes. SortableJS toggles classes only, so `flowforge-modern.js` mirrors its states into these attributes.
+
+<table>
+<thead>
+  <tr>
+    <th>
+      Attribute
+    </th>
+    
+    <th>
+      On
+    </th>
+    
+    <th>
+      Meaning
+    </th>
+  </tr>
+</thead>
+
+<tbody>
+  <tr>
+    <td>
+      <code>
+        data-dragging
+      </code>
+    </td>
+    
+    <td>
+      The dragged card clone
+    </td>
+    
+    <td>
+      A drag is in progress
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        data-placeholder
+      </code>
+    </td>
+    
+    <td>
+      The drop gap
+    </td>
+    
+    <td>
+      Where the card will land
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        data-drop="active"
+      </code>
+      
+       or <code>
+        data-drop="blocked"
+      </code>
+    </td>
+    
+    <td>
+      A column, or a lane cell
+    </td>
+    
+    <td>
+      The hovered target accepts or refuses the card
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        data-full
+      </code>
+    </td>
+    
+    <td>
+      A column
+    </td>
+    
+    <td>
+      The column is at its limit
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        data-collapsed
+      </code>
+    </td>
+    
+    <td>
+      A column
+    </td>
+    
+    <td>
+      The column shows as a collapsed rail
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        data-pending
+      </code>
+    </td>
+    
+    <td>
+      A card
+    </td>
+    
+    <td>
+      Its move is saving
+    </td>
+  </tr>
+</tbody>
+</table>
+
+The dragged clone sits on `body`, outside `.ff-board`. A rule that must reach it starts at `.ff-card[data-dragging]`, and the visible card is its `.ff-card-body` child.
+
+## Customizing
+
+Set variables in your theme and add hook rules beside them:
+
+```css
+:root { --ff-accent: var(--primary-600); --ff-radius: .5rem; --ff-drag-tilt: 1.5deg; }
+.dark { --ff-card-bg: var(--gray-900); }
+.ff-column[data-drop="blocked"] .ff-tray { outline: 2px dashed var(--ff-danger); }
 ```
 
-### Card Labels
+The first line sets three variables for every board. The second sets a dark mode value. The third is a hook rule: it outlines a column that refuses the card you are dragging.
 
-Explicit labels take precedence over resource and model labels.
-Otherwise, Flowforge uses the board page's resource, then the model's resource in the current panel, then the model name.
-Without a resource or model, it uses the package translations.
+A variable set on `.ff-board` applies to that board only. A variable set on one card applies to that card only.
 
-Model names are not translated automatically.
-Existing boards, including standalone boards, can therefore display different labels after upgrading.
-Set translated labels explicitly to preserve the previous wording:
+### Tailwind apps
 
-```php
-->cardLabel(fn (): string => __('flowforge::flowforge.card_label'))
-->pluralCardLabel(fn (): string => __('flowforge::flowforge.plural_card_label'))
+Tailwind v4 apps can map variables to utilities with `@theme inline`:
+
+```css
+@theme inline {
+    --color-ff-surface: var(--ff-surface, var(--gray-50));
+    --color-ff-accent: var(--ff-accent, var(--primary-500));
+}
 ```
 
-Use your application's translation keys for custom names.
-Set both labels for languages whose plural forms cannot be derived from the singular label.
-Closures resolve in the current locale when the board renders.
+Flowforge never sets `--ff-*` variables, so each mapped variable needs the fallback shown, which matches the light default in the variable table. Set the variable under `.dark` for a dark value. `inline` keeps each utility reading the variable at use time, so your overrides still apply.
 
-### Actions Configuration
+### Card components
 
-```php
-->cardActions([                                   // Card-level actions
-    EditAction::make()->model(Task::class),
-    DeleteAction::make()->model(Task::class),
-])
-->columnActions([                                 // Column-level actions
-    CreateAction::make()->model(Task::class),
-])
-->cardAction('edit')                              // Make cards clickable
+`CardTitle`, `CardTag`, `CardMeta` and `CardAvatar` are styled by the Modern stylesheet and designed for Modern boards. On a classic board they render `ff-card-*` markup, and their look is not guaranteed: after a `wire:navigate` visit to a Modern board the Modern stylesheet stays in the page head and can style them. See [Card Components](https://relaticle.github.io/essentials/customization#card-components).
+
+## Properties set with !important
+
+Flowforge sets these properties with `!important`, to beat Filament component styles that outrank its sublayer. To override one, put your own `!important` rule in an earlier layer, because cascade layers reverse the order for `!important`. An unlayered or later-layer `!important` rule loses to flowforge's layered one.
+
+```css
+@layer base {
+    .ff-card-meta .fi-badge { color: red !important; }
+}
 ```
 
-`cardAction()` takes the name of an action registered in `cardActions()`. When that
-action is configured with `->url()`, the card renders as a native link (respecting
-`->openUrlInNewTab()`) instead of opening a modal, so middle-click and "copy link
-address" work as expected:
+<table>
+<thead>
+  <tr>
+    <th>
+      Selector
+    </th>
+    
+    <th>
+      Properties
+    </th>
+  </tr>
+</thead>
+
+<tbody>
+  <tr>
+    <td>
+      <code>
+        .ff-card-meta .fi-badge
+      </code>
+    </td>
+    
+    <td>
+      <code>
+        padding
+      </code>
+      
+      , <code>
+        font-weight
+      </code>
+      
+      , <code>
+        color
+      </code>
+      
+      , <code>
+        background
+      </code>
+      
+      , <code>
+        box-shadow
+      </code>
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        .ff-card-meta .fi-in-text-item
+      </code>
+    </td>
+    
+    <td>
+      <code>
+        font-size
+      </code>
+      
+      , <code>
+        color
+      </code>
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        .ff-filters
+      </code>
+    </td>
+    
+    <td>
+      <code>
+        overflow
+      </code>
+      
+      , <code>
+        background-color
+      </code>
+      
+      , <code>
+        box-shadow
+      </code>
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        .ff-filters-toolbar
+      </code>
+    </td>
+    
+    <td>
+      <code>
+        padding-inline
+      </code>
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        .ff-filters-panel--above
+      </code>
+    </td>
+    
+    <td>
+      <code>
+        border-bottom-width
+      </code>
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        .ff-filters-panel--before
+      </code>
+      
+      , <code>
+        .ff-filters-panel--after
+      </code>
+    </td>
+    
+    <td>
+      <code>
+        background-color
+      </code>
+      
+      , <code>
+        border-radius
+      </code>
+      
+      , <code>
+        box-shadow
+      </code>
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        .ff-filters-indicators
+      </code>
+    </td>
+    
+    <td>
+      <code>
+        padding-inline
+      </code>
+    </td>
+  </tr>
+</tbody>
+</table>
+
+The `.ff-filters*` classes are internal. They are listed because they carry `!important`, and they can change in any release.
+
+## Versioning
+
+- Adding a variable, hook or state is a minor release.
+- Renaming or removing one happens in a major release only. The old name keeps working for that major through a fallback, `var(--ff-new, var(--ff-old))`, and this page marks it deprecated.
+
+The Since column in the variable table records the release that added each variable.
+
+
+# Integration Patterns
+
+> Three ways to integrate Flowforge into your application.
+
+Flowforge provides three flexible integration patterns to fit different use cases and application architectures.
+
+## Standalone Livewire
+
+Use in any Laravel application - complete flexibility for custom interfaces.
 
 ```php
-->cardActions([
-    Action::make('view')
-        ->url(fn (Task $record): string => TaskResource::getUrl('view', ['record' => $record])),
-])
-->cardAction('view')
-```
+<?php
 
-A url decides, exactly as it does for a table row. Filament's `ListRecords` builds
-`recordUrl()` from the first `view`/`edit` action whose `getUrl()` is filled and has
-`recordAction()` skip those same actions, without consulting their modal state. A card
-follows that rule, so the same action behaves the same way in a board and in a table.
+namespace App\Livewire;
 
-Two consequences worth knowing:
+use App\Models\Task;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Livewire\Component;
+use Relaticle\Flowforge\Board;
+use Relaticle\Flowforge\Column;
+use Relaticle\Flowforge\Concerns\InteractsWithBoard;
+use Relaticle\Flowforge\Contracts\HasBoard;
 
-- An action declaring both a url and a modal (`->requiresConfirmation()`, a custom modal
-  heading, a schema) renders as a link and never opens that modal. Filament's own table
-  row and actions dropdown do the same. Pick one or the other.
-- A url inherited from the page's `getDefaultActionUrl()` counts, since `getUrl()`
-  consults it. Only `->postToUrl()` actions stay on the click handler, because a POST
-  needs a form rather than an anchor.
-
-### Search & Filtering
-
-```php
-use Filament\Tables\Enums\FiltersLayout;
-use Filament\Support\Enums\Width;
-
-->searchable(['title', 'description'])            // Enable search
-->filters([                                       // Add filters
-    SelectFilter::make('priority'),
-    Filter::make('overdue')->query(fn($q) =>
-        $q->where('due_date', '<', now())
-    ),
-])
-->filtersLayout(FiltersLayout::AboveContent)      // Display filters above board
-->filtersFormWidth(Width::Large)                  // Filter panel width
-->filtersFormColumns(3)                           // Columns in filter form
-->headerToolbar()                                 // Inline filters/search in page header
-->collapseEmptyColumns()                          // Collapse columns holding no cards
-```
-
-## Column Configuration
-
-```php
-Column::make('identifier')
-    ->label('Display Name')                       // Column header text
-    ->color('blue')                              // Column color theme
-    ->icon('heroicon-o-flag')                    // Column header icon
-    ->hidden(fn () => ! auth()->user()?->isStaff()) // Hide from rendering
-    ->visible(fn () => $this->showArchived)      // Inverse of hidden()
-```
-
-### Building a column from a backed enum
-
-```php
-Column::enum(TaskStatus::Todo)                   // identifier = $enum->value
-```
-
-When the enum implements `HasLabel`, `HasColor`, or `HasIcon` those values are
-applied automatically; missing contracts are skipped. See the
-[Column Configuration guide](https://relaticle.github.io/flowforge/essentials/customization#building-columns-from-enums)
-for a full example.
-
-### Conditional visibility
-
-Hidden columns are excluded from all column getters (`getColumns()`,
-`getColumnIdentifiers()`, `getColumnLabels()`, `getColumnColors()`) — see
-[Conditional Visibility](https://relaticle.github.io/flowforge/essentials/customization#conditional-visibility)
-for a worked example.
-
-### Available Colors
-
-- `gray` - Neutral/default
-- `blue` - Primary/in-progress
-- `green` - Success/completed
-- `red` - Error/urgent
-- `amber` - Warning/review
-- `purple` - Custom status
-- `pink` - Custom status
-
-## Livewire Methods
-
-These methods are available in your board components for programmatic control:
-
-### Card Management
-
-```php
-// Move card between columns
-$this->moveCard(string $cardId, string $targetColumnId, ?string $afterCardId = null, ?string $beforeCardId = null)
-```
-
-### Pagination Control
-
-```php
-// Load more cards for pagination
-$this->loadMoreItems(string $columnId, ?int $count = null)
-
-// Load all cards to enable reordering
-$this->loadAllItems(string $columnId)
-
-// Check if all cards are loaded
-$this->isColumnFullyLoaded(string $columnId): bool
-
-// Get position for new card in column
-$this->getBoardPositionInColumn(string $columnId): string
-```
-
-## Performance Features
-
-- **Intelligent Pagination**: Efficiently handles 100+ cards per column
-- **Infinite Scroll**: Smooth loading with 80% scroll threshold
-- **Optimistic UI**: Immediate feedback with rollback on errors
-- **Fractional Ranking**: Prevents database locks during reordering
-- **Query Optimization**: Cursor-based pagination with eager loading
-
-## Livewire Events
-
-Flowforge dispatches these events for frontend integration and custom logic:
-
-| Event                     | Payload                                                  | When Fired                        |
-| ------------------------- | -------------------------------------------------------- | --------------------------------- |
-| `kanban-card-moved`       | `cardId`, `columnId`, `position`                         | After a card is moved             |
-| `kanban-items-loaded`     | `columnId`, `loadedCount`, `totalCount`, `isFullyLoaded` | After pagination loads more cards |
-| `kanban-all-items-loaded` | `columnId`, `totalCount`                                 | After "Load All" completes        |
-
-### Listening to Events
-
-```php
-use Livewire\Attributes\On;
-
-#[On('kanban-card-moved')]
-public function onCardMoved(string $cardId, string $columnId, string $position): void
+class TaskBoard extends Component implements HasBoard, HasActions, HasForms
 {
-    // Custom logic when a card moves (e.g., send notification, update analytics)
+    use InteractsWithActions;
+    use InteractsWithBoard {
+        InteractsWithBoard::getDefaultActionRecord insteadof InteractsWithActions;
+    }
+    use InteractsWithForms;
+
+    public function board(Board $board): Board
+    {
+        return $board
+            ->query(Task::query())
+            ->columnIdentifier('status')
+            ->positionIdentifier('position')
+            ->columns([
+                Column::make('todo')->label('To Do')->color('gray'),
+                Column::make('in_progress')->label('In Progress')->color('blue'),
+                Column::make('completed')->label('Completed')->color('green'),
+            ]);
+    }
+
+    public function render()
+    {
+        return view('livewire.task-board');
+    }
+}
+```
+
+```blade
+{{-- resources/views/livewire/task-board.blade.php --}}
+<div>
+    <h1 class="text-2xl font-bold mb-6">Task Board</h1>
+    {{ $this->board }}
+</div>
+```
+
+**Use when:** Building customer-facing apps or custom dashboards that already use Filament packages
+**Requires:** `filament/forms` and `filament/actions` packages, plus Filament assets in your layout
+**Benefits:** Maximum flexibility, custom styling, independent routing
+
+### Layout Requirements
+
+For standalone Livewire components outside Filament panels, your Blade layout must include Filament's assets:
+
+```blade [resources/views/components/layouts/app.blade.php]
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    @filamentStyles
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="antialiased">
+    {{ $slot }}
+
+    @filamentScripts
+</body>
+</html>
+```
+
+Your Livewire component should use this layout:
+
+```php
+public function render()
+{
+    return view('livewire.task-board')
+        ->layout('components.layouts.app');
+}
+```
+
+<alert type="info">
+
+The `@filamentStyles` and `@filamentScripts` directives load Filament's CSS and JavaScript, including the Alpine.js components FlowForge depends on.
+
+</alert>
+
+## Filament Page
+
+Perfect for dedicated Kanban pages in your Filament admin panel.
+
+```php
+<?php
+
+namespace App\Filament\Pages;
+
+use App\Models\Task;
+use Relaticle\Flowforge\Board;
+use Relaticle\Flowforge\BoardPage;
+use Relaticle\Flowforge\Column;
+
+class TaskBoard extends BoardPage
+{
+    protected static ?string $navigationIcon = 'heroicon-o-view-columns';
+    
+    public function board(Board $board): Board
+    {
+        return $board
+            ->query(Task::query())
+            ->columnIdentifier('status')
+            ->positionIdentifier('position')
+            ->columns([
+                Column::make('todo')->label('To Do')->color('gray'),
+                Column::make('in_progress')->label('In Progress')->color('blue'),
+                Column::make('completed')->label('Completed')->color('green'),
+            ]);
+    }
+}
+```
+
+**Use when:** You want a standalone Kanban page in your admin panel<br />
+
+**Benefits:** Full Filament integration, automatic registration, built-in actions
+
+## Resource Integration
+
+Integrate with your existing Filament resources. Perfect for campaign management where teams track tasks within campaigns.
+
+```php
+<?php
+
+namespace App\Filament\Resources\CampaignResource\Pages;
+
+use App\Filament\Resources\CampaignResource;
+use Relaticle\Flowforge\Board;
+use Relaticle\Flowforge\BoardResourcePage;
+use Relaticle\Flowforge\Column;
+
+class CampaignTaskBoard extends BoardResourcePage
+{
+    protected static string $resource = CampaignResource::class;
+    
+    public function board(Board $board): Board
+    {
+        return $board
+            ->query(
+                // Get tasks for this specific campaign and current user's team
+                $this->getRecord()
+                    ->tasks()
+                    ->whereHas('team', fn($q) => $q->where('id', auth()->user()->current_team_id))
+                    ->getQuery()
+            )
+            ->columnIdentifier('status')
+            ->positionIdentifier('position')
+            ->columns([
+                Column::make('backlog')->label('Backlog')->color('gray'),
+                Column::make('in_progress')->label('In Progress')->color('blue'),
+                Column::make('review')->label('Review')->color('amber'),
+                Column::make('completed')->label('Completed')->color('green'),
+            ]);
+    }
 }
 
-#[On('kanban-items-loaded')]
-public function onItemsLoaded(string $columnId, int $loadedCount, int $totalCount, bool $isFullyLoaded): void
+// Register in your CampaignResource
+public static function getPages(): array
 {
-    // Track loading progress
+    return [
+        'index' => Pages\ListCampaigns::route('/'),
+        'create' => Pages\CreateCampaign::route('/create'),
+        'edit' => Pages\EditCampaign::route('/{record}/edit'),
+        'tasks' => Pages\CampaignTaskBoard::route('/{record}/tasks'), // Add this line
+    ];
 }
 ```
 
-### JavaScript Listeners
+**Use when:** Adding Kanban views to existing Filament resources
+**Benefits:** Inherits resource permissions, policies, and global scopes automatically
 
-```javascript
-document.addEventListener('livewire:init', () => {
-    Livewire.on('kanban-card-moved', ({ cardId, columnId }) => {
-        console.log(`Card ${cardId} moved to ${columnId}`);
+## Modern board
+
+Every pattern above has a Modern counterpart. A Modern board adds column limits, column summaries, card components, a create-card action, swimlanes and refused moves. It styles itself through a [documented design system](https://relaticle.github.io/essentials/design-system).
+
+Opt in per page by changing one import:
+
+```php
+use Relaticle\Flowforge\Modern\BoardPage;          // was Relaticle\Flowforge\BoardPage
+use Relaticle\Flowforge\Modern\BoardResourcePage;  // was Relaticle\Flowforge\BoardResourcePage
+```
+
+A standalone Livewire component uses the Modern trait:
+
+```php
+use Relaticle\Flowforge\Modern\Concerns\InteractsWithBoard;
+```
+
+Classic and Modern boards can live in one app. Nothing changes for a page that keeps the classic import. A Modern board needs no `@source` line in your Filament theme.
+
+Modern settings such as `groupings()`, `columnSummary()`, `createCardAction()` and `Column::limit()` have no effect on a classic board.
+
+## Extending Board Behavior
+
+Override these methods to customize board behavior for your specific needs.
+
+### Custom Card Movement Logic
+
+On a classic board, override `moveCard()` to add custom logic when cards are moved:
+
+#### Simple Updates
+
+For basic updates on the exact same model, you can call the parent method and append your logic:
+
+```php
+public function moveCard(
+    string $cardId,
+    string $targetColumnId,
+    ?string $afterCardId = null,
+    ?string $beforeCardId = null
+): void {
+    // Call parent to handle the actual move
+    parent::moveCard($cardId, $targetColumnId, $afterCardId, $beforeCardId);
+
+    // Add custom logic
+    $task = Task::find($cardId);
+
+    if ($targetColumnId === 'completed') {
+        $task->update(['completed_at' => now()]);
+        $task->assignee->notify(new TaskCompletedNotification($task));
+    }
+}
+```
+
+#### Data Integrity with Transactions (Recommended)
+
+If your custom logic involves complex state machines or updating secondary tables (like activity logs), it is highly recommended to wrap the override in a database transaction. Because parent::moveCard() executes a database update immediately, wrapping the entire method ensures that if your custom logic fails, the database safely rolls back. The frontend's optimistic UI will then gracefully snap the card back to its original column.
+
+```php
+use Illuminate\Support\Facades\DB;
+
+public function moveCard(
+    string $cardId,
+    string $targetColumnId,
+    ?string $afterCardId = null,
+    ?string $beforeCardId = null
+): void {
+    DB::transaction(function () use ($cardId, $targetColumnId, $afterCardId, $beforeCardId) {
+        // Let Flowforge handle the stage and position math
+        parent::moveCard($cardId, $targetColumnId, $afterCardId, $beforeCardId);
+
+        // Execute custom atomic logic safely
+        $task = Task::find($cardId);
+
+        if ($targetColumnId === 'completed') {
+            $task->update(['completed_at' => now()]);
+            
+            // Safe multi-table insert - rolls back the card move if it fails!
+            ActivityLog::create([
+                'task_id' => $task->id, 
+                'action' => 'Task marked as completed'
+            ]);
+            
+            $task->assignee->notify(new TaskCompletedNotification($task));
+        }
     });
-});
+}
 ```
+
+#### Modern boards
+
+On a Modern board, override the hooks, not `moveCard()`. Flowforge keeps the column check, limits, lanes and the browser revert.
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use Relaticle\Flowforge\Exceptions\CardMoveRejectedException;
+
+protected function authorizeCardMove(Model $card, string $targetColumnId, ?string $toLaneId = null): void
+{
+    if (! auth()->user()->can('update', $card)) {
+        throw CardMoveRejectedException::because('You cannot move this card.');
+    }
+}
+
+protected function persistCardMove(Model $card, mixed $columnValue, string $position): void
+{
+    parent::persistCardMove($card, $columnValue, $position);
+
+    if ($columnValue === 'completed') {
+        $card->update(['completed_at' => now()]);
+
+        ActivityLog::create(['task_id' => $card->id, 'action' => 'completed']);
+    }
+}
+```
+
+`authorizeCardMove()` runs before anything is written. Throw `CardMoveRejectedException::because('...')` to refuse with a message: the user sees a toast and the card returns to where it started. An `abort(403)` also reverts the card, but Livewire shows its error UI instead of a toast.
+
+`persistCardMove()` runs inside the move's database transaction, so an exception there rolls back your writes and the card move together. Throw `CardMoveRejectedException::because()` from it to refuse with a message. Calling the parent keeps the default column and position writes. When the column attribute is cast to a backed enum, `$columnValue` is the enum case.
+
+`parent::` works on a board page. A standalone component that uses the trait directly aliases the method instead: `use InteractsWithBoard { persistCardMove as protected persistDefaultCardMove; }`, then calls `persistDefaultCardMove()`.
+
+`moveCard()` on a Modern board returns `bool`: `false` means the move was refused and the browser puts the card back. It also takes the lane arguments `?string $fromLaneId` and `?string $toLaneId`. On a subclass of `Modern\BoardPage` or `Modern\BoardResourcePage`, an override that keeps the classic `void` signature is a fatal error. A standalone class that uses the Modern trait and declares its own `moveCard(): void` gets no error. The override silently replaces the Modern method, so refused moves never revert the card. Remove the override and use `authorizeCardMove()` and `persistCardMove()`.
+
+#### Side effects that outlive a refused move
+
+Model `updated` and `saved` observers fire when `persistCardMove()` and a lane callback write, before a later step can refuse the move. A lane callback that throws, or a transaction that fails after the observer ran, rolls the writes back but cannot recall what the observer already did. A queued job, a broadcast or a mail sent from the observer then reports a move that never happened.
+
+Dispatch such side effects after commit. Make the job or event implement `ShouldDispatchAfterCommit`, mark a listener `public bool $afterCommit = true;`, or call `->afterCommit()` on the dispatch. Laravel then holds the dispatch until the move's transaction commits and drops it when the transaction rolls back.
+
+### Custom Record Fetching
+
+Override `getBoardRecords()` for complex filtering logic:
+
+```php
+public function getBoardRecords(string $columnId): \Illuminate\Support\Collection
+{
+    return $this->getEloquentQuery()
+        ->where($this->getBoard()->getColumnIdentifier(), $columnId)
+        ->where('team_id', auth()->user()->current_team_id)  // Custom filter
+        ->with(['assignee', 'priority', 'labels'])           // Eager loading
+        ->orderBy($this->getBoard()->getPositionIdentifier())
+        ->get();
+}
+```
+
+### Custom Count Logic
+
+Override `getBoardRecordCount()` if you need custom counting:
+
+```php
+public function getBoardRecordCount(string $columnId): int
+{
+    return $this->getEloquentQuery()
+        ->where($this->getBoard()->getColumnIdentifier(), $columnId)
+        ->where('is_archived', false)  // Exclude archived from count
+        ->count();
+}
+```
+
+### Joined board queries
+
+A board query that joins another table must select the base table's columns explicitly:
+
+```php
+Task::query()
+    ->join('projects', 'projects.id', '=', 'tasks.project_id')
+    ->select('tasks.*', 'projects.name as project_name')
+```
+
+With `select *`, the joined table's `id` overwrites the card's key on hydration. The joined table must also not share a column name with the board's column or position attribute. Flowforge filters on the unqualified name, and PostgreSQL then reports it as ambiguous.
+
+
+# Swimlanes
+
+> Group a board into lanes by assignee, priority or any other field.
+
+<callout type="info">
+
+Swimlanes work on Modern boards only. A classic board ignores `groupings()`. See [Modern board](https://relaticle.github.io/essentials/integration-patterns#modern-board).
+
+</callout>
+
+## Group by
+
+```php
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
+use Relaticle\Flowforge\Grouping;
+use Relaticle\Flowforge\Lane;
+
+->groupings([
+    Grouping::attribute('priority'),
+
+    Grouping::make('assignee')
+        ->label('Assignee')
+        ->lanes(fn (Builder $boardQuery): array => User::query()
+            ->whereIn('id', DB::table('task_user')
+                ->whereIn('task_id', (clone $boardQuery)->select('tasks.id'))
+                ->select('user_id'))
+            ->orderBy('name')
+            ->get()
+            ->map(fn (User $user): Lane => Lane::make($user->id)
+                ->label($user->name)
+                ->avatar($user->avatar_url)
+                ->query(fn (Builder $query): Builder => $query->whereHas(
+                    'assignees',
+                    fn (Builder $assignees): Builder => $assignees->whereKey($user->id),
+                )))
+            ->all())
+        ->emptyLane('Unassigned', fn (Builder $query): Builder => $query->whereDoesntHave('assignees'))
+        ->moveUsing(function (Task $card, Lane $from, Lane $to): void {
+            if ($from->getName() !== Grouping::EMPTY_LANE) {
+                $card->assignees()->detach($from->getName());
+            }
+
+            if ($to->getName() !== Grouping::EMPTY_LANE) {
+                $card->assignees()->syncWithoutDetaching([$to->getName()]);
+            }
+        }),
+])
+```
+
+Defining groupings adds a "Group by" select to the board. It sits above the board under the filters. With `headerToolbar()` it moves into the page header, next to the filters and search. A standalone board has no page header, so with `headerToolbar()` it shows no picker, the same as its filters.
+
+The choice lives in the URL as `?groupBy=assignee`, so a grouped view can be shared. Choosing "None" returns to the plain board.
+
+## Lanes
+
+- `lanes()` receives the board query with filters and search applied. Name the parameter `$boardQuery`, or type it as the Eloquent builder. Return the lanes in the order to show them.
+- A `Lane` takes a name, which must be unique within the grouping, and a `query()` closure that narrows the board query to that lane. It also takes `label()`, `avatar()`, `color()` and `icon()`.
+- `emptyLane()` adds a last lane for cards that match none of the others. The name `Grouping::EMPTY_LANE` identifies it in `moveUsing()`.
+- `Grouping::attribute('priority')` builds one lane per distinct value, busiest first, plus an empty lane for `null`. A backed enum cast supplies the labels and colors when it implements Filament's `HasLabel` and `HasColor`.
+- A card that matches two lanes appears in both. The move callback receives the lane the card left, so only that link changes.
+- A lane with no cards in view is not shown.
+- Ten lanes render at first, and "Show more lanes" loads ten more. Change the page size with `->lanesPerPage()`. Each cell shows `cardsPerColumn()` cards, then "Show N more".
+- Each rendered lane loads its cards in one query, using window functions.
+
+The paging state (`$visibleLaneCount`, `$cellCardLimits` and `$columnCardLimits`) is `#[Locked]`, so the browser cannot write it. `loadMoreItems()` clamps the count it loads into a lane cell to between 1 and `cardsPerColumn()`.
+
+## Creating cards in lane mode
+
+The header `+` from `createCardAction()` creates a card without knowing the lane. The card lands in whichever lane its data matches. A custom grouping without `emptyLane()` hides a card that matches no lane, so add `emptyLane()` to every custom grouping. Lane cells have no add row.
+
+## Moving between lanes
+
+- With `moveUsing()`, a drop into another lane runs the callback in the same transaction as the column move. Throw `CardMoveRejectedException::because('...')` to refuse. Both writes roll back, the user sees the message, and the card returns.
+- The callback receives the card as `$card` or `$record`, or typed by its model class, plus the lane it left as `$from` and the lane it entered as `$to`.
+- `Grouping::attribute()` writes the attribute itself, and writes `null` for the empty lane. An attribute qualified with another table's name, such as `'details.priority'`, is read-only.
+- Without `moveUsing()`, the lanes are read-only. Cards move between columns inside their lane, the browser blocks a drop into another lane, and the server refuses it with a message.
+- The server checks that the card sits in the lane it left, and refuses the move when the board has changed underneath the user.
+
+## Limits and collapsed columns
+
+- A column limit counts the whole column across every lane, and the header is shared.
+- `collapseEmptyColumns()` applies to the plain board only. In lanes every column keeps its width, so every cell stays a drop target.
 
 
 # Troubleshooting
+
+> Common issues and solutions for Flowforge implementation.
 
 ## Common Issues
 
@@ -1505,14 +3611,14 @@ public function board(Board $board): Board
 dd($this->getEloquentQuery()->get());
 ```
 
-2. Check status values match column identifiers:
+1. Check status values match column identifiers:
 
 ```php
 // If your columns are 'todo', 'in_progress', 'done'
 // Your data status field must contain exactly these values
 ```
 
-3. Ensure query returns records:
+1. Ensure query returns records:
 
 ```php
 // Check for global scopes, soft deletes, etc.
@@ -1596,6 +3702,8 @@ $this->isColumnFullyLoaded('todo'); // Returns true
 @source "../../../../vendor/relaticle/flowforge/resources/views/**/*.blade.php";
 ```
 
+A Modern board needs no `@source` line. If it renders unstyled, run `php artisan filament:assets`. A standalone board also needs `@filamentStyles` in its layout. To restyle a Modern board, see the [Design System](https://relaticle.github.io/essentials/design-system).
+
 ### Alpine component errors
 
 **Problem**: Console shows `flowforge is not defined` or `filamentActionModals is not defined`.
@@ -1603,7 +3711,7 @@ $this->isColumnFullyLoaded('todo'); // Returns true
 **Causes & Solutions**:
 
 - **Missing Filament assets**: Your layout must include `@filamentStyles` in `<head>` and `@filamentScripts` before `</body>`
-- **Using standalone Livewire without Filament panel**: See [Layout Requirements](https://relaticle.github.io/flowforge/essentials/integration-patterns#layout-requirements)
+- **Using standalone Livewire without Filament panel**: See [Layout Requirements](https://relaticle.github.io/essentials/integration-patterns#layout-requirements)
 - **Asset compilation issues**: Run `npm run build` to recompile assets
 
 ```blade
@@ -1617,17 +3725,11 @@ $this->isColumnFullyLoaded('todo'); // Returns true
 </body>
 ```
 
-::alert{type="warning"}
-FlowForge uses Filament's 
+<alert type="warning">
 
-`x-load`
+FlowForge uses Filament's `x-load` directive and action modal system. These are only available when Filament's JavaScript is loaded via `@filamentScripts`.
 
- directive and action modal system. These are only available when Filament's JavaScript is loaded via 
-
-`@filamentScripts`
-
-.
-::
+</alert>
 
 ### Performance issues
 
@@ -1685,226 +3787,573 @@ public function testDragDrop()
 
 If you encounter issues not covered here:
 
-1. **Check the GitHub issues**: [github.com/relaticle/flowforge/issues](https://github.com/relaticle/flowforge/issues){rel="&#x22;nofollow&#x22;"}
+1. **Check the GitHub issues**: [github.com/relaticle/flowforge/issues](https://github.com/relaticle/flowforge/issues)
 2. **Review test examples**: Look at the test suite for working examples
 3. **Enable debug mode**: Add `dd()` statements to understand data flow
 4. **Create minimal reproduction**: Isolate the issue in a fresh Laravel install
 
 
-# Contributing
+# Installation
 
-## Quick Start
+> Get started with Flowforge in 90 seconds.
 
-1. **Fork** the repository
-2. **Create** a feature branch
-3. **Make** your changes
-4. **Run** tests: `composer test`
-5. **Submit** a pull request
+## Requirements
 
-## Guidelines
+- **PHP:** 8.3+
+- **Laravel:** 12+
+- **Filament:** 5.x
+- **Database:** MySQL, PostgreSQL, SQLite, SQL Server, MariaDB
 
-- Follow the existing code style
-- Add tests for new features
-- Update documentation as needed
-- One feature per pull request
+## Quick Setup
 
-## Development Commands
+<steps>
+
+### Install Package
+
+```bash [Terminal]
+composer require relaticle/flowforge
+```
+
+### Include CSS Assets
+
+Prerequisite: You need a custom Filament theme to include the FlowForge styles.
+
+<alert type="warning">
+
+If you haven't set up a custom theme for Filament, follow the [Filament Docs](https://filamentphp.com/docs/5.x/styling/overview#creating-a-custom-theme) first.
+
+</alert>
+
+Once you have a custom Filament theme set up, add the plugin's views to your theme CSS file:
+
+```css [resources/css/filament/admin/theme.css]
+@source "../../../../vendor/relaticle/flowforge/resources/views/**/*.blade.php";
+```
+
+<alert type="info">
+
+Modern boards ship their own stylesheet and need no `@source` line. See [Modern board](https://relaticle.github.io/essentials/integration-patterns#modern-board).
+
+</alert>
+
+### Add Position Column
+
+Create a migration to add the position column:
+
+```bash [Terminal]
+php artisan make:migration add_position_to_tasks_table
+```
+
+```php [migration]
+Schema::table('tasks', function (Blueprint $table) {
+    $table->flowforgePositionColumn('position'); // Handles database-specific collations automatically
+});
+```
+
+### Generate Board
+
+```bash [Terminal]
+php artisan flowforge:make-board TaskBoard --model=Task
+```
+
+### Register Page
+
+```php [AdminPanelProvider.php]
+->pages([
+    App\Filament\Pages\TaskBoard::class,
+])
+```
+
+</steps>
+
+**Done!** Visit your Filament panel to see your Kanban board in action.
+
+## Optional Commands
+
+<table>
+<thead>
+  <tr>
+    <th>
+      Command
+    </th>
+    
+    <th>
+      Action
+    </th>
+  </tr>
+</thead>
+
+<tbody>
+  <tr>
+    <td>
+      <code>
+        php artisan flowforge:repair-positions
+      </code>
+    </td>
+    
+    <td>
+      Fix corrupted or missing position data
+    </td>
+  </tr>
+</tbody>
+</table>
+
+
+# Upgrading
+
+> Upgrade guide for Flowforge
+
+## From v4.1 to v4.2
+
+4.2 adds the Modern board, an opt-in board with its own styling contract. Existing boards keep working unchanged. It needs no migration, no config key and no env var.
+
+### Requirements
+
+- Filament 5, PHP 8.3 and Laravel 12, as in 4.1.
+- Groupings use window functions: MySQL 8, MariaDB 10.2, PostgreSQL, SQLite 3.25 or SQL Server. Boards without groupings have no new requirement.
+- Hard column limits take a cache lock, so use a store that every server shares, such as redis, memcached, database or dynamodb. The `array` store locks per process and the `null` store never blocks. Under either, two simultaneous drops can both pass a limit.
+
+### Upgrade steps
+
+1. `composer update relaticle/flowforge`
+2. `php artisan filament:assets`, which publishes the Modern script and the Modern stylesheet. The page head links the stylesheet, so a missing publish leaves Modern boards unstyled.
+
+Nothing else changes for a board that keeps its current `BoardPage`, `BoardResourcePage` or `InteractsWithBoard` import.
+
+### Opting in
+
+Change one import on the page you want to move:
+
+```php
+use Relaticle\Flowforge\Modern\BoardResourcePage;
+```
+
+`Relaticle\Flowforge\Modern\BoardPage` replaces `BoardPage`, and `Relaticle\Flowforge\Modern\Concerns\InteractsWithBoard` replaces the standalone trait. Opt in per page. A classic and a Modern board can live in one app.
+
+### What changes on a Modern board
+
+- Overrides of `moveCard()` move to hooks. `moveCard()` returns `bool` and takes `?string $fromLaneId` and `?string $toLaneId`, so on a subclass of `Modern\BoardPage` or `Modern\BoardResourcePage` an override with the classic `void` signature is a fatal error. A standalone class that uses the Modern trait and declares its own `moveCard(): void` gets no error, and the override silently replaces the Modern method, so refused moves never revert the card. Remove the override. Put checks in `authorizeCardMove()` and custom writes in `persistCardMove()`. See [Custom Card Movement Logic](https://relaticle.github.io/essentials/integration-patterns#custom-card-movement-logic).
+- `calculateAndUpdatePosition()` and `calculateAndUpdatePositionWithRetry()` take a trailing `?array $laneMove = null`. An override with the classic signature is a fatal error on a Modern page subclass. A standalone class that uses the Modern trait gets no error, and its method silently replaces the Modern one. Prefer the two hooks.
+- A move to a column the board does not show, or to a card its query no longer returns, is refused with a notification and the card returns.
+- `createCardAction()`, column limits, column summaries and groupings work on Modern boards only. A classic board ignores them.
+- The card components (`CardTitle`, `CardTag`, `CardMeta`, `CardAvatar`) are designed for Modern boards. On a classic board their look is not guaranteed.
+- Modern markup carries `ff-*` classes. CSS written for `flowforge-*` classes does not reach a Modern board. Restyle through the [design system](https://relaticle.github.io/essentials/design-system).
+- Dragging uses SortableJS fallback mode, so the dragged card is a real element. CSS or code that targeted native drag states stops working.
+- The paging properties (`$columnCardLimits`, `$visibleLaneCount`, `$cellCardLimits`) are `#[Locked]`. Call `loadMoreItems()` or `loadAllItems()` instead of writing them from the browser.
+- Modern views live under `flowforge::modern.*`. A classic view you published to `resources/views/vendor/flowforge/livewire` keeps serving classic boards and never reaches a Modern board.
+
+### Other changes
+
+- New lang keys exist in the en, de, es and nl files. The classic `no_cards_in_column` key stays.
+- A board query that joins another table must select the base table's columns explicitly. See [Joined board queries](https://relaticle.github.io/essentials/integration-patterns#joined-board-queries).
+- A classic move no longer fails on PostgreSQL when the board query outer-joins its column value.
+
+### Known limitation
+
+The first `wire:navigate` visit to a Modern board from any page that has not loaded the Modern stylesheet can show the board unstyled for a moment, because Livewire does not wait for new head stylesheets. Full page loads and repeat visits are styled from the first frame.
+
+---
+
+## From v3.x to v4.x
+
+<callout type="info">
+
+v4.x upgrades Filament support from 4.x to 5.x. No database or code changes required.
+
+</callout>
+
+### Requirements
+
+- Filament 5.x (was 4.x)
+- PHP 8.3+
+- Laravel 12+
+
+### Upgrade Steps
 
 ```bash
-# Run tests
-composer test
-
-# Format code  
-composer pint
-
-# Static analysis
-composer analyse
+composer require relaticle/flowforge:^4.0
 ```
 
-## Need Help?
+Review the [Filament 5 Upgrade Guide](https://filamentphp.com/docs/5.x/upgrade-guide) if you customized Filament components.
 
-- [Open an issue](https://github.com/relaticle/flowforge/issues){rel="&#x22;nofollow&#x22;"} for bugs or questions
-- Check [existing issues](https://github.com/relaticle/flowforge/issues){rel="&#x22;nofollow&#x22;"} first
+### No Changes Required
 
-That's it! Keep it simple and focused. 🚀
+- Board configuration API unchanged
+- Position column type unchanged
+- All existing board code works without modification
 
+---
 
-# License
+## From v2.x to v4.x
 
-## MIT License
+<callout type="warning">
 
-```text
-Copyright (c) Relaticle
+This covers all breaking changes from v2.x directly to v4.x. Includes database migration.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+</callout>
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+### Requirements
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+- PHP 8.3+ (was 8.2+)
+- Laravel 12+ (was 10+)
+- Filament 5.x (was 3.x)
+- **New:** `ext-bcmath` PHP extension
+
+### High Impact Changes
+
+#### Position Column Type Changed
+
+The `flowforgePositionColumn()` macro now creates `DECIMAL(20,10)` instead of `VARCHAR`.
+
+**Quick upgrade (resets card order):**
+
+```php
+public function up(): void
+{
+    Schema::table('tasks', function (Blueprint $table) {
+        $table->dropColumn('position');
+    });
+
+    Schema::table('tasks', function (Blueprint $table) {
+        $table->flowforgePositionColumn();
+    });
+}
 ```
 
-## What This Means
+Then run:
 
-✅ **You can** use Flowforge in commercial projects :br
-✅ **You can** modify and distribute it :br
-✅ **You can** use it in closed source projects :br
-✅ **You can** sell applications that include it
+```bash
+php artisan flowforge:repair-positions
+```
 
-Just include the license notice in your copy. That's it!
+**Preserve card order:** See v2.x to v3.x section below for detailed migration.
+
+### Medium Impact Changes
+
+#### BCMath Extension Required
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install php-bcmath
+```
+
+### Factory Code Updates
+
+If you used position service directly:
+
+```php
+// Before (v2.x)
+use Relaticle\Flowforge\Services\Rank;
+$position = Rank::forEmptySequence()->get();
+
+// After (v4.x)
+use Relaticle\Flowforge\Services\DecimalPosition;
+$position = DecimalPosition::forEmptyColumn();
+```
+
+### No Changes Required
+
+- Board configuration API unchanged
+- Card/column actions unchanged
+- Customization options unchanged
+
+---
+
+## From v2.x to v3.x
+
+<callout type="warning">
+
+v3.x changes how positions are stored in the database. A migration is required.
+
+</callout>
+
+### Requirements
+
+- PHP 8.3+ (was 8.2+)
+- Laravel 11+ (was 10+)
+- **New:** `ext-bcmath` PHP extension
+
+### High Impact Changes
+
+#### Position Column Type Changed
+
+The `flowforgePositionColumn()` macro now creates a `DECIMAL(20,10)` column instead of `VARCHAR`. You must migrate existing position columns.
+
+**Quick upgrade (resets card order):**
+
+```php
+public function up(): void
+{
+    Schema::table('tasks', function (Blueprint $table) {
+        $table->dropColumn('position');
+    });
+
+    Schema::table('tasks', function (Blueprint $table) {
+        $table->flowforgePositionColumn();
+    });
+}
+```
+
+Then run:
+
+```bash
+php artisan flowforge:repair-positions
+```
+
+**Preserve card order:**
+
+```php
+public function up(): void
+{
+    // Add temporary column
+    Schema::table('tasks', function (Blueprint $table) {
+        $table->decimal('position_new', 20, 10)->nullable();
+    });
+
+    // Copy order (positions will be regenerated by repair command)
+    DB::statement('UPDATE tasks SET position_new = CAST(position AS DECIMAL(20,10))');
+
+    // Swap columns
+    Schema::table('tasks', function (Blueprint $table) {
+        $table->dropColumn('position');
+    });
+    Schema::table('tasks', function (Blueprint $table) {
+        $table->renameColumn('position_new', 'position');
+    });
+}
+```
+
+Then run:
+
+```bash
+php artisan flowforge:repair-positions
+# Select "regenerate" strategy
+```
+
+### Medium Impact Changes
+
+#### BCMath Extension Required
+
+Install the BCMath PHP extension:
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install php-bcmath
+
+# Verify
+php -m | grep bcmath
+```
+
+### Low Impact Changes
+
+#### New Artisan Commands
+
+v3.x adds diagnostic commands:
+
+```bash
+php artisan flowforge:diagnose-positions   # Check for issues
+php artisan flowforge:rebalance-positions  # Redistribute positions
+```
+
+### No Changes Required
+
+- Board configuration API unchanged
+- Card/column actions unchanged
+- Customization options unchanged
+- All existing board code works without modification
+
+---
+
+### Advanced: Factory Code Updates
+
+<callout type="info">
+
+Only relevant if you directly used the `Rank` service in your code.
+
+</callout>
+
+If you used Flowforge's position service in factories or custom code:
+
+```php
+// Before (v2.x)
+use Relaticle\Flowforge\Services\Rank;
+$position = Rank::forEmptySequence()->get();
+$position = Rank::after($lastRank)->get();
+
+// After (v3.x)
+use Relaticle\Flowforge\Services\DecimalPosition;
+$position = DecimalPosition::forEmptyColumn();
+$position = DecimalPosition::after($lastPosition);
+```
+
+Most users don't need this - the package handles positions automatically during drag-and-drop.
 
 
-# Filament/Livewire Kanban Boards
+<u-page-hero>
+<template v-slot:title="">
 
-::u-page-hero
-#title
 Flowforge
 
-#description
+</template>
+
+<template v-slot:description="">
+
 Transform any Laravel model into a production-ready drag-and-drop Kanban board.
 
 Perfect for Filament admin panels and standalone Livewire applications.
 
-#links
-  :::u-button
-  ---
-  color: neutral
-  size: xl
-  to: https://relaticle.github.io/flowforge/getting-started/installation
-  trailing-icon: i-lucide-arrow-right
-  ---
-  Get started
-  :::
+</template>
 
-  :::u-button
-  ---
-  color: neutral
-  icon: simple-icons:github
-  size: xl
-  to: https://github.com/relaticle/flowforge
-  variant: outline
-  ---
-  GitHub
-  :::
-::
+<template v-slot:links="">
+<u-button color="neutral" size="xl" to="https://relaticle.github.io/getting-started/installation" trailing-icon="i-lucide-arrow-right">
 
-::div{.text-center.max-w-4xl.mx-auto}
-![Flowforge Kanban Board Preview](https://relaticle.github.io/flowforge/preview.png){.mx-auto.max-w-full.h-auto.rounded-lg.shadow-lg}
-::
+Get started
 
-::u-page-section
-#title
+</u-button>
+
+<u-button color="neutral" size="xl" to="https://github.com/relaticle/flowforge" icon="simple-icons:github" variant="outline">
+
+GitHub
+
+</u-button>
+</template>
+</u-page-hero>
+
+<div className="text-center,max-w-4xl,mx-auto">
+
+![Flowforge Kanban Board Preview](https://relaticle.github.io/preview.png)
+
+</div>
+
+<u-page-section>
+<template v-slot:title="">
+
 Why choose Flowforge?
 
-#features
-  :::u-page-feature
-  ---
-  icon: i-lucide-zap
-  ---
-  #title
-  Enterprise-Scale Performance
+</template>
 
-  #description
-  Cursor-based pagination handles unlimited cards per column with intelligent loading and position-based ordering optimization.
-  :::
+<template v-slot:features="">
+<u-page-feature icon="i-lucide-zap">
+<template v-slot:title="">
 
-  :::u-page-feature
-  ---
-  icon: i-lucide-layers
-  ---
-  #title
-  3 Integration Patterns
+Enterprise-Scale Performance
 
-  #description
-  Use as Filament Pages, Resource integration, or standalone Livewire components - whatever fits your architecture.
-  :::
+</template>
 
-  :::u-page-feature
-  ---
-  icon: i-lucide-palette
-  ---
-  #title
-  Rich Card Schemas
+<template v-slot:description="">
 
-  #description
-  Filament Schema builder creates complex card layouts with forms, components, and dynamic content rendering.
-  :::
+Cursor-based pagination handles unlimited cards per column with intelligent loading and position-based ordering optimization.
 
-  :::u-page-feature
-  ---
-  icon: i-lucide-move
-  ---
-  #title
-  Smart Position Management
+</template>
+</u-page-feature>
 
-  #description
-  Advanced ranking algorithm handles unlimited drag-and-drop ordering with automatic conflict resolution and repair commands.
-  :::
+<u-page-feature icon="i-lucide-layers">
+<template v-slot:title="">
 
-  :::u-page-feature
-  ---
-  icon: i-lucide-activity
-  ---
-  #title
-  Optimistic UI Experience
+3 Integration Patterns
 
-  #description
-  Instant visual feedback with loading states, smooth scrolling, and responsive drag interactions for seamless UX.
-  :::
+</template>
 
-  :::u-page-feature
-  ---
-  icon: i-lucide-filter
-  ---
-  #title
-  Native Filament Integration
+<template v-slot:description="">
 
-  #description
-  Deep integration with Filament's table system for filters, search, actions, and consistent admin panel experience.
-  :::
-::
+Use as Filament Pages, Resource integration, or standalone Livewire components - whatever fits your architecture.
 
-::u-page-section
-  :::card-group
-    ::::card
-    ---
-    icon: i-simple-icons-laravel
-    target: _blank
-    title: FilaForms
-    to: https://filaforms.app
-    ---
-    ![FilaForms](https://filaforms.app/img/og-image.png){.mb-4.rounded-lg.w-full.pointer-events-none}
+</template>
+</u-page-feature>
 
-    Visual form builder for all your public-facing forms.
-    ::::
+<u-page-feature icon="i-lucide-palette">
+<template v-slot:title="">
 
-    ::::card
-    ---
-    icon: i-lucide-sliders
-    target: _blank
-    title: Custom Fields
-    to: https://relaticle.github.io/custom-fields
-    ---
-    ![Custom Fields](https://relaticle.github.io/custom-fields/og-image.png){.mb-4.rounded-lg.w-full.pointer-events-none}
+Rich Card Schemas
 
-    Let users add custom fields to any model without code changes.
-    ::::
-  :::
+</template>
 
-#title
+<template v-slot:description="">
+
+Filament Schema builder creates complex card layouts with forms, components, and dynamic content rendering.
+
+</template>
+</u-page-feature>
+
+<u-page-feature icon="i-lucide-move">
+<template v-slot:title="">
+
+Smart Position Management
+
+</template>
+
+<template v-slot:description="">
+
+Advanced ranking algorithm handles unlimited drag-and-drop ordering with automatic conflict resolution and repair commands.
+
+</template>
+</u-page-feature>
+
+<u-page-feature icon="i-lucide-activity">
+<template v-slot:title="">
+
+Optimistic UI Experience
+
+</template>
+
+<template v-slot:description="">
+
+Instant visual feedback with loading states, smooth scrolling, and responsive drag interactions for seamless UX.
+
+</template>
+</u-page-feature>
+
+<u-page-feature icon="i-lucide-filter">
+<template v-slot:title="">
+
+Native Filament Integration
+
+</template>
+
+<template v-slot:description="">
+
+Deep integration with Filament's table system for filters, search, actions, and consistent admin panel experience.
+
+</template>
+</u-page-feature>
+</template>
+</u-page-section>
+
+<u-page-section>
+<template v-slot:title="">
+
 Our Ecosystem
 
-#description
+</template>
+
+<template v-slot:description="">
+
 Extend your Laravel applications with our ecosystem of complementary tools
-::
+
+</template>
+
+<card-group>
+<card icon="i-simple-icons-laravel" target="_blank" title="FilaForms" to="https://filaforms.app">
+
+![FilaForms](https://filaforms.app/img/og-image.png)Visual form builder for all your public-facing forms.
+
+</card>
+
+<card icon="i-lucide-sliders" target="_blank" title="Custom Fields" to="https://relaticle.github.io/custom-fields">
+
+![Custom Fields](https://relaticle.github.io/custom-fields/og-image.png)Let users add custom fields to any model without code changes.
+
+</card>
+</card-group>
+</u-page-section>
+
+## Resources for Agents
+
+- [API catalog: every service document this site publishes](https://relaticle.github.io/.well-known/api-catalog)
+- [Sitemap (XML)](https://relaticle.github.io/sitemap.xml)
+- [Sitemap (Markdown): every page on the site](https://relaticle.github.io/sitemap.md)
+- [MCP server card: MCP endpoint at https://relaticle.github.io/mcp](https://relaticle.github.io/.well-known/mcp/server-card.json)
+- [MCP endpoint (streamable HTTP)](https://relaticle.github.io/mcp)
+- [llms.txt: index of the documentation for LLMs](https://relaticle.github.io/llms.txt)
+- [llms-full.txt: the full documentation as a single file](https://relaticle.github.io/llms-full.txt)
+- [OpenAPI document: every route this site serves to agents](https://relaticle.github.io/openapi.json)

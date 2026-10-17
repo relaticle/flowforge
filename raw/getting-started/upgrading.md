@@ -1,6 +1,62 @@
+---
+title: "Upgrading"
+description: "Upgrade guide for Flowforge"
+canonical_url: "https://relaticle.github.io/getting-started/upgrading"
+---
 # Upgrading
 
 > Upgrade guide for Flowforge
+
+## From v4.1 to v4.2
+
+4.2 adds the Modern board, an opt-in board with its own styling contract. Existing boards keep working unchanged. It needs no migration, no config key and no env var.
+
+### Requirements
+
+- Filament 5, PHP 8.3 and Laravel 12, as in 4.1.
+- Groupings use window functions: MySQL 8, MariaDB 10.2, PostgreSQL, SQLite 3.25 or SQL Server. Boards without groupings have no new requirement.
+- Hard column limits take a cache lock, so use a store that every server shares, such as redis, memcached, database or dynamodb. The `array` store locks per process and the `null` store never blocks. Under either, two simultaneous drops can both pass a limit.
+
+### Upgrade steps
+
+1. `composer update relaticle/flowforge`
+2. `php artisan filament:assets`, which publishes the Modern script and the Modern stylesheet. The page head links the stylesheet, so a missing publish leaves Modern boards unstyled.
+
+Nothing else changes for a board that keeps its current `BoardPage`, `BoardResourcePage` or `InteractsWithBoard` import.
+
+### Opting in
+
+Change one import on the page you want to move:
+
+```php
+use Relaticle\Flowforge\Modern\BoardResourcePage;
+```
+
+`Relaticle\Flowforge\Modern\BoardPage` replaces `BoardPage`, and `Relaticle\Flowforge\Modern\Concerns\InteractsWithBoard` replaces the standalone trait. Opt in per page. A classic and a Modern board can live in one app.
+
+### What changes on a Modern board
+
+- Overrides of `moveCard()` move to hooks. `moveCard()` returns `bool` and takes `?string $fromLaneId` and `?string $toLaneId`, so on a subclass of `Modern\BoardPage` or `Modern\BoardResourcePage` an override with the classic `void` signature is a fatal error. A standalone class that uses the Modern trait and declares its own `moveCard(): void` gets no error, and the override silently replaces the Modern method, so refused moves never revert the card. Remove the override. Put checks in `authorizeCardMove()` and custom writes in `persistCardMove()`. See [Custom Card Movement Logic](https://relaticle.github.io/essentials/integration-patterns#custom-card-movement-logic).
+- `calculateAndUpdatePosition()` and `calculateAndUpdatePositionWithRetry()` take a trailing `?array $laneMove = null`. An override with the classic signature is a fatal error on a Modern page subclass. A standalone class that uses the Modern trait gets no error, and its method silently replaces the Modern one. Prefer the two hooks.
+- A move to a column the board does not show, or to a card its query no longer returns, is refused with a notification and the card returns.
+- `createCardAction()`, column limits, column summaries and groupings work on Modern boards only. A classic board ignores them.
+- The card components (`CardTitle`, `CardTag`, `CardMeta`, `CardAvatar`) are designed for Modern boards. On a classic board their look is not guaranteed.
+- Modern markup carries `ff-*` classes. CSS written for `flowforge-*` classes does not reach a Modern board. Restyle through the [design system](https://relaticle.github.io/essentials/design-system).
+- Dragging uses SortableJS fallback mode, so the dragged card is a real element. CSS or code that targeted native drag states stops working.
+- The paging properties (`$columnCardLimits`, `$visibleLaneCount`, `$cellCardLimits`) are `#[Locked]`. Call `loadMoreItems()` or `loadAllItems()` instead of writing them from the browser.
+- Modern views live under `flowforge::modern.*`. A classic view you published to `resources/views/vendor/flowforge/livewire` keeps serving classic boards and never reaches a Modern board.
+
+### Other changes
+
+- New lang keys exist in the en, de, es and nl files. The classic `no_cards_in_column` key stays.
+- A board query that joins another table must select the base table's columns explicitly. See [Joined board queries](https://relaticle.github.io/essentials/integration-patterns#joined-board-queries).
+- A classic move no longer fails on PostgreSQL when the board query outer-joins its column value.
+
+### Known limitation
+
+The first `wire:navigate` visit to a Modern board from any page that has not loaded the Modern stylesheet can show the board unstyled for a moment, because Livewire does not wait for new head stylesheets. Full page loads and repeat visits are styled from the first frame.
+
+---
 
 ## From v3.x to v4.x
 
@@ -235,3 +291,8 @@ $position = DecimalPosition::after($lastPosition);
 ```
 
 Most users don't need this - the package handles positions automatically during drag-and-drop.
+
+
+## Sitemap
+
+See the full [sitemap](https://relaticle.github.io/sitemap.md) for all pages.

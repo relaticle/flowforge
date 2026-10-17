@@ -1,3 +1,8 @@
+---
+title: "Troubleshooting"
+description: "Common issues and solutions for Flowforge implementation."
+canonical_url: "https://relaticle.github.io/essentials/troubleshooting"
+---
 # Troubleshooting
 
 > Common issues and solutions for Flowforge implementation.
@@ -130,6 +135,8 @@ $this->isColumnFullyLoaded('todo'); // Returns true
 @source "../../../../vendor/relaticle/flowforge/resources/views/**/*.blade.php";
 ```
 
+A Modern board needs no `@source` line. If it renders unstyled, run `php artisan filament:assets`. A standalone board also needs `@filamentStyles` in its layout. To restyle a Modern board, see the [Design System](https://relaticle.github.io/essentials/design-system).
+
 ### Alpine component errors
 
 **Problem**: Console shows `flowforge is not defined` or `filamentActionModals is not defined`.
@@ -137,7 +144,7 @@ $this->isColumnFullyLoaded('todo'); // Returns true
 **Causes & Solutions**:
 
 - **Missing Filament assets**: Your layout must include `@filamentStyles` in `<head>` and `@filamentScripts` before `</body>`
-- **Using standalone Livewire without Filament panel**: See [Layout Requirements](/essentials/integration-patterns#layout-requirements)
+- **Using standalone Livewire without Filament panel**: See [Layout Requirements](https://relaticle.github.io/essentials/integration-patterns#layout-requirements)
 - **Asset compilation issues**: Run `npm run build` to recompile assets
 
 ```blade
@@ -217,3 +224,8 @@ If you encounter issues not covered here:
 2. **Review test examples**: Look at the test suite for working examples
 3. **Enable debug mode**: Add `dd()` statements to understand data flow
 4. **Create minimal reproduction**: Isolate the issue in a fresh Laravel install
+
+
+## Sitemap
+
+See the full [sitemap](https://relaticle.github.io/sitemap.md) for all pages.

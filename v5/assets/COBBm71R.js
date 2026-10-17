@@ -1,1 +1,0 @@
-import{b as e,mt as t}from"./B8D2lM98.js";import{j as n}from"#entry";var r={};function i(n,r){return t(),e(`div`)}var a=Object.assign(n(r,[[`render`,i]]),{__name:`AssistantChat`});export{a as default};

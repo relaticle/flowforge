@@ -1,6 +1,17 @@
+---
+title: "Customization"
+description: "Customize your Kanban boards with rich content, actions, and filtering."
+canonical_url: "https://relaticle.github.io/essentials/customization"
+---
 # Customization
 
 > Customize your Kanban boards with rich content, actions, and filtering.
+
+<callout type="info">
+
+Sections marked "Modern boards only" work on pages that extend a `Modern` board class. A classic board ignores them. See [Modern board](https://relaticle.github.io/essentials/integration-patterns#modern-board).
+
+</callout>
 
 ## Rich Card Content
 
@@ -151,7 +162,7 @@ use Relaticle\Flowforge\Components\CardFlex;
 
 ## Column Actions
 
-Add actions to column headers for creating new cards or bulk operations:
+Add actions to column headers for creating new cards or bulk operations. On a Modern board, use `createCardAction()` (see Add Card Action below) to create cards. Use `columnActions()` for the rest.
 
 ```php
 use Filament\Actions\CreateAction;
@@ -181,6 +192,106 @@ public function board(Board $board): Board
         ]);
 }
 ```
+
+## Add Card Action
+
+Modern boards only.
+
+```php
+use Filament\Actions\CreateAction;
+use Filament\Forms\Components\TextInput;
+
+->createCardAction(
+    CreateAction::make('createTask')
+        ->model(Task::class)
+        ->schema([TextInput::make('title')->required()])
+        ->mutateDataUsing(fn (array $data, array $arguments): array => [
+            ...$data,
+            'status' => $arguments['column'],
+            'position' => $this->getBoardPositionInColumn($arguments['column'], 'bottom'),
+        ]),
+)
+```
+
+The action appears as a `+` in each column header and as an add row under the cards, labelled with the card label (`Add Task`). Flowforge passes the column identifier as `$arguments['column']`.
+
+Flowforge owns the action's `disabled()` state. It disables the header button and the add row for a full column, and refuses the action for a column the board does not show. It also keeps the add row disabled when the action's authorization fails and you call `authorizationTooltip()`. Hide the action with `visible()` or block it with `authorize()`. Flowforge renders nothing for an action that is not visible.
+
+## Card Components
+
+These components are designed for Modern boards. On a classic board their look is not guaranteed.
+
+```php
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Schema;
+use Relaticle\Flowforge\Components\{CardAvatar, CardFlex, CardMeta, CardTag, CardTitle};
+
+->cardSchema(fn (Schema $schema): Schema => $schema->components([
+    CardFlex::make([
+        TextEntry::make('reference')->hiddenLabel()->color('gray'),
+        CardTag::make('category')->color(fn (string $state): string => $state === 'billing' ? 'warning' : 'info'),
+    ])->justify('between'),
+    CardTitle::make(),
+    CardFlex::make([
+        CardMeta::make([
+            TextEntry::make('due_date')->date('M j')->icon('heroicon-o-calendar'),
+            TextEntry::make('points')->suffix(' pt'),
+        ]),
+        CardAvatar::make('assignees')->limit(3),
+    ])->justify('between'),
+]))
+```
+
+- `CardTitle` places the title. Without it the title renders first.
+- `CardTag` is a dot and a label. It renders one dot and label per item when the state is an array or a collection.
+- `CardMeta` is a muted row of entries. Labels are hidden, and badges inside it render as plain text.
+- `CardAvatar` shows one avatar, or a stack with `+N` after `limit()` people (default 3).
+
+The components honor a small part of the entry API:
+
+- `CardTag` honors `formatStateUsing()` and `color()`. A `color()` closure runs once per item and receives that item as `$state`.
+- `CardAvatar` honors `limit()`, `nameUsing()` and `avatarUrlUsing()`. Both closures receive the model as `$person`, or typed by its class. Its state must be a model or a collection of models, such as a relationship.
+- Without `avatarUrlUsing()`, `CardAvatar` uses `getFilamentAvatarUrl()` when the model implements `HasAvatar`. Without a url it shows initials and never calls an external service.
+- `url()`, `action()`, `tooltip()` and `icon()` are not applied by `CardTag` or `CardAvatar`.
+
+## Column Summaries
+
+Modern boards only.
+
+```php
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Number;
+
+->columnSummary(fn (Builder $columnQuery): ?string => Number::currency($columnQuery->sum('amount')))
+```
+
+The closure runs once per column. The query carries the active filters and search, so the summary matches the cards on screen. Name the parameter `$query` or `$columnQuery`, or type it as the Eloquent builder. Add a `Column $column` parameter to read the column. Return `null` or an empty string to hide the summary. A collapsed rail shows no summary.
+
+## Column Limits
+
+Modern boards only.
+
+```php
+Column::make('in_progress')->limit(3)
+```
+
+The header reads `3/3` and takes the warning color at the limit. A full column refuses drops while the card still hovers over it, and the add row and header `+` disable. The server checks again under a cache lock and refuses with a message if the column filled in the meantime.
+
+- The limit counts every card in the column, including cards a filter or search hides.
+- Reordering inside a full column is always allowed.
+- The lock needs a cache store that every server shares: redis, memcached, database or dynamodb. The `array` store locks per process and the `null` store never blocks, so the guard does nothing under either.
+- A move holds the lock for at most `getColumnLockSeconds()` (10) and waits `getColumnLockWaitSeconds()` (5) for it. Then it refuses with "Another card is moving into <column>
+
+
+
+</column>
+
+. Try again.", where `:column` is the column label. Override these protected methods on your page to change the values.
+- The add row checks the limit without the lock. A create and a drop at the same instant can leave the column one card over its limit.
+
+## Styling a Modern Board
+
+Modern boards style through CSS variables, class hooks and data attributes. The [Design System](https://relaticle.github.io/essentials/design-system) page lists every one and the rules for overriding them.
 
 ## Card Actions
 
@@ -251,6 +362,8 @@ whether the board is new or a search matched nothing, all columns render at full
 the empty state stays readable.
 
 Style the rail with the `.flowforge-column-collapsed` class.
+
+On a Modern board the rail also keeps the header `+` from `createCardAction()`, shows no column summary and no add row, and carries `data-collapsed` on `.ff-column`. With a grouping active, every column keeps its width so every lane cell stays a drop target.
 
 ## Search and Filtering
 
@@ -411,7 +524,7 @@ enum TaskStatus: string implements HasColor, HasIcon, HasLabel
 )
 ```
 
-Any contract your enum does not implement is simply skipped — you can start
+Any contract your enum does not implement is simply skipped. You can start
 with `HasLabel` only and add color/icon later without changing the call site.
 Int-backed enums are supported too; the value is coerced to a string column
 identifier.
@@ -420,7 +533,7 @@ identifier.
 
 Hide or show columns based on runtime state (current user, feature flags,
 permissions, toggles on the page). Use `->hidden()` to hide a column or
-`->visible()` to show one — both accept a boolean literal or a closure. A
+`->visible()` to show one. Both accept a boolean literal or a closure. A
 hidden column is excluded from rendering and from every column getter
 (`getColumns()`, `getColumnIdentifiers()`, `getColumnLabels()`,
 `getColumnColors()`), so counts and other column-derived data stay in sync.
@@ -433,7 +546,7 @@ use Relaticle\Flowforge\Column;
     Column::make('in_progress')->label('In Progress')->color('blue'),
     Column::make('completed')->label('Completed')->color('green'),
 
-    // Permanently hidden — useful for columns you plan to enable later.
+    // Permanently hidden, useful for columns you plan to enable later.
     Column::make('archived')->label('Archived')->hidden(),
 
     // Conditionally visible based on a Livewire property / user state.
@@ -446,3 +559,8 @@ use Relaticle\Flowforge\Column;
 Both methods are re-evaluated on every render, so toggling a Livewire
 property that the closure reads will show or hide the column immediately.
 When both are set, `hidden(true)` wins over `visible(true)`.
+
+
+## Sitemap
+
+See the full [sitemap](https://relaticle.github.io/sitemap.md) for all pages.

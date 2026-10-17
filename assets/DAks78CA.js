@@ -1,0 +1,1 @@
+import{g as e,vn as t}from"./DC3Tigql.js";import{r as n}from"./DuI_v8Od.js";function r(r){let i=n({dir:t(`ltr`)});return e(()=>r?.value||i.dir?.value||`ltr`)}export{r as t};

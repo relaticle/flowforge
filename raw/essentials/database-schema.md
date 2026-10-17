@@ -1,3 +1,8 @@
+---
+title: "Database Schema"
+description: "Set up your database for drag-and-drop Kanban functionality."
+canonical_url: "https://relaticle.github.io/essentials/database-schema"
+---
 # Database Schema
 
 > Set up your database for drag-and-drop Kanban functionality.
@@ -373,3 +378,8 @@ If a unique constraint violation occurs (rare with jitter), Flowforge automatica
 - **Max attempts:** 3
 - **Backoff:** 50ms, 100ms, 200ms (exponential)
 - **Supported databases:** SQLite, MySQL, PostgreSQL
+
+
+## Sitemap
+
+See the full [sitemap](https://relaticle.github.io/sitemap.md) for all pages.

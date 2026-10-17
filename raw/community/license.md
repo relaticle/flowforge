@@ -1,3 +1,8 @@
+---
+title: "License"
+description: "MIT License terms and what it means for you"
+canonical_url: "https://relaticle.github.io/community/license"
+---
 # License
 
 > MIT License terms and what it means for you
@@ -40,3 +45,8 @@ THE SOFTWARE.
 ✅ **You can** sell applications that include it
 
 Just include the license notice in your copy. That's it!
+
+
+## Sitemap
+
+See the full [sitemap](https://relaticle.github.io/sitemap.md) for all pages.
