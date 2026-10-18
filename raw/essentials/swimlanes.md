@@ -53,9 +53,11 @@ use Relaticle\Flowforge\Lane;
 ])
 ```
 
-Defining groupings adds a "Group by" select to the board. It sits above the board under the filters. With `headerToolbar()` it moves into the page header, next to the filters and search. A standalone board has no page header, so with `headerToolbar()` it shows no picker, the same as its filters.
+Defining groupings adds a "Group by" button to the board. It names the active grouping and opens a menu of every grouping. It sits above the board under the filters. With `headerToolbar()` it moves into the page header, next to the filters and search. A standalone board has no page header, so with `headerToolbar()` it shows no picker, the same as its filters.
 
 The choice lives in the URL as `?groupBy=assignee`, so a grouped view can be shared. Choosing "None" returns to the plain board.
+
+A click on a lane's header collapses that lane, and another click opens it again. The chevron in front of the label is the keyboard control for the same toggle. Collapsed lanes stay collapsed while the board updates and open again on a reload.
 
 ## Lanes
 

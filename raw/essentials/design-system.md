@@ -930,7 +930,7 @@ Hooks are class names. Modern markup carries `ff-*` hooks only. The `flowforge-*
     </td>
     
     <td>
-      The header of one lane
+      The header of one lane. It stays at the left edge while the lanes scroll sideways, and a click collapses or expands the lane
     </td>
   </tr>
   
@@ -1102,11 +1102,11 @@ Flowforge reports state through data attributes. SortableJS toggles classes only
     </td>
     
     <td>
-      A column
+      A column, or a lane header
     </td>
     
     <td>
-      The column shows as a collapsed rail
+      The column shows as a collapsed rail, or the lane's cells are hidden
     </td>
   </tr>
   
