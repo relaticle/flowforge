@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v4.3.0 - 2026-10-18
+
+Modern boards get a "Group by" menu button, sticky lane labels and collapsible lanes. A click on a draggable card that drifts a few pixels now opens the card action instead of starting a drag. A board page no longer embeds every card's record in its HTML: a flat board with 125 cards drops from 2.6 MB to 1.0 MB. Classic boards are unchanged.
+
+An app that read `$data.state` from its own Alpine code on a Modern board loses it; it was never part of the design contract.
+
+<!-- Release notes generated using configuration in .github/release.yml at 3001dc8cd9d96a40e9b585077e6dad1d5ac3e609 -->
+### What's Changed
+
+#### Other Changes
+
+* feat: modern lanes get a group by menu, sticky labels and collapsible lanes by @ManukMinasyan in https://github.com/relaticle/flowforge/pull/208
+* fix: keep a slightly moving click on a modern board card a click by @ManukMinasyan in https://github.com/relaticle/flowforge/pull/209
+* perf: stop embedding every card's record in the modern board's html by @ManukMinasyan in https://github.com/relaticle/flowforge/pull/210
+
+**Full Changelog**: https://github.com/relaticle/flowforge/compare/v4.2.0...v4.3.0
+
 ## v4.0.12 - 2026-05-12
 
 ### What's Changed
