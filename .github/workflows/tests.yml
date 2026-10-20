@@ -163,7 +163,8 @@ jobs:
           composer update --prefer-stable --prefer-dist --no-interaction
 
       - name: Assert the panel builder is absent
-        run: php -r 'require "vendor/autoload.php"; exit(class_exists(Filament\Panel::class) ? 1 : 0);'
+        run: |
+          php -r 'require "vendor/autoload.php"; exit(class_exists(Filament\Panel::class) ? 1 : 0);'
 
       - name: Compile every registered view
         run: vendor/bin/testbench view:cache
