@@ -79,4 +79,9 @@ trait HasBoardFilters
     {
         return $this->modifyFiltersApplyActionUsing;
     }
+
+    public function getFiltersResetActionModifier(): ?Closure
+    {
+        return $this->modifyFiltersResetActionUsing;
+    }
 }

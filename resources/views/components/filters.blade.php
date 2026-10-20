@@ -22,6 +22,7 @@
     $filtersForm = $this->getTableFiltersForm();
     $filtersFormWidth = $table->getFiltersFormWidth();
     $filtersFormMaxHeight = $table->getFiltersFormMaxHeight();
+    $filtersResetAction = $table->getFiltersResetAction();
     $filtersResetActionPosition = $table->getFiltersResetActionPosition();
     $activeFiltersCount = $table->getActiveFiltersCount();
 
@@ -79,6 +80,7 @@
                     :apply-action="$filtersApplyAction"
                     :form="$filtersForm"
                     class="fi-ta-filters-before-content"
+                    :reset-action="$filtersResetAction"
                     :reset-action-position="$filtersResetActionPosition"
                 />
             </div>
@@ -102,6 +104,7 @@
                         :form="$filtersForm"
                         x-cloak
                         :x-show="$hasCollapsibleFilters ? 'areFiltersOpen' : null"
+                        :reset-action="$filtersResetAction"
                         :reset-action-position="$filtersResetActionPosition"
                     />
 
@@ -195,6 +198,7 @@
                                 <x-filament-tables::filters
                                     :apply-action="$filtersApplyAction"
                                     :form="$filtersForm"
+                                    :reset-action="$filtersResetAction"
                                     :reset-action-position="$filtersResetActionPosition"
                                 />
                             </x-filament::dropdown>
@@ -226,6 +230,7 @@
                         :apply-action="$filtersApplyAction"
                         :form="$filtersForm"
                         class="fi-ta-filters-below-content"
+                        :reset-action="$filtersResetAction"
                         :reset-action-position="$filtersResetActionPosition"
                     />
                 </div>
@@ -306,6 +311,7 @@
                     :apply-action="$filtersApplyAction"
                     :form="$filtersForm"
                     class="fi-ta-filters-after-content"
+                    :reset-action="$filtersResetAction"
                     :reset-action-position="$filtersResetActionPosition"
                 />
             </div>

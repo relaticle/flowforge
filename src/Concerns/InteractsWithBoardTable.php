@@ -48,6 +48,10 @@ trait InteractsWithBoardTable
             $table->filtersApplyAction($applyModifier);
         }
 
+        if ($resetModifier = $board->getFiltersResetActionModifier()) {
+            $table->filtersResetAction($resetModifier);
+        }
+
         return $table;
     }
 
