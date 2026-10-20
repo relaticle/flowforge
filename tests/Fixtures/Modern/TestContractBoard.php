@@ -31,6 +31,8 @@ class TestContractBoard extends BoardPage
 
     public ?string $filtersLayout = null;
 
+    public ?string $resetFiltersLabel = null;
+
     public ?string $cardActionName = null;
 
     public function getEloquentQuery(): Builder
@@ -51,6 +53,9 @@ class TestContractBoard extends BoardPage
             ->when($this->filtersLayout, fn (Board $board, string $layout): Board => $board->filters(
                 [SelectFilter::make('priority')->options(['low' => 'Low', 'high' => 'High'])],
                 constant(FiltersLayout::class . '::' . $layout),
+            ))
+            ->when($this->resetFiltersLabel, fn (Board $board, string $label): Board => $board->filtersResetAction(
+                fn (Action $action): Action => $action->label($label),
             ))
             ->cardAction($this->cardActionName)
             ->columnSummary(fn (Builder $columnQuery): string => $columnQuery->count() . ' shown')

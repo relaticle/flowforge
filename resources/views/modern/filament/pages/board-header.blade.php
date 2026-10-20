@@ -17,6 +17,7 @@
     $filtersForm = $this->getTableFiltersForm();
     $filtersFormWidth = $table->getFiltersFormWidth();
     $filtersFormMaxHeight = $table->getFiltersFormMaxHeight();
+    $filtersResetAction = $table->getFiltersResetAction();
     $filtersResetActionPosition = $table->getFiltersResetActionPosition();
     $activeFiltersCount = $table->getActiveFiltersCount();
 
@@ -123,6 +124,7 @@
                                 <x-filament-tables::filters
                                     :apply-action="$filtersApplyAction"
                                     :form="$filtersForm"
+                                    :reset-action="$filtersResetAction"
                                     :reset-action-position="$filtersResetActionPosition"
                                 />
                             </x-filament::dropdown>

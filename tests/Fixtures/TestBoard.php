@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\Flowforge\Tests\Fixtures;
 
 use Filament\Actions\Action;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Relaticle\Flowforge\Board;
 use Relaticle\Flowforge\BoardPage;
@@ -20,6 +22,8 @@ class TestBoard extends BoardPage
 
     public bool $withHeaderToolbar = false;
 
+    public ?string $filtersLayout = null;
+
     public function getEloquentQuery(): Builder
     {
         return Task::query();
@@ -33,6 +37,10 @@ class TestBoard extends BoardPage
             ->query($this->getEloquentQuery())
             ->recordTitleAttribute('title')
             ->searchable(['title'])
+            ->when($this->filtersLayout, fn (Board $board, string $layout): Board => $board->filters(
+                [SelectFilter::make('priority')->options(['low' => 'Low', 'high' => 'High'])],
+                constant(FiltersLayout::class . '::' . $layout),
+            ))
             ->columnIdentifier('status')
             ->positionIdentifier('order_position')
             ->columns([
