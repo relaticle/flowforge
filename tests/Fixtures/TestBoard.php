@@ -20,11 +20,9 @@ class TestBoard extends BoardPage
 
     public bool $withHeaderToolbar = false;
 
-    public bool $eagerLoadProject = false;
-
     public function getEloquentQuery(): Builder
     {
-        return Task::query()->when($this->eagerLoadProject, fn (Builder $query): Builder => $query->with('project'));
+        return Task::query();
     }
 
     public function board(Board $board): Board
