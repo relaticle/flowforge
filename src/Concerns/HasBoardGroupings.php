@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\Flowforge\Concerns;
 
 use Closure;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -84,10 +85,15 @@ trait HasBoardGroupings
 
     public function getLaneRecords(Lane $lane, int $perCellLimit): EloquentCollection
     {
+        return $this->getLaneRecordsQuery($lane, $perCellLimit)?->get() ?? new EloquentCollection;
+    }
+
+    protected function getLaneRecordsQuery(Lane $lane, int $perCellLimit): ?Builder
+    {
         $boardQuery = $this->getFilteredBoardQuery();
 
         if ($boardQuery === null) {
-            return new EloquentCollection;
+            return null;
         }
 
         $scoped = $lane->applyQuery($boardQuery)->applyScopes();
@@ -131,9 +137,7 @@ trait HasBoardGroupings
             ->where('flowforge_cell_row', '<=', $perCellLimit)
             ->orderBy('flowforge_cell_row');
 
-        $outer->setEagerLoads($scoped->getEagerLoads());
-
-        return $outer->get();
+        return $outer->setEagerLoads($scoped->getEagerLoads());
     }
 
     protected function identifierBelongsToModel(Model $model): bool
@@ -164,34 +168,57 @@ trait HasBoardGroupings
      */
     public function getLaneViewData(Grouping $grouping, int $visibleLaneCount, array $cellCardLimits): array
     {
-        $lanes = [];
+        $columnIds = $this->getColumnIdentifiers();
+        $eagerLoads = [];
+        $visibleLanes = [];
+        $hasMoreLanes = false;
 
         foreach ($this->getLanes($grouping) as $lane) {
-            if (count($lanes) >= $visibleLaneCount) {
+            if (count($visibleLanes) >= $visibleLaneCount) {
                 if ($this->laneHasCards($lane)) {
-                    return ['lanes' => $lanes, 'hasMoreLanes' => true];
+                    $hasMoreLanes = true;
+
+                    break;
                 }
 
                 continue;
             }
 
-            $laneData = $this->formatLane($lane, $cellCardLimits[$lane->getName()] ?? []);
+            $cellLimits = $cellCardLimits[$lane->getName()] ?? [];
+            $query = $this->getLaneRecordsQuery($lane, max([$this->getCardsPerColumn(), ...array_values($cellLimits)]));
 
-            if ($laneData['total'] > 0) {
-                $lanes[] = $laneData;
+            if ($query === null) {
+                continue;
+            }
+
+            $eagerLoads = $query->getEagerLoads();
+            $records = $query->setEagerLoads([])->get();
+
+            if ($records->contains(fn (Model $record): bool => in_array($this->getRecordColumnId($record), $columnIds, true))) {
+                $visibleLanes[] = [$lane, $records, $cellLimits];
             }
         }
 
-        return ['lanes' => $lanes, 'hasMoreLanes' => false];
+        if ($eagerLoads !== []) {
+            (new EloquentCollection(array_merge(...array_map(
+                fn (array $visibleLane): array => $visibleLane[1]->all(),
+                $visibleLanes,
+            ))))->load($eagerLoads);
+        }
+
+        return [
+            'lanes' => array_map(fn (array $visibleLane): array => $this->formatLane(...$visibleLane), $visibleLanes),
+            'hasMoreLanes' => $hasMoreLanes,
+        ];
     }
 
     /**
+     * @param  EloquentCollection<int, Model>  $records
      * @param  array<string, int>  $cellLimits
      * @return array<string, mixed>
      */
-    protected function formatLane(Lane $lane, array $cellLimits): array
+    protected function formatLane(Lane $lane, EloquentCollection $records, array $cellLimits): array
     {
-        $records = $this->getLaneRecords($lane, max([$this->getCardsPerColumn(), ...array_values($cellLimits)]));
         $cells = [];
 
         foreach ($this->getColumnIdentifiers() as $columnId) {

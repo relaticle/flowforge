@@ -450,3 +450,57 @@ test('a move callback may name the card record without a type', function () {
 
     expect($seen)->toBe($card->id);
 });
+
+test('runs the board query eager loads once for every column', function () {
+    $emma = User::factory()->create(['name' => 'Emma Collins']);
+    $marcus = User::factory()->create(['name' => 'Marcus Johnson']);
+    groupedTask('Todo', 'todo', 'low', '65535.0000000000')->assignees()->attach($emma->id);
+    groupedTask('Doing', 'in_progress', 'high', '65535.0000000000')->assignees()->attach($marcus->id);
+
+    $board = Livewire::test(TestGroupedBoard::class)->instance()->getBoard();
+
+    DB::enableQueryLog();
+    $columns = $board->getViewData()['columns'];
+    $assigneeQueries = collect(DB::getQueryLog())->filter(fn (array $query): bool => str_contains($query['query'], 'from "users"'));
+    DB::disableQueryLog();
+
+    $assigneeNames = collect($columns)->map(fn (array $column): array => array_map(
+        fn (array $item): array => $item['model']->getRelation('assignees')->pluck('name')->all(),
+        $column['items'],
+    ));
+
+    expect($assigneeQueries)->toHaveCount(1)
+        ->and($assigneeNames->all())->toBe([
+            'todo' => [['Emma Collins']],
+            'in_progress' => [['Marcus Johnson']],
+        ]);
+});
+
+test('runs the board query eager loads once for every lane', function () {
+    $emma = User::factory()->create(['name' => 'Emma Collins']);
+    $marcus = User::factory()->create(['name' => 'Marcus Johnson']);
+    groupedTask('Low', 'todo', 'low', '65535.0000000000')->assignees()->attach($emma->id);
+    groupedTask('High', 'in_progress', 'high', '65535.0000000000')->assignees()->attach($marcus->id);
+    groupedTask('Medium', 'todo', 'medium', '131070.0000000000');
+
+    $board = Livewire::test(TestGroupedBoard::class)->instance()->getBoard();
+
+    DB::enableQueryLog();
+    $data = $board->getLaneViewData($board->getGrouping('priority'), 10, []);
+    $assigneeQueries = collect(DB::getQueryLog())->filter(fn (array $query): bool => str_contains($query['query'], 'from "users"'));
+    DB::disableQueryLog();
+
+    $assigneeNames = collect($data['lanes'])->mapWithKeys(fn (array $lane): array => [
+        $lane['id'] => collect($lane['cells'])->flatMap(fn (array $cell): array => array_map(
+            fn (array $item): array => $item['model']->getRelation('assignees')->pluck('name')->all(),
+            $cell['items'],
+        ))->all(),
+    ]);
+
+    expect($assigneeQueries)->toHaveCount(1)
+        ->and($assigneeNames->sortKeys()->all())->toBe([
+            'high' => [['Marcus Johnson']],
+            'low' => [['Emma Collins']],
+            'medium' => [[]],
+        ]);
+});

@@ -119,10 +119,50 @@ trait HasBoardRecords
      */
     public function getBoardRecords(string $columnId): Collection
     {
+        return $this->getBoardRecordsQuery($columnId)?->get() ?? new Collection;
+    }
+
+    /**
+     * Get the records of several columns, running the query's eager loads once across all
+     * of them instead of once per column.
+     *
+     * @param  array<int, string>  $columnIds
+     * @return array<string, Collection>
+     */
+    public function getBoardRecordsForColumns(array $columnIds): array
+    {
+        $eagerLoads = [];
+        $recordsByColumn = [];
+
+        foreach ($columnIds as $columnId) {
+            $query = $this->getBoardRecordsQuery($columnId);
+
+            if (! $query) {
+                $recordsByColumn[$columnId] = new Collection;
+
+                continue;
+            }
+
+            $eagerLoads = $query->getEagerLoads();
+            $recordsByColumn[$columnId] = $query->setEagerLoads([])->get();
+        }
+
+        if ($eagerLoads !== []) {
+            (new Collection(array_merge(...array_map(
+                fn (Collection $records): array => $records->all(),
+                array_values($recordsByColumn),
+            ))))->load($eagerLoads);
+        }
+
+        return $recordsByColumn;
+    }
+
+    protected function getBoardRecordsQuery(string $columnId): ?Builder
+    {
         $queryClone = $this->getFilteredColumnQuery($columnId);
 
         if (! $queryClone) {
-            return new Collection;
+            return null;
         }
 
         $livewire = $this->getLivewire();
@@ -139,7 +179,7 @@ trait HasBoardRecords
                 ->orderBy($keyName, 'asc'); // Tie-breaker for deterministic order
         }
 
-        return $queryClone->limit($limit)->get();
+        return $queryClone->limit($limit);
     }
 
     /**
