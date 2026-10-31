@@ -136,6 +136,9 @@ class Board extends ViewComponent
     protected function getColumnViewData(bool $withItems): array
     {
         $allCounts = $this->getBatchedBoardRecordCounts();
+        $recordsByColumn = $withItems
+            ? $this->getBoardRecordsForColumns(array_map(fn (Column $column): string => $column->getName(), $this->getColumns()))
+            : [];
         $columns = [];
 
         foreach ($this->getColumns() as $column) {
@@ -148,8 +151,8 @@ class Board extends ViewComponent
                 'label' => $column->getLabel(),
                 'color' => $column->getColor(),
                 'icon' => $column->getIcon(),
-                'items' => $withItems
-                    ? $this->getBoardRecords($columnId)->map(fn ($record) => $this->formatBoardRecord($record))->toArray()
+                'items' => isset($recordsByColumn[$columnId])
+                    ? $recordsByColumn[$columnId]->map(fn ($record) => $this->formatBoardRecord($record))->toArray()
                     : [],
                 'total' => $allCounts[$columnId] ?? 0,
                 'summary' => $this->getColumnSummary($column),
