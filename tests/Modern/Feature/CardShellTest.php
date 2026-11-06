@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Livewire\Livewire;
 use Relaticle\Flowforge\Tests\Fixtures\Modern\Task;
 use Relaticle\Flowforge\Tests\Fixtures\Modern\TestBoardResourcePage;
+use Relaticle\Flowforge\Tests\Fixtures\Modern\TestHiddenActionsBoard;
 
 beforeEach(function () {
     Task::create(['title' => 'Shell card', 'status' => 'todo', 'order_position' => '65535.0000000000']);
@@ -30,4 +31,16 @@ test('each card carries a wire key scoped to the flat board', function () {
 
     Livewire::test(TestBoardResourcePage::class)
         ->assertSeeHtml('wire:key="card-board-' . $task->id . '"');
+});
+
+test('a card whose actions are all hidden renders no action menu', function () {
+    Livewire::test(TestHiddenActionsBoard::class)
+        ->assertSeeHtml('ff-card-body')
+        ->assertDontSeeHtml('ff-card-actions');
+});
+
+test('a column whose actions are all hidden renders no action menu', function () {
+    Livewire::test(TestHiddenActionsBoard::class)
+        ->assertSeeHtml('ff-column-title')
+        ->assertDontSeeHtml('ff-column-actions');
 });
