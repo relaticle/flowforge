@@ -1,11 +1,13 @@
 @props(['columnId', 'column', 'isCollapsed' => false])
 
 @php
+    use Filament\Actions\Action;
+    use Filament\Actions\ActionGroup;
     use Filament\Support\Enums\IconSize;
     use Relaticle\Flowforge\Support\ColorResolver;
     use function Filament\Support\get_color_css_variables;
 
-    $actions = $this->getBoardColumnActions($columnId);
+    $actions = array_values(array_filter($this->getBoardColumnActions($columnId), fn (Action | ActionGroup $action): bool => $action->isVisible()));
     $dotColor = ColorResolver::resolve($column['color'] ?? null);
     $createAction = $this->getBoardCreateCardAction($columnId)
         ?->getClone()
