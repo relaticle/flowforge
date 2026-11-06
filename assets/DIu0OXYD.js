@@ -1,0 +1,1 @@
+import{t as e}from"./BxLTo3Yy.js";function t(){let t=e().ui?.prefix;return e=>!t||!e?e:e.split(/\s+/).filter(Boolean).map(e=>`${t}:${e}`).join(` `)}export{t};
