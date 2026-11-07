@@ -707,6 +707,20 @@ test('the lane header row stays visible while the lanes scroll', function () {
         JS);
 });
 
+test('a card leaves room for an overlay scrollbar on both sides of its tray', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-board');
+
+    $page->assertScript(<<<'JS'
+        (() => {
+            const cards = document.querySelector('[data-column-id="todo"]').getBoundingClientRect();
+            const card = document.querySelector('[data-column-id="todo"] > [data-card-id]').getBoundingClientRect();
+
+            return card.left - cards.left === 12 && cards.right - card.right === 12;
+        })()
+    JS);
+});
+
 test('a full column and a collapsed rail carry their server-side states', function () {
     boardSeed();
     $page = boardPage('/modern/test-browser-board');
