@@ -72,6 +72,7 @@ class TestGroupedBoard extends BoardPage
             'joined_same_name' => $query->join('task_labels', 'task_labels.task_id', '=', 'tasks.id')->select('tasks.*')->orderBy('id', 'desc'),
             'multi_alias' => $query->select('tasks.*')->selectRaw('length(tasks.title) as cnt, 1 as total')->orderBy('cnt', 'desc'),
             'multi_alias_raw' => $query->select('tasks.*')->selectRaw('length(tasks.title) as cnt, 1 as total')->orderByRaw('cnt desc'),
+            'shadowed_alias' => $query->select('tasks.id', 'tasks.status', 'tasks.priority', 'tasks.order_position')->selectRaw('lower(tasks.title) as title')->orderBy('title', 'desc'),
             'quoted_alias' => $query->select('tasks.*')->selectRaw('length(tasks.title) as "Total Hours"')->orderByRaw('"Total Hours" desc'),
             'function_named_like_alias' => $query
                 ->select('tasks.*')

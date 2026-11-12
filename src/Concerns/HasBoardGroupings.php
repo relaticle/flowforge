@@ -185,7 +185,7 @@ trait HasBoardGroupings
             if (is_string($column) && ! isset($order['sql'])) {
                 $isBare = ! str_contains($column, '.');
 
-                if ($isBare && ! $this->modelHasColumn($model, $column)) {
+                if ($isBare && (! $this->modelHasColumn($model, $column) || in_array($column, $this->selectAliases($inner), true))) {
                     return ['', []];
                 }
 

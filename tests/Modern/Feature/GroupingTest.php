@@ -703,3 +703,10 @@ test('a from-bucket binding and an order binding stay aligned', function () {
     expect($records->pluck('title')->all())->toBe(['Gamma', 'Alpha', 'Beta'])
         ->and($records->pluck('picked')->unique()->all())->toBe(['picked']);
 })->group('pgsql');
+
+test('a bare order column shadowed by a selected alias falls back to position order', function () {
+    groupedTask('Alpha', 'todo', 'low', '65535.0000000000');
+    groupedTask('Bravo', 'todo', 'low', '131070.0000000000');
+
+    expect(laneCellTitles(TestGroupedBoard::class, ['orderShape' => 'shadowed_alias']))->toBe(['alpha', 'bravo']);
+})->group('pgsql');
