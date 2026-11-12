@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Relaticle\Flowforge\Grouping;
@@ -96,7 +97,11 @@ trait HasBoardGroupings
             return null;
         }
 
-        $scoped = $lane->applyQuery($boardQuery)->applyScopes();
+        $laneQuery = $lane->applyQuery($boardQuery);
+        $boardOrders = $laneQuery->getQuery()->orders ?? [];
+        $boardOrderBindings = $laneQuery->getQuery()->getRawBindings()['order'];
+
+        $scoped = $laneQuery->applyScopes();
         $model = $scoped->getModel();
         $inner = $scoped->getQuery();
 
@@ -112,21 +117,26 @@ trait HasBoardGroupings
             }
         }
 
+        [$boardOrder, $boardOrderBindings] = $this->compileBoardOrders($inner, $model, $boardOrders, $boardOrderBindings);
+
         if ($inner->distinct) {
             $inner = $model->newModelQuery()->fromSub($inner, $model->getTable())->getQuery();
         }
 
         $grammar = $inner->getGrammar();
         $partition = $grammar->wrap($this->getColumnIdentifierAttribute());
-        $order = collect([$this->getPositionIdentifierAttribute(), $model->getKeyName()])
+        $order = collect([$boardOrder])
+            ->merge(collect([$this->getPositionIdentifierAttribute(), $model->getKeyName()])
+                ->filter()
+                ->map(fn (string $column): string => $grammar->wrap($model->qualifyColumn($column))))
             ->filter()
-            ->map(fn (string $column): string => $grammar->wrap($model->qualifyColumn($column)))
             ->implode(', ');
 
         if ($inner->columns === null) {
             $inner->select($model->qualifyColumn('*'));
         }
 
+        $inner->addBinding($boardOrderBindings, 'select');
         $inner->addSelect([
             DB::raw("row_number() over (partition by {$partition} order by {$order}) as flowforge_cell_row"),
             DB::raw("count(*) over (partition by {$partition}) as flowforge_cell_total"),
@@ -138,6 +148,59 @@ trait HasBoardGroupings
             ->orderBy('flowforge_cell_row');
 
         return $outer->setEagerLoads($scoped->getEagerLoads());
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $orders
+     * @param  array<int, mixed>  $bindings
+     * @return array{string, array<int, mixed>}
+     */
+    protected function compileBoardOrders(QueryBuilder $inner, Model $model, array $orders, array $bindings): array
+    {
+        $grammar = $inner->getGrammar();
+        $table = $model->getTable();
+        $columns = array_filter(array_map($grammar->getValue(...), $inner->columns ?? []), is_string(...));
+        $aliases = array_filter(array_map(
+            fn (string $column): ?string => preg_match('/\sas\s+\W?([\w$]+)\W?\s*$/i', $column, $match) ? $match[1] : null,
+            $columns,
+        ));
+        $selectsOwnColumns = array_intersect(['*', "{$table}.*"], $columns) !== [];
+        $compiled = [];
+
+        foreach ($orders as $order) {
+            $column = $order['column'] ?? null;
+
+            if (($order['type'] ?? null) === 'InOrderOf') {
+                return ['', []];
+            }
+
+            if ($inner->distinct) {
+                $name = is_string($column) && ! isset($order['sql']) ? Str::after($column, "{$table}.") : '';
+
+                if ($name === '' || str_contains($name, '.') || ! ($selectsOwnColumns || array_intersect([$name, "{$table}.{$name}"], $columns) !== [])) {
+                    return ['', []];
+                }
+
+                $compiled[] = $grammar->wrap($model->qualifyColumn($name)) . ' ' . $order['direction'];
+
+                continue;
+            }
+
+            $sql = isset($order['sql'])
+                ? $grammar->getValue($order['sql'])
+                : $grammar->wrap($column) . ' ' . $order['direction'];
+            $readable = str_replace(['"', '`', '[', ']'], '', $sql);
+
+            foreach ($aliases as $alias) {
+                if (preg_match('/(?<![\w$.])' . preg_quote($alias, '/') . '(?![\w$])/i', $readable)) {
+                    return ['', []];
+                }
+            }
+
+            $compiled[] = $sql;
+        }
+
+        return [implode(', ', $compiled), $bindings];
     }
 
     protected function identifierBelongsToModel(Model $model): bool

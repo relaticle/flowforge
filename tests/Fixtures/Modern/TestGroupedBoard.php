@@ -33,6 +33,10 @@ class TestGroupedBoard extends BoardPage
 
     public bool $boundHaving = false;
 
+    public string $orderShape = 'none';
+
+    public int $subqueryUserId = 0;
+
     public array $authorizedLanes = [];
 
     public function getEloquentQuery(): Builder
@@ -43,7 +47,29 @@ class TestGroupedBoard extends BoardPage
             $query->groupByRaw('tasks.id, ?', [1])->havingRaw('count(*) > ?', [0]);
         }
 
-        return $query;
+        return match ($this->orderShape) {
+            'title_desc' => $query->orderBy('title', 'desc'),
+            'hours_title' => $query->orderBy('estimated_hours', 'desc')->orderBy('title'),
+            'bound_raw' => $query
+                ->select('tasks.*')
+                ->selectRaw('? as picked', ['picked'])
+                ->where('tasks.title', '<>', 'Excluded')
+                ->orderByRaw('case when tasks.title = ? then 0 else 1 end', ['Gamma']),
+            'bound_subquery' => $query
+                ->select('tasks.*')
+                ->selectRaw('? as picked', ['picked'])
+                ->where('tasks.title', '<>', 'Excluded')
+                ->orderBy(
+                    DB::table('task_user')
+                        ->selectRaw('count(*)')
+                        ->whereColumn('task_user.task_id', 'tasks.id')
+                        ->where('task_user.user_id', '<>', $this->subqueryUserId),
+                    'desc',
+                ),
+            'expression' => $query->orderBy(DB::raw('length(tasks.title)'), 'desc'),
+            'alias' => $query->withCount('assignees')->orderBy('assignees_count', 'desc'),
+            default => $query,
+        };
     }
 
     public function board(Board $board): Board

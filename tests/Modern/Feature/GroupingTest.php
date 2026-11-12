@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Relaticle\Flowforge\Exceptions\CardMoveRejectedException;
@@ -504,3 +505,141 @@ test('runs the board query eager loads once for every lane', function () {
             'medium' => [[]],
         ]);
 });
+
+function laneCellQuery(string $board, array $props, string $grouping, int $limit): Builder
+{
+    $instance = Livewire::test($board, $props)->instance()->getBoard();
+    $lane = $instance->getLanes($instance->getGrouping($grouping))[0];
+
+    return (fn () => $this->getLaneRecordsQuery($lane, $limit))->call($instance);
+}
+
+function laneCellTitles(string $board, array $props, int $limit = 10, string $grouping = 'priority'): array
+{
+    return laneCellQuery($board, $props, $grouping, $limit)->get()->pluck('title')->all();
+}
+
+test('a lane query with no board order keeps its exact SQL and bindings', function () {
+    groupedTask('One', 'todo', '1', '65535.0000000000');
+
+    $plain = laneCellQuery(TestGroupedBoard::class, [], 'priority', 5);
+    $withCount = laneCellQuery(TestCastGroupedBoard::class, [], 'priority', 5);
+
+    expect($plain->toSql())->toBe('select * from (select "tasks".*, row_number() over (partition by "status" order by "tasks"."order_position", "tasks"."id") as flowforge_cell_row, count(*) over (partition by "status") as flowforge_cell_total from "tasks" where "priority" = ?) as "tasks" where "flowforge_cell_row" <= ? order by "flowforge_cell_row" asc')
+        ->and($plain->getBindings())->toBe(['1', 5])
+        ->and($withCount->toSql())->toBe('select * from (select "tasks".*, (select count(*) from "users" inner join "task_user" on "users"."id" = "task_user"."user_id" where "tasks"."id" = "task_user"."task_id") as "assignees_count", row_number() over (partition by "status" order by "tasks"."order_position", "tasks"."id") as flowforge_cell_row, count(*) over (partition by "status") as flowforge_cell_total from "tasks" where "priority" = ?) as "tasks" where "flowforge_cell_row" <= ? order by "flowforge_cell_row" asc')
+        ->and($withCount->getBindings())->toBe(['1', 5]);
+})->group('pgsql');
+
+test('lane cells follow the order of the board query', function () {
+    groupedTask('Alpha', 'todo', 'low', '65535.0000000000');
+    groupedTask('Charlie', 'todo', 'low', '131070.0000000000');
+    groupedTask('Bravo', 'todo', 'low', '196605.0000000000');
+
+    expect(laneCellTitles(TestGroupedBoard::class, ['orderShape' => 'title_desc']))->toBe(['Charlie', 'Bravo', 'Alpha']);
+})->group('pgsql');
+
+test('lane cells break ties in the board query order by position', function () {
+    $first = groupedTask('Same', 'todo', 'low', '65535.0000000000');
+    $zed = groupedTask('Zed', 'todo', 'low', '98302.0000000000');
+    $second = groupedTask('Same', 'todo', 'low', '131070.0000000000');
+
+    $records = laneCellQuery(TestGroupedBoard::class, ['orderShape' => 'title_desc'], 'priority', 10)->get();
+
+    expect($records->pluck('id')->all())->toBe([$zed->id, $first->id, $second->id]);
+})->group('pgsql');
+
+test('lane cells honour several orders on the board query', function () {
+    groupedTask('Low hours b', 'todo', 'low', '65535.0000000000')->update(['estimated_hours' => 1]);
+    groupedTask('High hours b', 'todo', 'low', '131070.0000000000')->update(['estimated_hours' => 5]);
+    groupedTask('High hours a', 'todo', 'low', '196605.0000000000')->update(['estimated_hours' => 5]);
+
+    expect(laneCellTitles(TestGroupedBoard::class, ['orderShape' => 'hours_title']))
+        ->toBe(['High hours a', 'High hours b', 'Low hours b']);
+})->group('pgsql');
+
+test('the cell limit keeps the top cards by the board query order and the total stays full', function () {
+    groupedTask('Alpha', 'todo', 'low', '65535.0000000000');
+    groupedTask('Bravo', 'todo', 'low', '131070.0000000000');
+    groupedTask('Charlie', 'todo', 'low', '196605.0000000000');
+    groupedTask('Delta', 'todo', 'low', '262140.0000000000');
+
+    $board = Livewire::test(TestGroupedBoard::class, ['cardsPerCell' => 2, 'orderShape' => 'title_desc'])->instance()->getBoard();
+    $cell = $board->getLaneViewData($board->getGrouping('priority'), 10, [])['lanes'][0]['cells']['todo'];
+
+    expect(array_column($cell['items'], 'title'))->toBe(['Delta', 'Charlie'])
+        ->and($cell['total'])->toBe(4);
+})->group('pgsql');
+
+test('each cell orders its own cards', function () {
+    groupedTask('Alpha todo', 'todo', 'low', '65535.0000000000');
+    groupedTask('Zulu todo', 'todo', 'low', '131070.0000000000');
+    groupedTask('Alpha doing', 'in_progress', 'low', '65535.0000000000');
+    groupedTask('Zulu doing', 'in_progress', 'low', '131070.0000000000');
+
+    $board = Livewire::test(TestGroupedBoard::class, ['cardsPerCell' => 1, 'orderShape' => 'title_desc'])->instance()->getBoard();
+    $data = $board->getLaneViewData($board->getGrouping('priority'), 10, []);
+
+    expect(cellTitles($data, 'low', 'todo'))->toBe(['Zulu todo'])
+        ->and(cellTitles($data, 'low', 'in_progress'))->toBe(['Zulu doing']);
+})->group('pgsql');
+
+test('an order carrying a binding lands beside the select and where bindings', function () {
+    groupedTask('Alpha', 'todo', 'low', '65535.0000000000');
+    groupedTask('Gamma', 'todo', 'low', '131070.0000000000');
+    groupedTask('Beta', 'todo', 'low', '196605.0000000000');
+    groupedTask('Excluded', 'todo', 'low', '262140.0000000000');
+
+    $records = laneCellQuery(TestGroupedBoard::class, ['orderShape' => 'bound_raw'], 'priority', 10)->get();
+
+    expect($records->pluck('title')->all())->toBe(['Gamma', 'Alpha', 'Beta'])
+        ->and($records->pluck('picked')->unique()->all())->toBe(['picked']);
+})->group('pgsql');
+
+test('a subquery order keeps its bindings in place', function () {
+    $emma = User::factory()->create();
+    $marcus = User::factory()->create();
+    $third = User::factory()->create();
+    groupedTask('One', 'todo', 'low', '65535.0000000000')->assignees()->attach($emma);
+    groupedTask('Two', 'todo', 'low', '131070.0000000000')->assignees()->attach($marcus);
+    groupedTask('Three', 'todo', 'low', '196605.0000000000')->assignees()->attach([$marcus->id, $third->id]);
+    groupedTask('Four', 'todo', 'low', '262140.0000000000');
+    groupedTask('Excluded', 'todo', 'low', '327675.0000000000');
+
+    $records = laneCellQuery(TestGroupedBoard::class, ['orderShape' => 'bound_subquery', 'subqueryUserId' => $emma->id], 'priority', 10)->get();
+
+    expect($records->pluck('title')->all())->toBe(['Three', 'Two', 'One', 'Four'])
+        ->and($records->pluck('picked')->unique()->all())->toBe(['picked']);
+})->group('pgsql');
+
+test('an order on an expression is honoured', function () {
+    groupedTask('Ab', 'todo', 'low', '65535.0000000000');
+    groupedTask('Abcd', 'todo', 'low', '131070.0000000000');
+    groupedTask('Abc', 'todo', 'low', '196605.0000000000');
+
+    expect(laneCellTitles(TestGroupedBoard::class, ['orderShape' => 'expression']))->toBe(['Abcd', 'Abc', 'Ab']);
+})->group('pgsql');
+
+test('an order on a selected alias falls back to position order', function () {
+    $emma = User::factory()->create();
+    groupedTask('First', 'todo', 'low', '65535.0000000000');
+    groupedTask('Second', 'todo', 'low', '131070.0000000000')->assignees()->attach($emma);
+
+    expect(laneCellTitles(TestGroupedBoard::class, ['orderShape' => 'alias']))->toBe(['First', 'Second']);
+})->group('pgsql');
+
+test('a distinct board query honours an order on a selected column of its own table', function () {
+    $emma = User::factory()->create();
+    groupedTask('Alpha', 'todo', '1', '65535.0000000000')->assignees()->attach($emma);
+    groupedTask('Bravo', 'todo', '1', '131070.0000000000')->assignees()->attach($emma);
+
+    expect(laneCellTitles(TestCastGroupedBoard::class, ['distinctJoin' => true, 'orderShape' => 'title_desc']))->toBe(['Bravo', 'Alpha']);
+});
+
+test('a distinct board query falls back to position order for an order its wrapper cannot read', function (string $shape) {
+    $emma = User::factory()->create();
+    groupedTask('Alpha', 'todo', '1', '65535.0000000000')->assignees()->attach($emma);
+    groupedTask('Bravo', 'todo', '1', '131070.0000000000')->assignees()->attach($emma);
+
+    expect(laneCellTitles(TestCastGroupedBoard::class, ['distinctJoin' => true, 'orderShape' => $shape]))->toBe(['Alpha', 'Bravo']);
+})->with(['raw', 'unselected']);
