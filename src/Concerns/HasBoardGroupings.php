@@ -160,10 +160,6 @@ trait HasBoardGroupings
         $grammar = $inner->getGrammar();
         $table = $model->getTable();
         $columns = array_filter(array_map($grammar->getValue(...), $inner->columns ?? []), is_string(...));
-        $aliases = array_filter(array_map(
-            fn (string $column): ?string => preg_match('/\sas\s+\W?([\w$]+)\W?\s*$/i', $column, $match) ? $match[1] : null,
-            $columns,
-        ));
         $selectsOwnColumns = array_intersect(['*', "{$table}.*"], $columns) !== [];
         $compiled = [];
 
@@ -186,21 +182,86 @@ trait HasBoardGroupings
                 continue;
             }
 
+            if (is_string($column) && ! isset($order['sql'])) {
+                $isBare = ! str_contains($column, '.');
+
+                if ($isBare && ! $this->modelHasColumn($model, $column)) {
+                    return ['', []];
+                }
+
+                $compiled[] = $grammar->wrap($isBare ? $model->qualifyColumn($column) : $column) . ' ' . $order['direction'];
+
+                continue;
+            }
+
             $sql = isset($order['sql'])
                 ? $grammar->getValue($order['sql'])
                 : $grammar->wrap($column) . ' ' . $order['direction'];
-            $readable = str_replace(['"', '`', '[', ']'], '', $sql);
 
-            foreach ($aliases as $alias) {
-                if (preg_match('/(?<![\w$.])' . preg_quote($alias, '/') . '(?![\w$])/i', $readable)) {
-                    return ['', []];
-                }
+            if ($this->mentionsAlias($sql, $this->selectAliases($inner))) {
+                return ['', []];
             }
 
             $compiled[] = $sql;
         }
 
         return [implode(', ', $compiled), $bindings];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function selectAliases(QueryBuilder $query): array
+    {
+        $aliases = [];
+
+        foreach ($query->columns ?? [] as $column) {
+            $items = [''];
+            $depth = 0;
+            $quote = null;
+
+            foreach (str_split((string) $query->getGrammar()->getValue($column)) as $char) {
+                if ($quote !== null) {
+                    $quote = $char === $quote ? null : $quote;
+                } elseif (in_array($char, ["'", '"', '`'], true)) {
+                    $quote = $char;
+                } elseif ($char === '(' || $char === ')') {
+                    $depth += $char === '(' ? 1 : -1;
+                } elseif ($char === ',' && $depth === 0) {
+                    $items[] = '';
+
+                    continue;
+                }
+
+                $items[array_key_last($items)] .= $char;
+            }
+
+            foreach ($items as $item) {
+                if (preg_match('/\sas\s+(?:"((?:[^"]|"")+)"|`([^`]+)`|\[([^\]]+)\]|([\w$]+))\s*$|\)\s+([\w$]+)\s*$/i', $item, $match)) {
+                    $aliases[] = array_values(array_filter(array_slice($match, 1), fn (string $part): bool => $part !== ''))[0];
+                }
+            }
+        }
+
+        return $aliases;
+    }
+
+    /**
+     * @param  array<int, string>  $aliases
+     */
+    protected function mentionsAlias(string $sql, array $aliases): bool
+    {
+        $code = preg_replace("/'(?:[^']|'')*'/", "''", $sql) ?? $sql;
+
+        foreach ($aliases as $alias) {
+            $name = preg_quote($alias, '/');
+
+            if (preg_match('/(?<![\w$."`\[])' . $name . '(?![\w$"`\](])/i', $code) || preg_match('/(?<!\.)["`\[]' . $name . '["`\]]/i', $code)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function identifierBelongsToModel(Model $model): bool
