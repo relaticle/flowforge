@@ -84,6 +84,14 @@ The header `+` from `createCardAction()` creates a card without knowing the lane
 - Without `moveUsing()`, the lanes are read-only. Cards move between columns inside their lane, the browser blocks a drop into another lane, and the server refuses it with a message.
 - The server checks that the card sits in the lane it left, and refuses the move when the board has changed underneath the user.
 
+## Card order
+
+Cells order their cards by the board query's own `orderBy()` calls first, then by position, the same as columns. A bare column name resolves against the model's own table.
+
+Lanes fall back to position order for the whole query when an order cannot be placed in the ranking: a bare name that is not a column of the model's table (a selected alias such as a `withCount` column) or that a selected alias shadows, an `inOrderOf()` order, or a raw or expression order that uses a selected alias by name. A raw order that only calls a function with an alias's name, such as `count(*)`, is honoured. A board query with `distinct()` honours only plain `orderBy()` columns of the model's own table that its select list includes, and falls back for any other order.
+
+While the board query carries an order, a card dragged within a cell is written a position between neighbours that are not in position order. Refuse or ignore reorders inside a cell while the board sorts, the same as for flat columns.
+
 ## Limits and collapsed columns
 
 - A column limit counts the whole column across every lane, and the header is shared.
