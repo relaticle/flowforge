@@ -16,6 +16,8 @@ class TestCastGroupedBoard extends BoardPage
 
     public bool $distinctJoin = false;
 
+    public string $orderShape = 'none';
+
     public function getEloquentQuery(): Builder
     {
         $query = CastTask::query();
@@ -28,7 +30,12 @@ class TestCastGroupedBoard extends BoardPage
             $query->join('task_user', 'task_user.task_id', '=', 'tasks.id')->select('tasks.*')->distinct();
         }
 
-        return $query;
+        return match ($this->orderShape) {
+            'title_desc' => $query->orderBy('tasks.title', 'desc'),
+            'unselected' => $query->orderBy('task_user.user_id', 'desc'),
+            'raw' => $query->orderByRaw('lower(tasks.title) desc'),
+            default => $query,
+        };
     }
 
     public function board(Board $board): Board

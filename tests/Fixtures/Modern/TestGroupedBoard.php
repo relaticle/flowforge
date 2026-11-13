@@ -33,6 +33,10 @@ class TestGroupedBoard extends BoardPage
 
     public bool $boundHaving = false;
 
+    public string $orderShape = 'none';
+
+    public int $subqueryUserId = 0;
+
     public array $authorizedLanes = [];
 
     public function getEloquentQuery(): Builder
@@ -43,7 +47,46 @@ class TestGroupedBoard extends BoardPage
             $query->groupByRaw('tasks.id, ?', [1])->havingRaw('count(*) > ?', [0]);
         }
 
-        return $query;
+        return match ($this->orderShape) {
+            'title_desc' => $query->orderBy('title', 'desc'),
+            'hours_title' => $query->orderBy('estimated_hours', 'desc')->orderBy('title'),
+            'bound_raw' => $query
+                ->select('tasks.*')
+                ->selectRaw('? as picked', ['picked'])
+                ->where('tasks.title', '<>', 'Excluded')
+                ->orderByRaw('case when tasks.title = ? then 0 else 1 end', ['Gamma']),
+            'bound_subquery' => $query
+                ->select('tasks.*')
+                ->selectRaw('? as picked', ['picked'])
+                ->where('tasks.title', '<>', 'Excluded')
+                ->orderBy(
+                    DB::table('task_user')
+                        ->selectRaw('count(*)')
+                        ->whereColumn('task_user.task_id', 'tasks.id')
+                        ->where('task_user.user_id', '<>', $this->subqueryUserId),
+                    'desc',
+                ),
+            'expression' => $query->orderBy(DB::raw('length(tasks.title)'), 'desc'),
+            'alias' => $query->withCount('assignees')->orderBy('assignees_count', 'desc'),
+            'joined_latest' => $query->join('users', 'users.id', '=', 'tasks.created_by')->select('tasks.*')->latest(),
+            'joined_same_name' => $query->join('task_labels', 'task_labels.task_id', '=', 'tasks.id')->select('tasks.*')->orderBy('id', 'desc'),
+            'multi_alias' => $query->select('tasks.*')->selectRaw('length(tasks.title) as cnt, 1 as total')->orderBy('cnt', 'desc'),
+            'multi_alias_raw' => $query->select('tasks.*')->selectRaw('length(tasks.title) as cnt, 1 as total')->orderByRaw('cnt desc'),
+            'shadowed_alias' => $query->select('tasks.id', 'tasks.status', 'tasks.priority', 'tasks.order_position')->selectRaw('lower(tasks.title) as title')->orderBy('title', 'desc'),
+            'quoted_alias' => $query->select('tasks.*')->selectRaw('length(tasks.title) as "Total Hours"')->orderByRaw('"Total Hours" desc'),
+            'function_named_like_alias' => $query
+                ->select('tasks.*')
+                ->selectRaw('(select count(*) from task_user where task_user.task_id = tasks.id) as count')
+                ->orderByRaw('(select count(*) from task_user where task_user.task_id = tasks.id) desc'),
+            'literal_named_like_alias' => $query
+                ->select('tasks.*')
+                ->selectRaw('1 as picked')
+                ->orderByRaw("case when tasks.title = 'picked' then 0 else 1 end, tasks.title desc"),
+            'from_sub' => $query
+                ->fromSub(Task::query()->select('tasks.*')->selectRaw('? as picked', ['picked']), 'tasks')
+                ->orderByRaw('case when tasks.title = ? then 0 else 1 end', ['Gamma']),
+            default => $query,
+        };
     }
 
     public function board(Board $board): Board
