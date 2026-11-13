@@ -138,15 +138,21 @@ class Board extends ViewComponent
     protected function getColumnViewData(bool $withItems): array
     {
         $allCounts = $this->getBatchedBoardRecordCounts();
-        $recordsByColumn = $withItems
-            ? $this->getBoardRecordsForColumns(array_map(fn (Column $column): string => $column->getName(), $this->getColumns()))
-            : [];
-        $columns = [];
         $collapsedIds = $this->getCollapsedColumns();
         $collapseAll = $this->collapsesAllColumns();
         $collapseEmpty = $this->collapsesEmptyColumns()
             && $this->getActiveGrouping() === null
             && array_sum(array_map(fn (Column $column): int => $allCounts[$column->getName()] ?? 0, $this->getColumns())) > 0;
+        $isCollapsed = fn (string $columnId): bool => $collapseAll
+            || in_array($columnId, $collapsedIds, true)
+            || ($collapseEmpty && ($allCounts[$columnId] ?? 0) === 0);
+        $recordsByColumn = $withItems
+            ? $this->getBoardRecordsForColumns(array_values(array_filter(
+                array_map(fn (Column $column): string => $column->getName(), $this->getColumns()),
+                fn (string $columnId): bool => ! $isCollapsed($columnId),
+            )))
+            : [];
+        $columns = [];
 
         foreach ($this->getColumns() as $column) {
             $columnId = $column->getName();
@@ -163,9 +169,7 @@ class Board extends ViewComponent
                     ? $recordsByColumn[$columnId]->map(fn ($record) => $this->formatBoardRecord($record))->toArray()
                     : [],
                 'total' => $total,
-                'isCollapsed' => $collapseAll
-                    || in_array($columnId, $collapsedIds, true)
-                    || ($collapseEmpty && $total === 0),
+                'isCollapsed' => $isCollapsed($columnId),
                 'summary' => $this->getColumnSummary($column),
                 'limit' => $limit,
                 'limitTotal' => $limitTotal,

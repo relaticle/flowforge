@@ -28,6 +28,8 @@ class TestBoard extends BoardPage
 
     public bool $collapseAll = false;
 
+    public ?string $collapsedIdsAs = null;
+
     public bool $withHeaderToolbar = false;
 
     public bool $withCreateAction = false;
@@ -71,7 +73,11 @@ class TestBoard extends BoardPage
     {
         return $board
             ->collapseEmptyColumns($this->collapseEmpty)
-            ->collapsedColumns($this->collapsedIds)
+            ->collapsedColumns(match ($this->collapsedIdsAs) {
+                'collection' => fn () => collect($this->collapsedIds),
+                'enum' => fn (): array => [StatusEnum::Active, ...$this->collapsedIds],
+                default => $this->collapsedIds,
+            })
             ->collapseAllColumns($this->collapseAll)
             ->headerToolbar($this->withHeaderToolbar)
             ->query($this->getEloquentQuery())

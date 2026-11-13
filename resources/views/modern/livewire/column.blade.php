@@ -47,7 +47,7 @@
                 @end.stop="handleSortableEnd($event)"
                 x-init="$nextTick(() => configureSortable($el))"
             @endif
-            @if(isset($column['total']) && $column['total'] > count($column['items']))
+            @if(! $isCollapsed && isset($column['total']) && $column['total'] > count($column['items']))
                 @scroll.throttle.100ms="handleColumnScroll($event, '{{ $columnId }}')"
             @endif
         >
@@ -59,7 +59,7 @@
                 />
             @endforeach
 
-            @if(isset($column['total']) && $column['total'] > count($column['items'] ?? []))
+            @if(! $isCollapsed && isset($column['total']) && $column['total'] > count($column['items'] ?? []))
                 <div class="ff-cards-more" x-intersect.margin.300px="handleSmoothScroll('{{ $columnId }}')">
                     <div
                         x-show="isLoadingColumn('{{ $columnId }}')"

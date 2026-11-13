@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\Flowforge\Concerns;
 
+use BackedEnum;
 use Closure;
+use Illuminate\Contracts\Support\Arrayable;
 use Relaticle\Flowforge\Column;
 
 trait HasColumnControls
@@ -15,8 +17,6 @@ trait HasColumnControls
     protected bool | Closure $collapseAllColumns = false;
 
     /**
-     * Collapse the listed columns into a rail. The host owns the list.
-     *
      * @param  array<int, mixed>|Closure  $columnIds
      */
     public function collapsedColumns(array | Closure $columnIds): static
@@ -31,9 +31,13 @@ trait HasColumnControls
      */
     public function getCollapsedColumns(): array
     {
+        $evaluated = $this->evaluate($this->collapsedColumns);
         $requested = array_map(
-            fn (mixed $columnId): string => (string) $columnId,
-            (array) $this->evaluate($this->collapsedColumns),
+            fn (mixed $columnId): string => (string) ($columnId instanceof BackedEnum ? $columnId->value : $columnId),
+            array_filter(
+                $evaluated instanceof Arrayable ? $evaluated->toArray() : (array) $evaluated,
+                fn (mixed $columnId): bool => is_scalar($columnId) || $columnId instanceof BackedEnum,
+            ),
         );
 
         $visible = array_map(fn (Column $column): string => $column->getName(), $this->getColumns());
