@@ -948,3 +948,45 @@ test('double clicking a word in the menu input selects it and leaves the column 
     expect($page->script('document.activeElement.value.substring(document.activeElement.selectionStart, document.activeElement.selectionEnd)'))->toBe('Backlog')
         ->and($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
 });
+
+test('double clicking a lane head collapses its column and clicking the rail expands it', function () {
+    boardSeed('high');
+    $page = boardPage('/modern/test-collapsible-grouped-board?groupBy=priority');
+    $pointer = Pointer::on($page);
+    $root = '.ff-lanes-heads [data-column-root="todo"]';
+
+    expect($page->script("document.querySelectorAll('.ff-lanes-heads [data-column-root=\"in_progress\"][data-collapsed]').length"))->toBe(1);
+
+    $pointer->doubleClick("{$root} .ff-column-title");
+    $pointer->untilScript("document.querySelector('{$root}').hasAttribute('data-collapsed')");
+
+    expect(boardStyle($page, $root, 'width'))->toBe('48px')
+        ->and($page->script("document.querySelector('.ff-cell[data-collapsed] .ff-count').innerText.trim()"))->toBe('3');
+
+    $pointer->click($root);
+    $pointer->untilScript("! document.querySelector('{$root}').hasAttribute('data-collapsed')");
+
+    expect(boardStyle($page, $root, 'width'))->toBe('300px');
+});
+
+test('a collapsed column in lanes opens while a card is dragged and takes the drop', function () {
+    [$a] = boardSeed('high');
+    $page = boardPage('/modern/test-collapsible-grouped-board?groupBy=priority');
+    $pointer = Pointer::on($page);
+    $cell = '[data-lane-id="high"][data-column-id="in_progress"]';
+    $width = "Math.round(document.querySelector('{$cell}').closest('.ff-cell').getBoundingClientRect().width)";
+
+    expect($page->script($width))->toBeLessThan(100);
+
+    $pointer->press(boardCard($a))->nudge(30, 30);
+    $pointer->untilScript("document.documentElement.classList.contains('ff-dragging')");
+    $pointer->glideTo($cell);
+
+    expect($page->script($width))->toBeGreaterThan(250);
+
+    $pointer->release();
+    $pointer->untilEquals(fn () => Task::query()->find($a->id)->status, 'in_progress', 'the moved card status');
+    $pointer->untilEquals(fn () => $page->script($width) < 100, true, 'the cell track after the drop');
+
+    expect(Task::query()->find($a->id)->priority)->toBe('high');
+});

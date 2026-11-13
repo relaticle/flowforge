@@ -89,7 +89,10 @@ trait HasBoardGroupings
         return $this->getLaneRecordsQuery($lane, $perCellLimit)?->get() ?? new EloquentCollection;
     }
 
-    protected function getLaneRecordsQuery(Lane $lane, int $perCellLimit): ?Builder
+    /**
+     * @param  array<int, string>  $collapsedColumnIds
+     */
+    protected function getLaneRecordsQuery(Lane $lane, int $perCellLimit, array $collapsedColumnIds = []): ?Builder
     {
         $boardQuery = $this->getFilteredBoardQuery();
 
@@ -142,10 +145,18 @@ trait HasBoardGroupings
             DB::raw("count(*) over (partition by {$partition}) as flowforge_cell_total"),
         ]);
 
+        if ($collapsedColumnIds !== []) {
+            $placeholders = implode(', ', array_fill(0, count($collapsedColumnIds), '?'));
+            $inner->selectRaw("case when {$partition} in ({$placeholders}) then 1 else ? end as flowforge_cell_cap", [...$collapsedColumnIds, $perCellLimit]);
+        }
+
         $outer = $model->newModelQuery()
             ->fromSub($inner, $model->getTable())
-            ->where('flowforge_cell_row', '<=', $perCellLimit)
             ->orderBy('flowforge_cell_row');
+
+        $collapsedColumnIds === []
+            ? $outer->where('flowforge_cell_row', '<=', $perCellLimit)
+            : $outer->whereColumn('flowforge_cell_row', '<=', 'flowforge_cell_cap');
 
         return $outer->setEagerLoads($scoped->getEagerLoads());
     }
@@ -288,9 +299,10 @@ trait HasBoardGroupings
 
     /**
      * @param  array<string, array<string, int>>  $cellCardLimits
+     * @param  array<int, string>  $collapsedColumnIds
      * @return array{lanes: array<int, array<string, mixed>>, hasMoreLanes: bool}
      */
-    public function getLaneViewData(Grouping $grouping, int $visibleLaneCount, array $cellCardLimits): array
+    public function getLaneViewData(Grouping $grouping, int $visibleLaneCount, array $cellCardLimits, array $collapsedColumnIds = []): array
     {
         $columnIds = $this->getColumnIdentifiers();
         $eagerLoads = [];
@@ -309,7 +321,7 @@ trait HasBoardGroupings
             }
 
             $cellLimits = $cellCardLimits[$lane->getName()] ?? [];
-            $query = $this->getLaneRecordsQuery($lane, max([$this->getCardsPerColumn(), ...array_values($cellLimits)]));
+            $query = $this->getLaneRecordsQuery($lane, max([$this->getCardsPerColumn(), ...array_values($cellLimits)]), $collapsedColumnIds);
 
             if ($query === null) {
                 continue;
@@ -319,7 +331,7 @@ trait HasBoardGroupings
             $records = $query->setEagerLoads([])->get();
 
             if ($records->contains(fn (Model $record): bool => in_array($this->getRecordColumnId($record), $columnIds, true))) {
-                $visibleLanes[] = [$lane, $records, $cellLimits];
+                $visibleLanes[] = [$lane, $records, $cellLimits, $collapsedColumnIds];
             }
         }
 
@@ -339,9 +351,10 @@ trait HasBoardGroupings
     /**
      * @param  EloquentCollection<int, Model>  $records
      * @param  array<string, int>  $cellLimits
+     * @param  array<int, string>  $collapsedColumnIds
      * @return array<string, mixed>
      */
-    protected function formatLane(Lane $lane, EloquentCollection $records, array $cellLimits): array
+    protected function formatLane(Lane $lane, EloquentCollection $records, array $cellLimits, array $collapsedColumnIds = []): array
     {
         $cells = [];
 
@@ -351,7 +364,7 @@ trait HasBoardGroupings
                 ->values();
 
             $cells[$columnId] = [
-                'items' => $cellRecords
+                'items' => in_array($columnId, $collapsedColumnIds, true) ? [] : $cellRecords
                     ->take($cellLimits[$columnId] ?? $this->getCardsPerColumn())
                     ->map(fn (Model $record): array => $this->formatBoardRecord($record))
                     ->all(),

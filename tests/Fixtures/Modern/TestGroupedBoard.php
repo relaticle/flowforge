@@ -27,6 +27,14 @@ class TestGroupedBoard extends BoardPage
 
     public bool $collapseEmpty = false;
 
+    public array $collapsedIds = [];
+
+    public bool $collapseAll = false;
+
+    public bool $collapsible = false;
+
+    public array $toggled = [];
+
     public ?int $inProgressLimit = null;
 
     public bool $duplicateOnPersist = false;
@@ -101,6 +109,16 @@ class TestGroupedBoard extends BoardPage
             ->lanesPerPage($this->lanesPerPage)
             ->headerToolbar($this->withHeaderToolbar)
             ->collapseEmptyColumns($this->collapseEmpty)
+            ->collapsedColumns($this->collapsedIds)
+            ->collapseAllColumns($this->collapseAll)
+            ->collapsibleColumns($this->collapsible
+                ? function (string $columnId, bool $collapsed): void {
+                    $this->toggled[] = [$columnId, $collapsed];
+                    $this->collapsedIds = $collapsed
+                        ? [...$this->collapsedIds, $columnId]
+                        : array_values(array_diff($this->collapsedIds, [$columnId]));
+                }
+                : null)
             ->columns([
                 Column::make('todo')->label('To Do'),
                 Column::make('in_progress')->label('In Progress')->limit($this->inProgressLimit),

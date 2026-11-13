@@ -6,22 +6,33 @@
     use function Filament\Support\get_color_css_variables;
 
     $isSortable = $this->getBoard()->getPositionIdentifierAttribute() !== null;
+    $tracks = collect($columns)
+        ->map(fn (array $column): string => ($column['isCollapsed'] ?? false) ? 'var(--_collapsed-width)' : 'var(--_column-width)')
+        ->implode(' ');
+    $tracksStyle = '--_tracks: ' . $tracks . '; --_tracks-open: repeat(' . count($columns) . ', var(--_column-width))';
 @endphp
 
 <div class="ff-lanes">
-    <div class="ff-lanes-grid" style="--_columns: {{ count($columns) }}">
-        <div class="ff-lanes-heads" wire:key="column-headers">
+    <div class="ff-lanes-grid" style="{{ $tracksStyle }}">
+        <div class="ff-lanes-heads" style="{{ $tracksStyle }}" wire:key="column-headers">
             @foreach ($columns as $columnId => $column)
+                @php $isCollapsed = (bool) ($column['isCollapsed'] ?? false); @endphp
+
                 <div
                     class="ff-column"
                     data-column-root="{{ $columnId }}"
                     data-column-total="{{ $column['limitTotal'] ?? $column['total'] }}"
                     @if (($column['limit'] ?? null) !== null) data-column-limit="{{ $column['limit'] }}" @endif
                     @if ($column['isFull'] ?? false) data-full @endif
+                    @if ($isCollapsed) data-collapsed title="{{ strip_tags((string) $column['label']) }}" @endif
+                    @if ($isCollapsed && ($column['canToggleCollapse'] ?? false))
+                        x-on:click="toggleColumnCollapse($event, @js((string) $columnId), true)"
+                        x-on:mousedown="suppressDoubleClickSelection($event)"
+                    @endif
                     x-bind:data-drop="columnDrop(@js((string) $columnId))"
                     wire:key="lane-header-{{ $columnId }}"
                 >
-                    <x-flowforge::modern.column-header :columnId="(string) $columnId" :column="$column" />
+                    <x-flowforge::modern.column-header :columnId="(string) $columnId" :column="$column" :isCollapsed="$isCollapsed" />
                 </div>
             @endforeach
         </div>
@@ -62,14 +73,22 @@
             </div>
 
             @foreach ($columns as $columnId => $column)
-                @php $cell = $lane['cells'][$columnId] ?? ['items' => [], 'total' => 0]; @endphp
+                @php
+                    $cell = $lane['cells'][$columnId] ?? ['items' => [], 'total' => 0];
+                    $isCollapsed = (bool) ($column['isCollapsed'] ?? false);
+                @endphp
 
                 <div
                     class="ff-cell"
+                    @if ($isCollapsed) data-collapsed @endif
                     x-show="! isLaneCollapsed(@js($laneKey))"
                     x-bind:data-drop="cellDrop(@js((string) $columnId), @js((string) $lane['id']))"
                     wire:key="cell-{{ $lane['id'] }}-{{ $columnId }}"
                 >
+                    @if ($isCollapsed)
+                        <span class="ff-count">{{ $cell['total'] }}</span>
+                    @endif
+
                     <div
                         class="ff-cell-cards"
                         data-column-id="{{ $columnId }}"
@@ -86,7 +105,7 @@
                         @endforeach
                     </div>
 
-                    @if ($cell['total'] > count($cell['items']))
+                    @if (! $isCollapsed && $cell['total'] > count($cell['items']))
                         <button
                             type="button"
                             class="ff-add-row"

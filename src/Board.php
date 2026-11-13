@@ -111,6 +111,7 @@ class Board extends ViewComponent
                 $grouping,
                 $livewire->visibleLaneCount ?? $this->getLanesPerPage(),
                 $livewire->cellCardLimits ?? [],
+                array_keys(array_filter(array_column($columns, 'isCollapsed', 'id'))),
             );
 
         return [
