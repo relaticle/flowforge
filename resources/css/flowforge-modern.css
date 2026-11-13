@@ -266,6 +266,24 @@
         white-space: nowrap;
     }
 
+    .ff-column-menu {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .ff-column-menu > .fi-dropdown-trigger {
+        display: block;
+        min-width: 0;
+    }
+
+    .ff-column-menu .ff-column-heading {
+        cursor: pointer;
+    }
+
+    .ff-column-menu-block {
+        padding: 0.5rem 0.75rem;
+    }
+
     .ff-column-actions {
         display: flex;
         flex-shrink: 0;

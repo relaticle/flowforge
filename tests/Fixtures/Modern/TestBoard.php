@@ -34,6 +34,10 @@ class TestBoard extends BoardPage
 
     public bool $withColumnActions = false;
 
+    public bool $withHeaderMenu = false;
+
+    public bool $nullMenuBlock = false;
+
     public array $toggled = [];
 
     public bool $withHeaderToolbar = false;
@@ -95,9 +99,16 @@ class TestBoard extends BoardPage
                 }
                 : null)
             ->headerToolbar($this->withHeaderToolbar)
-            ->columnActions($this->withColumnActions
-                ? [Action::make('renameColumn')->action(function (): void {}), Action::make('clearColumn')->action(function (): void {})]
-                : [])
+            ->columnActions(match (true) {
+                $this->withHeaderMenu => [Action::make('archiveColumn')->label('Archive column')->action(function (): void {})],
+                $this->withColumnActions => [Action::make('renameColumn')->action(function (): void {}), Action::make('clearColumn')->action(function (): void {})],
+                default => [],
+            })
+            ->columnHeaderMenu($this->withHeaderMenu
+                ? fn (array $column): ?HtmlString => $this->nullMenuBlock
+                    ? null
+                    : new HtmlString('<div class="ff-test-menu-block">Block for ' . $column['label'] . '<input class="ff-test-menu-input" size="7" value="Backlog"></div>')
+                : null)
             ->query($this->getEloquentQuery())
             ->recordTitleAttribute('title')
             ->searchable(['title'])

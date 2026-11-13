@@ -7,6 +7,7 @@ namespace Relaticle\Flowforge\Concerns;
 use BackedEnum;
 use Closure;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Htmlable;
 use Relaticle\Flowforge\Column;
 
 trait HasColumnControls
@@ -17,6 +18,8 @@ trait HasColumnControls
     protected bool | Closure $collapseAllColumns = false;
 
     protected ?Closure $toggleColumnCollapse = null;
+
+    protected ?Closure $columnHeaderMenu = null;
 
     /**
      * @param  array<int, mixed>|Closure  $columnIds
@@ -83,5 +86,29 @@ trait HasColumnControls
             'columnId' => $columnId,
             'collapsed' => ! $state['collapsed'],
         ]);
+    }
+
+    public function columnHeaderMenu(?Closure $using): static
+    {
+        $this->columnHeaderMenu = $using;
+
+        return $this;
+    }
+
+    public function hasColumnHeaderMenu(): bool
+    {
+        return $this->columnHeaderMenu instanceof Closure;
+    }
+
+    /**
+     * @param  array<string, mixed>  $column
+     */
+    public function getColumnHeaderMenuBlock(array $column): ?Htmlable
+    {
+        if (! $this->columnHeaderMenu instanceof Closure) {
+            return null;
+        }
+
+        return $this->evaluate($this->columnHeaderMenu, ['column' => $column]);
     }
 }

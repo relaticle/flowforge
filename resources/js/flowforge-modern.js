@@ -26,6 +26,10 @@ const FLOWFORGE_TOKENS = [
     '--ff-placeholder-border',
 ];
 
+const HEADER_GESTURE_IGNORED = '.ff-column-actions, .fi-dropdown-panel, input, textarea, select, [contenteditable]:not([contenteditable="false"])';
+
+const MENU_DRAG_THRESHOLD = 4;
+
 const sortablesAwaitingDrag = new WeakSet();
 
 const sortableIsBusy = () => window.Sortable.active || window.Sortable.dragged;
@@ -37,6 +41,7 @@ export default function flowforgeModern() {
         dragOverColumn: null,
 
         railToggledAt: 0,
+        columnMenuPressAt: null,
         dragOverLane: null,
         dragSource: null,
         pendingCounts: {},
@@ -216,7 +221,7 @@ export default function flowforgeModern() {
         },
 
         toggleColumnCollapse(event, columnId, fromRail = false) {
-            if (event.target.closest('.ff-column-actions') || (fromRail && event.detail > 1)) {
+            if (event.target.closest(HEADER_GESTURE_IGNORED) || (fromRail && event.detail > 1)) {
                 return;
             }
 
@@ -233,9 +238,39 @@ export default function flowforgeModern() {
         },
 
         suppressDoubleClickSelection(event) {
-            if (event.detail > 1 && !event.target.closest('.ff-column-actions')) {
+            if (event.detail > 1 && !event.target.closest(HEADER_GESTURE_IGNORED)) {
                 event.preventDefault();
             }
+        },
+
+        // Filament opens a dropdown on mousedown, which would open the menu at the start of a header drag.
+        initColumnMenu(trigger) {
+            const dropdown = window.Alpine.$data(trigger.closest('.fi-dropdown'));
+
+            if (dropdown.ignoresMousedownToggle) {
+                return;
+            }
+
+            const toggle = dropdown.toggle.bind(dropdown);
+
+            dropdown.ignoresMousedownToggle = true;
+            dropdown.toggle = (event) => (event?.type === 'mousedown' ? undefined : toggle(event));
+        },
+
+        columnMenuPress(event) {
+            this.columnMenuPressAt = { x: event.clientX, y: event.clientY };
+        },
+
+        columnMenuClick(event) {
+            const press = this.columnMenuPressAt;
+
+            this.columnMenuPressAt = null;
+
+            if (press && Math.hypot(event.clientX - press.x, event.clientY - press.y) > MENU_DRAG_THRESHOLD) {
+                return;
+            }
+
+            window.Alpine.$data(event.currentTarget.closest('.fi-dropdown')).toggle(event);
         },
 
         columnDrop(columnId) {
