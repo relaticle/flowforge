@@ -30,6 +30,8 @@ const HEADER_GESTURE_IGNORED = '.ff-column-actions, .fi-dropdown-panel, input, t
 
 const MENU_DRAG_THRESHOLD = 4;
 
+const menusIgnoringMousedown = new WeakSet();
+
 const sortablesAwaitingDrag = new WeakSet();
 
 const sortableIsBusy = () => window.Sortable.active || window.Sortable.dragged;
@@ -245,15 +247,16 @@ export default function flowforgeModern() {
 
         // Filament opens a dropdown on mousedown, which would open the menu at the start of a header drag.
         initColumnMenu(trigger) {
-            const dropdown = window.Alpine.$data(trigger.closest('.fi-dropdown'));
+            const root = trigger.closest('.fi-dropdown');
 
-            if (dropdown.ignoresMousedownToggle) {
+            if (menusIgnoringMousedown.has(root)) {
                 return;
             }
 
+            const dropdown = window.Alpine.$data(root);
             const toggle = dropdown.toggle.bind(dropdown);
 
-            dropdown.ignoresMousedownToggle = true;
+            menusIgnoringMousedown.add(root);
             dropdown.toggle = (event) => (event?.type === 'mousedown' ? undefined : toggle(event));
         },
 

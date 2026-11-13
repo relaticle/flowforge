@@ -103,9 +103,9 @@ final class Pointer
         return $this->press($selector)->release();
     }
 
-    public function doubleClick(string $selector): self
+    public function doubleClick(string $selector, int $gapMilliseconds = 0): self
     {
-        $this->click($selector);
+        $this->click($selector)->wait($gapMilliseconds);
         $this->send('mouseDown', ['button' => 'left', 'clickCount' => 2]);
         $this->send('mouseUp', ['button' => 'left', 'clickCount' => 2]);
 

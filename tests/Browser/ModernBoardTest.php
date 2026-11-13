@@ -855,17 +855,17 @@ test('double clicking the column actions trigger leaves the column expanded', fu
     expect($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
 });
 
-test('clicking a header opens its menu at once', function () {
+test('clicking a header opens its menu at once', function (string $column, string $label) {
     boardSeed();
     $page = boardPage('/modern/test-menu-board');
     $pointer = Pointer::on($page);
-    $root = '[data-column-root="todo"]';
+    $root = "[data-column-root=\"{$column}\"]";
 
     $pointer->click("{$root} .ff-column-heading");
     $pointer->untilScript("document.querySelector('{$root} .fi-dropdown-panel').style.display === 'block'");
 
-    expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').innerText"))->toContain('Block for To Do')->toContain('Archive column');
-});
+    expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').innerText"))->toContain("Block for {$label}")->toContain('Archive column');
+})->with([['todo', 'To Do'], ['in_progress', 'In Progress']]);
 
 test('double clicking a header with a menu closes the menu and collapses the column', function () {
     boardSeed();
@@ -879,15 +879,59 @@ test('double clicking a header with a menu closes the menu and collapses the col
     expect($page->script("document.querySelectorAll('.fi-dropdown-panel[style*=\"display: block\"]').length"))->toBe(0);
 });
 
-test('releasing a header drag does not open the menu', function () {
+test('releasing a header drag does not open the menu', function (string $column) {
+    boardSeed();
+    $page = boardPage('/modern/test-menu-board');
+    $pointer = Pointer::on($page);
+    $root = "[data-column-root=\"{$column}\"]";
+
+    $pointer->press("{$root} .ff-column-heading")->nudge(40, 0)->release()->wait(400);
+
+    expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').style.display"))->not->toBe('block');
+})->with(['todo', 'in_progress']);
+
+test('a column expanded from its rail opens its menu on click and not on a drag', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-menu-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="completed"]';
+
+    $pointer->click($root);
+    $pointer->untilScript("! document.querySelector('{$root}').hasAttribute('data-collapsed')");
+    $pointer->untilScript("Boolean(document.querySelector('{$root} .fi-dropdown-panel'))");
+
+    $pointer->press("{$root} .ff-column-heading")->nudge(40, 0)->release()->wait(400);
+
+    expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').style.display"))->not->toBe('block');
+
+    $pointer->click("{$root} .ff-column-heading");
+    $pointer->untilScript("document.querySelector('{$root} .fi-dropdown-panel').style.display === 'block'");
+});
+
+test('a double click closes the menu it opened when nothing collapses', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-menu-static-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="todo"]';
+
+    $pointer->doubleClick("{$root} .ff-column-heading", 120)->wait(600);
+
+    expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').style.display"))->not->toBe('block')
+        ->and($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
+});
+
+test('a board update leaves an open menu open', function () {
     boardSeed();
     $page = boardPage('/modern/test-menu-board');
     $pointer = Pointer::on($page);
     $root = '[data-column-root="todo"]';
 
-    $pointer->press("{$root} .ff-column-heading")->nudge(40, 0)->release()->wait(400);
+    $pointer->click("{$root} .ff-column-heading");
+    $pointer->untilScript("document.querySelector('{$root} .fi-dropdown-panel').style.display === 'block'");
+    $page->script('Livewire.first().$refresh()');
+    $pointer->wait(1000);
 
-    expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').style.display"))->not->toBe('block');
+    expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').style.display"))->toBe('block');
 });
 
 test('double clicking a word in the menu input selects it and leaves the column expanded', function () {
