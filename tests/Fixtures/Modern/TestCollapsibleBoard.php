@@ -10,5 +10,7 @@ class TestCollapsibleBoard extends TestBoard
 
     public bool $withCreateAction = true;
 
+    public bool $withColumnActions = true;
+
     public array $collapsedIds = ['completed'];
 }

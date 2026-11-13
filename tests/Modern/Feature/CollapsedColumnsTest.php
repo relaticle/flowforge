@@ -97,13 +97,46 @@ describe('toggling collapse', function () {
             ->and($component->html())->not->toContain('data-collapsed');
     });
 
-    test('toggling an empty column that collapses by rule asks the host to expand it', function () {
+    test('toggling a column that an empty rule collapses is ignored and it stays collapsed', function () {
         Task::factory()->todo()->create(['title' => 'Only Task']);
 
         $component = Livewire::test(TestBoard::class, ['collapsible' => true, 'collapseEmpty' => true])
             ->call('toggleBoardColumnCollapse', 'in_progress');
 
-        expect($component->get('toggled'))->toBe([['in_progress', false]]);
+        expect($component->get('toggled'))->toBe([])
+            ->and($component->html())->toMatch('/<div\s[^>]*data-column-root="in_progress"[^>]*data-collapsed/');
+    });
+
+    test('toggling under collapse all is ignored and every column stays collapsed', function () {
+        $component = Livewire::test(TestBoard::class, ['collapsible' => true, 'collapseAll' => true, 'collapsedIds' => ['todo']])
+            ->call('toggleBoardColumnCollapse', 'todo')
+            ->call('toggleBoardColumnCollapse', 'in_progress');
+
+        expect($component->get('toggled'))->toBe([])
+            ->and(substr_count($component->html(), 'data-collapsed'))->toBe(3);
+    });
+
+    test('a rail collapsed only by a rule binds no click', function () {
+        Task::factory()->todo()->create(['title' => 'Only Task']);
+
+        $empty = Livewire::test(TestBoard::class, ['collapsible' => true, 'collapseEmpty' => true])->html();
+        $all = Livewire::test(TestBoard::class, ['collapsible' => true, 'collapseAll' => true, 'collapsedIds' => ['todo']])->html();
+
+        expect($empty)->toContain('data-collapsed')
+            ->and($empty)->not->toMatch('/<div\s[^>]*data-column-root="in_progress"[^>]*x-on:click/')
+            ->and($all)->toContain('data-collapsed')
+            ->and($all)->not->toMatch('/<div\s[^>]*data-column-root="[a-z_]+"[^>]*x-on:click/')
+            ->and($all)->not->toContain('x-on:dblclick');
+    });
+
+    test('a toggle shows the new state in the same response for a plain array of ids', function () {
+        $component = Livewire::test(TestBoard::class, ['collapsible' => true, 'collapsedIds' => ['todo']])
+            ->call('toggleBoardColumnCollapse', 'todo')
+            ->call('toggleBoardColumnCollapse', 'completed');
+
+        expect($component->get('toggled'))->toBe([['todo', false], ['completed', true]])
+            ->and(substr_count($component->html(), 'data-collapsed'))->toBe(1)
+            ->and($component->html())->toMatch('/<div\s[^>]*data-column-root="completed"[^>]*data-collapsed/');
     });
 
     test('toggle ignores unknown and hidden columns', function () {

@@ -25,8 +25,9 @@
 
 <div
     class="ff-column-header"
-    @if ($this->getBoard()->isColumnCollapsible() && ! $isCollapsed)
-        x-on:dblclick="if (! $event.target.closest('.ff-column-actions')) $wire.toggleBoardColumnCollapse(@js($columnId))"
+    @if (($column['canToggleCollapse'] ?? false) && ! $isCollapsed)
+        x-on:dblclick="toggleColumnCollapse($event, @js($columnId))"
+        x-on:mousedown="suppressDoubleClickSelection($event)"
     @endif
 >
     <div class="ff-column-heading">

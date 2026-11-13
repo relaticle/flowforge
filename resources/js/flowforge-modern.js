@@ -35,6 +35,8 @@ export default function flowforgeModern() {
         isLoading: {},
         fullyLoaded: {},
         dragOverColumn: null,
+
+        railToggledAt: 0,
         dragOverLane: null,
         dragSource: null,
         pendingCounts: {},
@@ -211,6 +213,29 @@ export default function flowforgeModern() {
             this.dragOverColumn = null;
             this.dragOverLane = null;
             this.dragSource = null;
+        },
+
+        toggleColumnCollapse(event, columnId, fromRail = false) {
+            if (event.target.closest('.ff-column-actions') || (fromRail && event.detail > 1)) {
+                return;
+            }
+
+            // The click that expands a rail must not let its double click collapse the header again.
+            if (Date.now() - this.railToggledAt < 500) {
+                return;
+            }
+
+            if (fromRail) {
+                this.railToggledAt = Date.now();
+            }
+
+            this.$wire.toggleBoardColumnCollapse(columnId);
+        },
+
+        suppressDoubleClickSelection(event) {
+            if (event.detail > 1 && !event.target.closest('.ff-column-actions')) {
+                event.preventDefault();
+            }
         },
 
         columnDrop(columnId) {

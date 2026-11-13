@@ -792,7 +792,8 @@ test('double clicking a header collapses its column and clicking the rail expand
     $pointer->doubleClick("{$root} .ff-column-title");
     $pointer->untilScript("document.querySelector('{$root}').hasAttribute('data-collapsed')");
 
-    expect(boardStyle($page, $root, 'width'))->toBe('48px');
+    expect(boardStyle($page, $root, 'width'))->toBe('48px')
+        ->and($page->script('window.getSelection().toString()'))->toBe('');
 
     $pointer->click($root);
     $pointer->untilScript("! document.querySelector('{$root}').hasAttribute('data-collapsed')");
@@ -827,4 +828,29 @@ test('a collapsed column widens while a card hovers it and accepts the drop', fu
     $pointer->release();
     $pointer->untilEquals(fn () => Task::query()->find($a->id)->status, 'completed', 'the moved card status');
     $pointer->untilEquals(fn () => boardStyle($page, $root, 'width'), '48px', 'the rail width after the drop');
+});
+
+test('double clicking a collapsed rail expands it', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="completed"]';
+
+    $pointer->doubleClick("{$root} .ff-column-title");
+    $pointer->untilScript("! document.querySelector('{$root}').hasAttribute('data-collapsed')");
+    $pointer->wait(600);
+
+    expect($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
+});
+
+test('double clicking the column actions trigger leaves the column expanded', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="todo"]';
+
+    $pointer->doubleClick("{$root} .ff-column-actions .fi-dropdown-trigger button");
+    $pointer->wait(600);
+
+    expect($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
 });

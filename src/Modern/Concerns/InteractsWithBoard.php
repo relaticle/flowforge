@@ -123,6 +123,7 @@ trait InteractsWithBoard
     public function toggleBoardColumnCollapse(string $columnId): void
     {
         $this->getBoard()->toggleColumnCollapse($columnId);
+        $this->board = $this->board($this->makeBoard());
     }
 
     protected function canCreateCardIn(mixed $columnId): bool

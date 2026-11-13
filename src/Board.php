@@ -134,26 +134,39 @@ class Board extends ViewComponent
         ];
     }
 
-    public function isColumnCollapsed(string $columnId): bool
+    /**
+     * @return array{collapsed: bool, toggleable: bool}
+     */
+    public function getColumnCollapseState(string $columnId): array
     {
         return $this->makeCollapseResolver($this->getBatchedBoardRecordCounts())($columnId);
     }
 
     /**
      * @param  array<string, int>  $allCounts
-     * @return Closure(string): bool
+     * @return Closure(string): array{collapsed: bool, toggleable: bool}
      */
     protected function makeCollapseResolver(array $allCounts): Closure
     {
-        $collapsedIds = $this->getCollapsedColumns();
+        $listed = $this->getCollapsedColumns();
+        $visible = $this->getColumnIdentifiers();
         $collapseAll = $this->collapsesAllColumns();
         $collapseEmpty = $this->collapsesEmptyColumns()
             && $this->getActiveGrouping() === null
             && array_sum(array_map(fn (Column $column): int => $allCounts[$column->getName()] ?? 0, $this->getColumns())) > 0;
 
-        return fn (string $columnId): bool => $collapseAll
-            || in_array($columnId, $collapsedIds, true)
-            || ($collapseEmpty && ($allCounts[$columnId] ?? 0) === 0);
+        return function (string $columnId) use ($listed, $visible, $collapseAll, $collapseEmpty, $allCounts): array {
+            $byRule = $collapseAll || ($collapseEmpty && ($allCounts[$columnId] ?? 0) === 0);
+            $isListed = in_array($columnId, $listed, true);
+            $collapsed = $byRule || $isListed;
+
+            return [
+                'collapsed' => $collapsed,
+                'toggleable' => $this->isColumnCollapsible()
+                    && in_array($columnId, $visible, true)
+                    && (! $collapsed || ($isListed && ! $byRule)),
+            ];
+        };
     }
 
     /**
@@ -166,7 +179,7 @@ class Board extends ViewComponent
         $recordsByColumn = $withItems
             ? $this->getBoardRecordsForColumns(array_values(array_filter(
                 array_map(fn (Column $column): string => $column->getName(), $this->getColumns()),
-                fn (string $columnId): bool => ! $isCollapsed($columnId),
+                fn (string $columnId): bool => ! $isCollapsed($columnId)['collapsed'],
             )))
             : [];
         $columns = [];
@@ -176,6 +189,7 @@ class Board extends ViewComponent
             $limit = $column->getLimit();
             $limitTotal = $limit === null ? null : $this->getUnfilteredColumnRecordCount($columnId);
             $total = $allCounts[$columnId] ?? 0;
+            $state = $isCollapsed($columnId);
 
             $columns[$columnId] = [
                 'id' => $columnId,
@@ -186,7 +200,8 @@ class Board extends ViewComponent
                     ? $recordsByColumn[$columnId]->map(fn ($record) => $this->formatBoardRecord($record))->toArray()
                     : [],
                 'total' => $total,
-                'isCollapsed' => $isCollapsed($columnId),
+                'isCollapsed' => $state['collapsed'],
+                'canToggleCollapse' => $state['toggleable'],
                 'summary' => $this->getColumnSummary($column),
                 'limit' => $limit,
                 'limitTotal' => $limitTotal,

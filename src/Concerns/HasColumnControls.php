@@ -73,13 +73,15 @@ trait HasColumnControls
 
     public function toggleColumnCollapse(string $columnId): void
     {
-        if (! $this->isColumnCollapsible() || ! in_array($columnId, $this->getColumnIdentifiers(), true)) {
+        $state = $this->getColumnCollapseState($columnId);
+
+        if (! $state['toggleable']) {
             return;
         }
 
         $this->evaluate($this->toggleColumnCollapse, [
             'columnId' => $columnId,
-            'collapsed' => ! $this->isColumnCollapsed($columnId),
+            'collapsed' => ! $state['collapsed'],
         ]);
     }
 }
