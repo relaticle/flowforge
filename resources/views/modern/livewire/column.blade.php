@@ -21,6 +21,9 @@
     @if (($column['limit'] ?? null) !== null) data-column-limit="{{ $column['limit'] }}" @endif
     @if ($column['isFull'] ?? false) data-full @endif
     @if ($isCollapsed) data-collapsed title="{{ $plainLabel }}" @endif
+    @if ($isCollapsed && $config['collapsible'])
+        x-on:click="if (! $event.target.closest('.ff-column-actions')) $wire.toggleBoardColumnCollapse(@js((string) $columnId))"
+    @endif
     x-bind:data-drop="columnDrop(@js((string) $columnId))"
 >
     <x-flowforge::modern.column-header :columnId="(string) $columnId" :column="$column" :isCollapsed="$isCollapsed" />

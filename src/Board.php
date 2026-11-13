@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\Flowforge;
 
+use Closure;
 use Filament\Support\Components\ViewComponent;
 use Relaticle\Flowforge\Concerns\BelongsToLivewire;
 use Relaticle\Flowforge\Concerns\CanSearchBoardRecords;
@@ -123,6 +124,7 @@ class Board extends ViewComponent
                 'cardLabel' => $this->getCardLabel(),
                 'pluralCardLabel' => $this->getPluralCardLabel(),
                 'headerToolbar' => $this->hasHeaderToolbar(),
+                'collapsible' => $this->isColumnCollapsible(),
                 'collapseEmptyColumns' => $grouping === null
                     && $this->collapsesEmptyColumns()
                     && array_sum(array_column($columns, 'total')) > 0,
@@ -132,20 +134,35 @@ class Board extends ViewComponent
         ];
     }
 
+    public function isColumnCollapsed(string $columnId): bool
+    {
+        return $this->makeCollapseResolver($this->getBatchedBoardRecordCounts())($columnId);
+    }
+
+    /**
+     * @param  array<string, int>  $allCounts
+     * @return Closure(string): bool
+     */
+    protected function makeCollapseResolver(array $allCounts): Closure
+    {
+        $collapsedIds = $this->getCollapsedColumns();
+        $collapseAll = $this->collapsesAllColumns();
+        $collapseEmpty = $this->collapsesEmptyColumns()
+            && $this->getActiveGrouping() === null
+            && array_sum(array_map(fn (Column $column): int => $allCounts[$column->getName()] ?? 0, $this->getColumns())) > 0;
+
+        return fn (string $columnId): bool => $collapseAll
+            || in_array($columnId, $collapsedIds, true)
+            || ($collapseEmpty && ($allCounts[$columnId] ?? 0) === 0);
+    }
+
     /**
      * @return array<string, array<string, mixed>>
      */
     protected function getColumnViewData(bool $withItems): array
     {
         $allCounts = $this->getBatchedBoardRecordCounts();
-        $collapsedIds = $this->getCollapsedColumns();
-        $collapseAll = $this->collapsesAllColumns();
-        $collapseEmpty = $this->collapsesEmptyColumns()
-            && $this->getActiveGrouping() === null
-            && array_sum(array_map(fn (Column $column): int => $allCounts[$column->getName()] ?? 0, $this->getColumns())) > 0;
-        $isCollapsed = fn (string $columnId): bool => $collapseAll
-            || in_array($columnId, $collapsedIds, true)
-            || ($collapseEmpty && ($allCounts[$columnId] ?? 0) === 0);
+        $isCollapsed = $this->makeCollapseResolver($allCounts);
         $recordsByColumn = $withItems
             ? $this->getBoardRecordsForColumns(array_values(array_filter(
                 array_map(fn (Column $column): string => $column->getName(), $this->getColumns()),

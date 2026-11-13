@@ -30,6 +30,10 @@ class TestBoard extends BoardPage
 
     public ?string $collapsedIdsAs = null;
 
+    public bool $collapsible = false;
+
+    public array $toggled = [];
+
     public bool $withHeaderToolbar = false;
 
     public bool $withCreateAction = false;
@@ -76,9 +80,17 @@ class TestBoard extends BoardPage
             ->collapsedColumns(match ($this->collapsedIdsAs) {
                 'collection' => fn () => collect($this->collapsedIds),
                 'enum' => fn (): array => [StatusEnum::Active, ...$this->collapsedIds],
-                default => $this->collapsedIds,
+                default => fn (): array => $this->collapsedIds,
             })
             ->collapseAllColumns($this->collapseAll)
+            ->collapsibleColumns($this->collapsible
+                ? function (string $columnId, bool $collapsed): void {
+                    $this->toggled[] = [$columnId, $collapsed];
+                    $this->collapsedIds = $collapsed
+                        ? [...$this->collapsedIds, $columnId]
+                        : array_values(array_diff($this->collapsedIds, [$columnId]));
+                }
+                : null)
             ->headerToolbar($this->withHeaderToolbar)
             ->query($this->getEloquentQuery())
             ->recordTitleAttribute('title')

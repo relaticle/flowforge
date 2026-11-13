@@ -23,7 +23,12 @@
     $createAction = $createAction?->isVisible() ? $createAction : null;
 @endphp
 
-<div class="ff-column-header">
+<div
+    class="ff-column-header"
+    @if ($this->getBoard()->isColumnCollapsible() && ! $isCollapsed)
+        x-on:dblclick="if (! $event.target.closest('.ff-column-actions')) $wire.toggleBoardColumnCollapse(@js($columnId))"
+    @endif
+>
     <div class="ff-column-heading">
         @if ($dotColor)
             <span

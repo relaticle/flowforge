@@ -120,6 +120,11 @@ trait InteractsWithBoard
         return $action ? $action(['column' => $columnId])->livewire($this) : null;
     }
 
+    public function toggleBoardColumnCollapse(string $columnId): void
+    {
+        $this->getBoard()->toggleColumnCollapse($columnId);
+    }
+
     protected function canCreateCardIn(mixed $columnId): bool
     {
         if (! is_string($columnId)) {

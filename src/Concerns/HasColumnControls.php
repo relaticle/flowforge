@@ -16,6 +16,8 @@ trait HasColumnControls
 
     protected bool | Closure $collapseAllColumns = false;
 
+    protected ?Closure $toggleColumnCollapse = null;
+
     /**
      * @param  array<int, mixed>|Closure  $columnIds
      */
@@ -55,5 +57,29 @@ trait HasColumnControls
     public function collapsesAllColumns(): bool
     {
         return (bool) $this->evaluate($this->collapseAllColumns);
+    }
+
+    public function collapsibleColumns(?Closure $using): static
+    {
+        $this->toggleColumnCollapse = $using;
+
+        return $this;
+    }
+
+    public function isColumnCollapsible(): bool
+    {
+        return $this->toggleColumnCollapse instanceof Closure;
+    }
+
+    public function toggleColumnCollapse(string $columnId): void
+    {
+        if (! $this->isColumnCollapsible() || ! in_array($columnId, $this->getColumnIdentifiers(), true)) {
+            return;
+        }
+
+        $this->evaluate($this->toggleColumnCollapse, [
+            'columnId' => $columnId,
+            'collapsed' => ! $this->isColumnCollapsed($columnId),
+        ]);
     }
 }

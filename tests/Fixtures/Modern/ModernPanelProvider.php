@@ -30,6 +30,7 @@ class ModernPanelProvider extends PanelProvider
                 TestBoard::class,
                 TestBrowserBoard::class,
                 TestClassicBoard::class,
+                TestCollapsibleBoard::class,
                 TestContractBoard::class,
                 TestGroupedBoard::class,
                 TestCardActionBoard::class,

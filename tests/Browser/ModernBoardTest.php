@@ -782,3 +782,49 @@ test('a click that drifts a few pixels opens the card action instead of dragging
 
     expect(boardStored('todo'))->toBe([$a->id, $b->id, $c->id]);
 });
+
+test('double clicking a header collapses its column and clicking the rail expands it', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="in_progress"]';
+
+    $pointer->doubleClick("{$root} .ff-column-title");
+    $pointer->untilScript("document.querySelector('{$root}').hasAttribute('data-collapsed')");
+
+    expect(boardStyle($page, $root, 'width'))->toBe('48px');
+
+    $pointer->click($root);
+    $pointer->untilScript("! document.querySelector('{$root}').hasAttribute('data-collapsed')");
+
+    expect(boardStyle($page, $root, 'width'))->toBe('300px');
+});
+
+test('double clicking the add card button leaves the column expanded', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="todo"]';
+
+    $page->script("document.querySelector('{$root} .ff-column-actions button').dispatchEvent(new MouseEvent('dblclick', { bubbles: true }))");
+    $pointer->wait(600);
+
+    expect($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
+});
+
+test('a collapsed column widens while a card hovers it and accepts the drop', function () {
+    [$a] = boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="completed"]';
+
+    expect(boardStyle($page, $root, 'width'))->toBe('48px');
+
+    $pointer->press(boardCard($a))->glideTo($root);
+
+    expect(boardStyle($page, $root, 'width'))->toBe('300px');
+
+    $pointer->release();
+    $pointer->untilEquals(fn () => Task::query()->find($a->id)->status, 'completed', 'the moved card status');
+    $pointer->untilEquals(fn () => boardStyle($page, $root, 'width'), '48px', 'the rail width after the drop');
+});

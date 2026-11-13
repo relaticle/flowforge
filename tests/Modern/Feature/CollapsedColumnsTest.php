@@ -79,3 +79,60 @@ describe('collapsed columns', function () {
         expect(substr_count($html, 'data-collapsed'))->toBe(1);
     });
 });
+
+describe('toggling collapse', function () {
+    test('toggling an expanded column asks the host to collapse it', function () {
+        $component = Livewire::test(TestBoard::class, ['collapsible' => true])
+            ->call('toggleBoardColumnCollapse', 'todo');
+
+        expect($component->get('toggled'))->toBe([['todo', true]])
+            ->and($component->html())->toMatch('/<div\s[^>]*data-column-root="todo"[^>]*data-collapsed/');
+    });
+
+    test('toggling a collapsed column asks the host to expand it', function () {
+        $component = Livewire::test(TestBoard::class, ['collapsible' => true, 'collapsedIds' => ['todo']])
+            ->call('toggleBoardColumnCollapse', 'todo');
+
+        expect($component->get('toggled'))->toBe([['todo', false]])
+            ->and($component->html())->not->toContain('data-collapsed');
+    });
+
+    test('toggling an empty column that collapses by rule asks the host to expand it', function () {
+        Task::factory()->todo()->create(['title' => 'Only Task']);
+
+        $component = Livewire::test(TestBoard::class, ['collapsible' => true, 'collapseEmpty' => true])
+            ->call('toggleBoardColumnCollapse', 'in_progress');
+
+        expect($component->get('toggled'))->toBe([['in_progress', false]]);
+    });
+
+    test('toggle ignores unknown and hidden columns', function () {
+        $component = Livewire::test(TestBoard::class, ['collapsible' => true])
+            ->call('toggleBoardColumnCollapse', 'nope')
+            ->call('toggleBoardColumnCollapse', 'archived');
+
+        expect($component->get('toggled'))->toBe([]);
+    });
+
+    test('toggle does nothing when the board is not collapsible', function () {
+        $component = Livewire::test(TestBoard::class)
+            ->call('toggleBoardColumnCollapse', 'todo');
+
+        expect($component->get('toggled'))->toBe([]);
+    });
+
+    test('a collapsible header binds the double click and the rail binds the click', function () {
+        $html = Livewire::test(TestBoard::class, ['collapsible' => true, 'collapsedIds' => ['in_progress']])->html();
+
+        expect($html)->toMatch('/<div\s[^>]*class="ff-column-header"[^>]*x-on:dblclick/')
+            ->and($html)->toMatch('/<div\s[^>]*data-column-root="in_progress"[^>]*x-on:click/')
+            ->and($html)->not->toMatch('/<div\s[^>]*data-column-root="todo"[^>]*x-on:click/');
+    });
+
+    test('neither binding renders when the board is not collapsible', function () {
+        $html = Livewire::test(TestBoard::class, ['collapsedIds' => ['in_progress']])->html();
+
+        expect($html)->not->toContain('x-on:dblclick')
+            ->and($html)->not->toMatch('/<div\s[^>]*data-column-root="in_progress"[^>]*x-on:click/');
+    });
+});

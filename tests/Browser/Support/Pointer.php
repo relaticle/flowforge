@@ -103,6 +103,15 @@ final class Pointer
         return $this->press($selector)->release();
     }
 
+    public function doubleClick(string $selector): self
+    {
+        $this->click($selector);
+        $this->send('mouseDown', ['button' => 'left', 'clickCount' => 2]);
+        $this->send('mouseUp', ['button' => 'left', 'clickCount' => 2]);
+
+        return $this;
+    }
+
     public function drag(string $from, string $to, float $yFraction = 0.5): self
     {
         return $this->press($from)->glideTo($to, yFraction: $yFraction)->release();
