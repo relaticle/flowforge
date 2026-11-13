@@ -14,6 +14,7 @@ use Relaticle\Flowforge\Concerns\HasBoardGroupings;
 use Relaticle\Flowforge\Concerns\HasBoardRecords;
 use Relaticle\Flowforge\Concerns\HasCardLabels;
 use Relaticle\Flowforge\Concerns\HasCardSchema;
+use Relaticle\Flowforge\Concerns\HasColumnControls;
 use Relaticle\Flowforge\Concerns\HasColumnSummaries;
 use Relaticle\Flowforge\Concerns\InteractsWithKanbanQuery;
 use Relaticle\Flowforge\Contracts\HasBoard;
@@ -29,6 +30,7 @@ class Board extends ViewComponent
     use HasBoardRecords;
     use HasCardLabels;
     use HasCardSchema;
+    use HasColumnControls;
     use HasColumnSummaries;
     use InteractsWithKanbanQuery;
 
@@ -140,11 +142,17 @@ class Board extends ViewComponent
             ? $this->getBoardRecordsForColumns(array_map(fn (Column $column): string => $column->getName(), $this->getColumns()))
             : [];
         $columns = [];
+        $collapsedIds = $this->getCollapsedColumns();
+        $collapseAll = $this->collapsesAllColumns();
+        $collapseEmpty = $this->collapsesEmptyColumns()
+            && $this->getActiveGrouping() === null
+            && array_sum(array_map(fn (Column $column): int => $allCounts[$column->getName()] ?? 0, $this->getColumns())) > 0;
 
         foreach ($this->getColumns() as $column) {
             $columnId = $column->getName();
             $limit = $column->getLimit();
             $limitTotal = $limit === null ? null : $this->getUnfilteredColumnRecordCount($columnId);
+            $total = $allCounts[$columnId] ?? 0;
 
             $columns[$columnId] = [
                 'id' => $columnId,
@@ -154,7 +162,10 @@ class Board extends ViewComponent
                 'items' => isset($recordsByColumn[$columnId])
                     ? $recordsByColumn[$columnId]->map(fn ($record) => $this->formatBoardRecord($record))->toArray()
                     : [],
-                'total' => $allCounts[$columnId] ?? 0,
+                'total' => $total,
+                'isCollapsed' => $collapseAll
+                    || in_array($columnId, $collapsedIds, true)
+                    || ($collapseEmpty && $total === 0),
                 'summary' => $this->getColumnSummary($column),
                 'limit' => $limit,
                 'limitTotal' => $limitTotal,

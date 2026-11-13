@@ -1,0 +1,49 @@
+<?php
+
+declare(strict_types=1);
+
+use Livewire\Livewire;
+use Relaticle\Flowforge\Tests\Fixtures\Modern\Task;
+use Relaticle\Flowforge\Tests\Fixtures\Modern\TestBoard;
+
+describe('collapsed columns', function () {
+    test('renders a listed column as a collapsed rail', function () {
+        $html = Livewire::test(TestBoard::class, ['collapsedIds' => ['in_progress']])
+            ->assertStatus(200)
+            ->html();
+
+        expect(substr_count($html, 'data-collapsed'))->toBe(1)
+            ->and($html)->toMatch('/<div\s[^>]*data-column-root="in_progress"[^>]*data-collapsed/');
+    });
+
+    test('collapses every column when collapse all is on', function () {
+        Task::factory()->todo()->create(['title' => 'Only Task']);
+
+        $html = Livewire::test(TestBoard::class, ['collapseAll' => true])
+            ->assertStatus(200)
+            ->html();
+
+        expect(substr_count($html, 'data-collapsed'))->toBe(3);
+    });
+
+    test('ignores collapsed ids for missing and hidden columns', function () {
+        Livewire::test(TestBoard::class, ['collapsedIds' => ['nope', 'archived']])
+            ->assertStatus(200)
+            ->assertDontSeeHtml('data-collapsed');
+    });
+
+    test('a collapsed column keeps its drop binding', function () {
+        $html = Livewire::test(TestBoard::class, ['collapsedIds' => ['todo']])->html();
+
+        expect($html)->toMatch('/<div\s[^>]*data-column-root="todo"[^>]*data-collapsed[^>]*x-bind:data-drop="columnDrop\(\'todo\'\)"/');
+    });
+
+    test('keeps the empty column rule beside listed ids', function () {
+        Task::factory()->todo()->create(['title' => 'Only Task']);
+
+        $html = Livewire::test(TestBoard::class, ['collapseEmpty' => true, 'collapsedIds' => ['todo']])->html();
+
+        expect(substr_count($html, 'data-collapsed'))->toBe(3)
+            ->and($html)->toMatch('/<div\s[^>]*data-column-root="todo"[^>]*data-collapsed/');
+    });
+});

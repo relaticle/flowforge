@@ -24,6 +24,10 @@ class TestBoard extends BoardPage
 
     public bool $collapseEmpty = false;
 
+    public array $collapsedIds = [];
+
+    public bool $collapseAll = false;
+
     public bool $withHeaderToolbar = false;
 
     public bool $withCreateAction = false;
@@ -67,6 +71,8 @@ class TestBoard extends BoardPage
     {
         return $board
             ->collapseEmptyColumns($this->collapseEmpty)
+            ->collapsedColumns($this->collapsedIds)
+            ->collapseAllColumns($this->collapseAll)
             ->headerToolbar($this->withHeaderToolbar)
             ->query($this->getEloquentQuery())
             ->recordTitleAttribute('title')

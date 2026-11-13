@@ -2,7 +2,7 @@
 
 @php
     $total = $column['total'] ?? (isset($column['items']) ? count($column['items']) : 0);
-    $isCollapsed = ($config['collapseEmptyColumns'] ?? false) && $total === 0;
+    $isCollapsed = (bool) ($column['isCollapsed'] ?? false);
     $plainLabel = strip_tags((string) $column['label']);
     $trayLabel = __('flowforge::flowforge.column_label', [
         'column' => $plainLabel,
