@@ -9,4 +9,6 @@ class TestCollapsibleGroupedBoard extends TestGroupedBoard
     public bool $collapsible = true;
 
     public array $collapsedIds = ['in_progress'];
+
+    public ?int $inProgressLimit = 20;
 }

@@ -1016,3 +1016,22 @@ test('collapsing a lane column keeps the heads row height, also while a card is 
 
     $pointer->release();
 });
+
+test('a limited collapsed lane head keeps its dot and count inside the rail', function () {
+    boardSeed('high');
+
+    foreach (range(1, 12) as $index) {
+        Task::query()->create([
+            'title' => "Extra {$index}",
+            'status' => 'in_progress',
+            'order_position' => (2000 + $index * 1000) . '.0000000000',
+            'priority' => 'high',
+        ]);
+    }
+
+    $page = boardPage('/modern/test-collapsible-grouped-board?groupBy=priority');
+    $heading = '.ff-lanes-heads [data-column-root="in_progress"][data-collapsed] .ff-column-heading';
+
+    expect($page->script("document.querySelector('{$heading}').innerText.trim()"))->toContain('13/20')
+        ->and($page->script("document.querySelector('{$heading}').scrollWidth"))->toBeLessThanOrEqual(40);
+});

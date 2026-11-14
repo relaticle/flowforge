@@ -701,6 +701,21 @@
         white-space: nowrap;
     }
 
+    .ff-lanes-heads .ff-column[data-collapsed] .ff-column-heading {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .ff-lanes-heads .ff-column[data-collapsed] .ff-column-dot {
+        width: 0.375rem;
+        height: 0.375rem;
+    }
+
+    .ff-lanes-heads .ff-column[data-collapsed] .ff-count {
+        font-size: 0.75rem;
+        line-height: 0.875rem;
+    }
+
     .ff-lanes-heads .ff-column[data-collapsed] .ff-column-icon,
     .ff-lanes-heads .ff-column[data-collapsed] .ff-column-actions {
         display: none;
