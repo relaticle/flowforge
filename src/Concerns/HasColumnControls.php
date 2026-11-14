@@ -80,7 +80,7 @@ trait HasColumnControls
         return $this->toggleColumnCollapse instanceof Closure;
     }
 
-    public function toggleColumnCollapse(string $columnId): void
+    public function toggleColumnCollapse(string $columnId, bool $alone = false): void
     {
         $state = $this->getColumnCollapseState($columnId);
 
@@ -91,6 +91,7 @@ trait HasColumnControls
         $this->evaluate($this->toggleColumnCollapse, [
             'columnId' => $columnId,
             'collapsed' => ! $state['collapsed'],
+            'alone' => $alone,
         ]);
     }
 

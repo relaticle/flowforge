@@ -121,9 +121,9 @@ trait InteractsWithBoard
         return $action ? $action(['column' => $columnId])->livewire($this) : null;
     }
 
-    public function toggleBoardColumnCollapse(string $columnId): void
+    public function toggleBoardColumnCollapse(string $columnId, bool $alone = false): void
     {
-        $this->getBoard()->toggleColumnCollapse($columnId);
+        $this->getBoard()->toggleColumnCollapse($columnId, $alone);
         $this->board = $this->board($this->makeBoard());
     }
 

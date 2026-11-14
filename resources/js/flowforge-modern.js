@@ -32,6 +32,9 @@ const EMPTY_SPACE_IGNORED = `.ff-card, .ff-column-header, .ff-add-slot, .ff-add-
 
 const MENU_DRAG_THRESHOLD = 4;
 
+// A rail under collapse all waits this long, so a second click can claim the column alone.
+const DOUBLE_CLICK_WINDOW = 300;
+
 const focusMenuField = (panel) => {
     const field = panel.querySelector('[data-autofocus]');
 
@@ -57,6 +60,7 @@ export default function flowforgeModern() {
         dragOverColumn: null,
 
         railToggledAt: 0,
+        railClickTimer: null,
         columnMenuPressAt: null,
         railPressAt: null,
         dragOverLane: null,
@@ -270,6 +274,24 @@ export default function flowforgeModern() {
             }
 
             this.$wire.toggleBoardColumnCollapse(columnId);
+        },
+
+        expandFromCollapseAll(event, columnId) {
+            const press = this.railPressAt;
+
+            this.railPressAt = null;
+
+            if (event.target.closest(HEADER_GESTURE_IGNORED) || (press && Math.hypot(event.clientX - press.x, event.clientY - press.y) > MENU_DRAG_THRESHOLD)) {
+                return;
+            }
+
+            const alone = event.detail > 1;
+
+            clearTimeout(this.railClickTimer);
+            this.railClickTimer = setTimeout(() => {
+                this.railToggledAt = Date.now();
+                this.$wire.toggleBoardColumnCollapse(columnId, alone);
+            }, alone ? 0 : DOUBLE_CLICK_WINDOW);
         },
 
         collapseFromEmptySpace(event, columnId) {

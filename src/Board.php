@@ -142,7 +142,7 @@ class Board extends ViewComponent
     }
 
     /**
-     * @return array{collapsed: bool, toggleable: bool}
+     * @return array{collapsed: bool, toggleable: bool, byAll: bool}
      */
     public function getColumnCollapseState(string $columnId): array
     {
@@ -151,7 +151,7 @@ class Board extends ViewComponent
 
     /**
      * @param  array<string, int>  $allCounts
-     * @return Closure(string): array{collapsed: bool, toggleable: bool}
+     * @return Closure(string): array{collapsed: bool, toggleable: bool, byAll: bool}
      */
     protected function makeCollapseResolver(array $allCounts): Closure
     {
@@ -172,6 +172,7 @@ class Board extends ViewComponent
                 'toggleable' => $this->isColumnCollapsible()
                     && in_array($columnId, $visible, true)
                     && ! $byEmptyRule,
+                'byAll' => $collapseAll,
             ];
         };
     }
@@ -209,6 +210,7 @@ class Board extends ViewComponent
                 'total' => $total,
                 'isCollapsed' => $state['collapsed'],
                 'canToggleCollapse' => $state['toggleable'],
+                'isCollapsedByAll' => $state['byAll'],
                 'summary' => $this->getColumnSummary($column),
                 'limit' => $limit,
                 'limitTotal' => $limitTotal,

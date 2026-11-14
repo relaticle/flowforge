@@ -142,9 +142,12 @@ describe('toggling collapse', function () {
 
         expect($component->html())->toMatch('/<div\s[^>]*data-column-root="in_progress"[^>]*data-collapsed[^>]*x-on:click/');
 
-        $component->call('toggleBoardColumnCollapse', 'in_progress');
+        $component->call('toggleBoardColumnCollapse', 'in_progress')
+            ->call('toggleBoardColumnCollapse', 'completed', true);
 
-        expect($component->get('toggled'))->toBe([['in_progress', false]]);
+        expect($component->get('toggled'))->toBe([['in_progress', false], ['completed', false]])
+            ->and($component->get('toggledAlone'))->toBe(['completed'])
+            ->and($component->html())->toMatch('/<div\s[^>]*data-column-root="todo"[^>]*x-on:click="expandFromCollapseAll/');
     });
 
     test('a toggle shows the new state in the same response for a plain array of ids', function () {

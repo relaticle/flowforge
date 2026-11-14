@@ -41,6 +41,8 @@ class TestBoard extends BoardPage
 
     public array $toggled = [];
 
+    public array $toggledAlone = [];
+
     public bool $withAddColumn = false;
 
     public array $addedColumns = [];
@@ -104,8 +106,9 @@ class TestBoard extends BoardPage
             })
             ->collapseAllColumns($this->collapseAll)
             ->collapsibleColumns($this->collapsible
-                ? function (string $columnId, bool $collapsed): void {
+                ? function (string $columnId, bool $collapsed, bool $alone): void {
                     $this->toggled[] = [$columnId, $collapsed];
+                    $this->toggledAlone = $alone ? [...$this->toggledAlone, $columnId] : $this->toggledAlone;
                     $this->collapsedIds = $collapsed
                         ? [...$this->collapsedIds, $columnId]
                         : array_values(array_diff($this->collapsedIds, [$columnId]));

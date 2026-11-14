@@ -22,7 +22,11 @@
     @if ($column['isFull'] ?? false) data-full @endif
     @if ($isCollapsed) data-collapsed title="{{ $plainLabel }}" @endif
     @if ($isCollapsed && ($column['canToggleCollapse'] ?? false))
-        x-on:click="toggleColumnCollapse($event, @js((string) $columnId), true)"
+        @if ($column['isCollapsedByAll'] ?? false)
+            x-on:click="expandFromCollapseAll($event, @js((string) $columnId))"
+        @else
+            x-on:click="toggleColumnCollapse($event, @js((string) $columnId), true)"
+        @endif
         x-on:pointerdown="railPress($event)"
         x-on:mousedown="suppressDoubleClickSelection($event)"
     @endif
