@@ -309,10 +309,11 @@ export default function flowforgeModern() {
         openNewColumn() {
             this.addingColumn = true;
             this.newColumnTouched = true;
-            this.$nextTick(() => {
+            // WebKit ignores a focus on the next tick, right after the ghost column shows. One frame later it takes it.
+            this.$nextTick(() => requestAnimationFrame(() => {
                 this.$refs.newColumnInput.focus({ preventScroll: true });
-                requestAnimationFrame(() => this.$refs.newColumnInput.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
-            });
+                this.$refs.newColumnInput.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+            }));
         },
 
         cancelNewColumn() {
