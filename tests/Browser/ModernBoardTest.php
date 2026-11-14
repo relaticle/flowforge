@@ -1145,6 +1145,16 @@ test('the add column tile and its input sit inside the painted lane heads box', 
     expect($page->script($inside))->toBe([true, true, true, true, true]);
 });
 
+test('the add column tile leaves the lane heads row height unchanged', function () {
+    boardSeed('high');
+    $height = "document.querySelector('.ff-lanes-heads').offsetHeight";
+
+    $without = boardPage('/modern/test-grouped-board?groupBy=priority')->script($height);
+    $page = boardPage('/modern/test-add-column-grouped-board?groupBy=priority');
+
+    expect($page->script($height))->toBe($without);
+});
+
 test('pressing enter twice quickly adds the column once', function () {
     boardSeed();
     $page = boardPage('/modern/test-add-column-board');

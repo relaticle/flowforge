@@ -665,8 +665,8 @@
     }
 
     .ff-add-column {
-        --_tile-bg: var(--ff-add-bg, color-mix(in oklab, var(--gray-950) 5%, transparent));
-        --_tile-bg-hover: var(--ff-add-bg-hover, color-mix(in oklab, var(--gray-950) 9%, transparent));
+        --_tile-bg: color-mix(in oklab, var(--gray-950) 5%, transparent);
+        --_tile-bg-hover: color-mix(in oklab, var(--gray-950) 9%, transparent);
         position: relative;
         flex-shrink: 0;
         align-self: start;
@@ -675,8 +675,8 @@
     }
 
     :where(.dark) .ff-add-column {
-        --_tile-bg: var(--ff-add-bg, color-mix(in oklab, #fff 8%, transparent));
-        --_tile-bg-hover: var(--ff-add-bg-hover, color-mix(in oklab, #fff 13%, transparent));
+        --_tile-bg: color-mix(in oklab, #fff 8%, transparent);
+        --_tile-bg-hover: color-mix(in oklab, #fff 13%, transparent);
     }
 
     .ff-add-column-button {
@@ -792,6 +792,14 @@
     .ff-lanes-heads .ff-column[data-collapsed] .ff-column-icon,
     .ff-lanes-heads .ff-column[data-collapsed] .ff-column-actions {
         display: none;
+    }
+
+    .ff-lanes-heads > .ff-add-column {
+        height: 1.75rem;
+    }
+
+    .ff-lanes-heads .ff-add-column-input {
+        padding-block: 0.1875rem;
     }
 
     .ff-lanes-heads:has(> .ff-add-column) {
