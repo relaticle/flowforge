@@ -1,4 +1,4 @@
-@props(['label', 'placeholder'])
+@props(['label', 'placeholder', 'colors' => []])
 
 @php
     use Filament\Support\Enums\IconSize;
@@ -12,7 +12,36 @@
             x-on:click.outside="cancelNewColumn()"
         >
             <div class="ff-add-column-field">
-                <span class="ff-add-column-dot"></span>
+                @if ($colors)
+                    <button
+                        type="button"
+                        class="ff-add-column-dot"
+                        x-bind:style="newColumnDotStyle"
+                        x-bind:aria-expanded="choosingNewColumnColor.toString()"
+                        x-on:click="choosingNewColumnColor = ! choosingNewColumnColor"
+                        aria-label="{{ __('flowforge::flowforge.column_color') }}"
+                    ></button>
+
+                    <div
+                        class="ff-add-column-swatches"
+                        x-cloak
+                        x-show="choosingNewColumnColor"
+                        x-on:click.outside="choosingNewColumnColor = false"
+                    >
+                        @foreach ($colors as $color)
+                            <button
+                                type="button"
+                                class="ff-add-column-swatch"
+                                style="{{ $color['style'] }}"
+                                aria-label="{{ $color['label'] }}"
+                                x-bind:aria-pressed="(newColumnColor === @js($color['value'])).toString()"
+                                x-on:click="pickNewColumnColor(@js($color['value']), @js($color['style']))"
+                            ></button>
+                        @endforeach
+                    </div>
+                @else
+                    <span class="ff-add-column-dot"></span>
+                @endif
 
                 <input
                     type="text"

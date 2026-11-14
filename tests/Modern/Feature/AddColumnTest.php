@@ -68,6 +68,18 @@ describe('add column tile', function () {
             ->assertSet('addedColumns', ['Won']);
     });
 
+    test('a color from the host palette reaches the host, and any other color arrives as null', function () {
+        $component = Livewire::test(TestBoard::class, ['withAddColumn' => true, 'withAddColumnColors' => true]);
+
+        expect($component->html())->toContain('aria-label="Red"')->toContain('style="--color-500:#ff5454"');
+
+        $component->call('addBoardColumn', 'Won', '#ff5454')
+            ->call('addBoardColumn', 'Lost', '#000000')
+            ->call('addBoardColumn', 'Paused');
+
+        expect($component->get('addedColumnColors'))->toBe(['#ff5454', null, null]);
+    });
+
     test('the board shows the new column in the same response', function () {
         Livewire::test(TestBoard::class, ['withAddColumn' => true])
             ->call('addBoardColumn', 'Won')

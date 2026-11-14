@@ -47,6 +47,10 @@ class TestBoard extends BoardPage
 
     public array $addedColumns = [];
 
+    public array $addedColumnColors = [];
+
+    public bool $withAddColumnColors = false;
+
     public ?string $rejectColumnName = null;
 
     public ?string $addColumnTitle = null;
@@ -115,6 +119,7 @@ class TestBoard extends BoardPage
                 }
                 : null)
             ->addColumnUsing($this->withAddColumn ? $this->addColumnClosure(...) : null)
+            ->addColumnColors($this->withAddColumnColors ? ['#ff5454' => 'Red', 'blue' => 'Blue'] : null)
             ->addColumnLabel($this->addColumnTitle)
             ->addColumnPlaceholder($this->addColumnHint)
             ->headerToolbar($this->withHeaderToolbar)
@@ -162,13 +167,14 @@ class TestBoard extends BoardPage
             ]);
     }
 
-    protected function addColumnClosure(string $name): void
+    protected function addColumnClosure(string $name, ?string $color): void
     {
         if ($name === $this->rejectColumnName) {
             throw ValidationException::withMessages(['name' => 'Taken']);
         }
 
         $this->addedColumns[] = $name;
+        $this->addedColumnColors[] = $color;
     }
 
     protected function authorizeCardMove(Model $card, string $targetColumnId, ?string $toLaneId = null): void

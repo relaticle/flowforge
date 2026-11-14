@@ -70,6 +70,9 @@ export default function flowforgeModern() {
         collapsedLanes: {},
         addingColumn: false,
         newColumnName: '',
+        newColumnColor: null,
+        newColumnDotStyle: '',
+        choosingNewColumnColor: false,
         newColumnTouched: false,
         addingColumnPending: false,
         placeholder: null,
@@ -320,6 +323,16 @@ export default function flowforgeModern() {
             this.addingColumn = false;
             this.newColumnTouched = true;
             this.newColumnName = '';
+            this.newColumnColor = null;
+            this.newColumnDotStyle = '';
+            this.choosingNewColumnColor = false;
+        },
+
+        pickNewColumnColor(color, style) {
+            this.newColumnColor = color;
+            this.newColumnDotStyle = style;
+            this.choosingNewColumnColor = false;
+            this.$refs.newColumnInput.focus({ preventScroll: true });
         },
 
         async submitNewColumn() {
@@ -331,7 +344,7 @@ export default function flowforgeModern() {
             this.newColumnTouched = true;
 
             try {
-                await this.$wire.addBoardColumn(this.newColumnName);
+                await this.$wire.addBoardColumn(this.newColumnName, this.newColumnColor);
             } finally {
                 this.addingColumnPending = false;
             }

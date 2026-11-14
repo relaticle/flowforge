@@ -127,7 +127,7 @@ trait InteractsWithBoard
         $this->board = $this->board($this->makeBoard());
     }
 
-    public function addBoardColumn(string $name): void
+    public function addBoardColumn(string $name, ?string $color = null): void
     {
         $name = trim($name);
 
@@ -138,7 +138,7 @@ trait InteractsWithBoard
         }
 
         try {
-            $this->getBoard()->addColumn($name);
+            $this->getBoard()->addColumn($name, $color);
         } catch (ValidationException $exception) {
             $this->addError('boardNewColumn', (string) collect($exception->errors())->flatten()->first());
 

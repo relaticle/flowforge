@@ -19,6 +19,7 @@ use Relaticle\Flowforge\Concerns\HasColumnControls;
 use Relaticle\Flowforge\Concerns\HasColumnSummaries;
 use Relaticle\Flowforge\Concerns\InteractsWithKanbanQuery;
 use Relaticle\Flowforge\Contracts\HasBoard;
+use Relaticle\Flowforge\Support\ColorResolver;
 
 class Board extends ViewComponent
 {
@@ -132,6 +133,11 @@ class Board extends ViewComponent
                 'canAddColumns' => $this->canAddColumns(),
                 'addColumnLabel' => $this->getAddColumnLabel(),
                 'addColumnPlaceholder' => $this->getAddColumnPlaceholder(),
+                'addColumnColors' => array_map(
+                    fn (string $value, string $label): array => ['value' => $value, 'label' => $label, 'style' => ColorResolver::dotStyle($value)],
+                    array_keys($this->getAddColumnColors()),
+                    $this->getAddColumnColors(),
+                ),
                 'collapseEmptyColumns' => $grouping === null
                     && $this->collapsesEmptyColumns()
                     && array_sum(array_column($columns, 'total')) > 0,

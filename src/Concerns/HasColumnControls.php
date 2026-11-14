@@ -27,6 +27,9 @@ trait HasColumnControls
 
     protected string | Closure | null $addColumnPlaceholder = null;
 
+    /** @var array<string, string>|Closure|null */
+    protected array | Closure | null $addColumnColors = null;
+
     /**
      * @param  array<int, mixed>|Closure  $columnIds
      */
@@ -140,6 +143,24 @@ trait HasColumnControls
         return $this;
     }
 
+    /**
+     * @param  array<string, string>|Closure|null  $colors
+     */
+    public function addColumnColors(array | Closure | null $colors): static
+    {
+        $this->addColumnColors = $colors;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getAddColumnColors(): array
+    {
+        return $this->evaluate($this->addColumnColors) ?? [];
+    }
+
     public function canAddColumns(): bool
     {
         return $this->addColumn instanceof Closure;
@@ -159,12 +180,15 @@ trait HasColumnControls
         return filled($placeholder) ? (string) $placeholder : __('flowforge::flowforge.column_name');
     }
 
-    public function addColumn(string $name): void
+    public function addColumn(string $name, ?string $color = null): void
     {
         if (! $this->addColumn instanceof Closure) {
             return;
         }
 
-        $this->evaluate($this->addColumn, ['name' => $name]);
+        $this->evaluate($this->addColumn, [
+            'name' => $name,
+            'color' => array_key_exists((string) $color, $this->getAddColumnColors()) ? $color : null,
+        ]);
     }
 }

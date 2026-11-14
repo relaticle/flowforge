@@ -24,6 +24,7 @@ return [
     'add_column' => 'Añadir columna',
     'column_name_required' => 'Introduce un nombre.',
     'column_name' => 'Nombre de la columna',
+    'column_color' => 'Color de la columna',
     'show_more_cards' => 'Mostrar :count más',
     'lane_write_failed' => 'No se pudo mover la tarjeta a ese carril.',
 ];

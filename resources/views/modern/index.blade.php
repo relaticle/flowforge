@@ -41,7 +41,7 @@
                 @endforeach
 
                 @if ($config['canAddColumns'] ?? false)
-                    <x-flowforge::modern.add-column :label="$config['addColumnLabel']" :placeholder="$config['addColumnPlaceholder']" />
+                    <x-flowforge::modern.add-column :label="$config['addColumnLabel']" :placeholder="$config['addColumnPlaceholder']" :colors="$config['addColumnColors'] ?? []" />
                 @endif
             </div>
         @endif
