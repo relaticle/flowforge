@@ -1082,3 +1082,111 @@ test('a blank add column name shows its error under the input and keeps it open'
 
     expect($page->script("document.querySelector('{$input}').offsetParent !== null"))->toBeTrue();
 });
+
+test('the add column tile leaves the lane heads row height unchanged', function () {
+    boardSeed('high');
+    $height = "document.querySelector('.ff-lanes-heads').offsetHeight";
+
+    $without = boardPage('/modern/test-grouped-board?groupBy=priority')->script($height);
+    $page = boardPage('/modern/test-add-column-grouped-board?groupBy=priority');
+
+    expect($page->script($height))->toBe($without);
+});
+
+test('pressing enter twice quickly adds the column once', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+    $input = '.ff-add-column-input';
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+    $page->type($input, 'Won');
+    $page->script(<<<'JS'
+        (() => {
+            window.__addCalls = 0;
+
+            window.Livewire.hook('commit', ({ commit }) => {
+                window.__addCalls += (commit.calls ?? []).filter((call) => call.method === 'addBoardColumn').length;
+            });
+        })()
+    JS);
+    $page->script(<<<'JS'
+        (async () => {
+            const form = document.querySelector('.ff-add-column-form');
+
+            form.requestSubmit();
+            await new Promise((resolve) => setTimeout(resolve, 20));
+            form.requestSubmit();
+        })()
+    JS);
+    $pointer->untilScript("document.querySelectorAll('[data-column-root=\"Won\"]').length >= 1");
+    $pointer->wait(600);
+
+    expect($page->script("document.querySelectorAll('[data-column-root=\"Won\"]').length"))->toBe(1)
+        ->and($page->script('window.__addCalls'))->toBe(1);
+});
+
+test('a host rejection shows under the input, hides while the next submit is pending, and a valid name then adds the column', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+    $input = '.ff-add-column-input';
+    $error = '.ff-add-column-error';
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+    $page->type($input, 'Lost');
+    $page->keys($input, 'Enter');
+    $pointer->untilScript("document.querySelector('{$error}')?.offsetParent !== null && document.querySelector('{$error}') !== null");
+
+    expect($page->script("document.querySelector('{$error}').innerText.trim()"))->toBe('Taken');
+
+    boardHoldUpdates($page);
+    $page->type($input, 'Won');
+    $page->keys($input, 'Enter');
+    $pointer->wait(300);
+
+    expect($page->script("document.querySelector('{$error}') === null || document.querySelector('{$error}').offsetParent === null"))->toBeTrue();
+
+    boardReleaseUpdates($page);
+    $pointer->untilScript("document.querySelectorAll('[data-column-root=\"Won\"]').length === 1");
+    $pointer->untilScript("document.querySelector('{$input}').offsetParent === null");
+});
+
+test('reopening the add column input after escape shows no stale error', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+    $input = '.ff-add-column-input';
+    $error = '.ff-add-column-error';
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+    $page->type($input, 'Lost');
+    $page->keys($input, 'Enter');
+    $pointer->untilScript("document.querySelector('{$error}')?.offsetParent !== null && document.querySelector('{$error}') !== null");
+    $page->keys($input, 'Escape');
+    $pointer->untilScript("document.querySelector('{$input}').offsetParent === null");
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+
+    expect($page->script("document.querySelector('{$error}') === null || document.querySelector('{$error}').offsetParent === null"))->toBeTrue();
+});
+
+test('the add column tile in lanes adds a column and every lane gets its cell', function () {
+    boardSeed('high');
+    Task::query()->create(['title' => 'Low one', 'status' => 'todo', 'order_position' => '9000.0000000000', 'priority' => 'low']);
+    $page = boardPage('/modern/test-add-column-grouped-board?groupBy=priority');
+    $pointer = Pointer::on($page);
+    $input = '.ff-add-column-input';
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+    $page->type($input, 'Won');
+    $page->keys($input, 'Enter');
+    $pointer->untilScript("document.querySelectorAll('.ff-lanes-heads [data-column-root=\"Won\"]').length === 1");
+
+    expect($page->script("document.querySelectorAll('.ff-cell').length"))->toBe(2 * 3)
+        ->and($page->script("document.querySelectorAll('[data-column-id=\"Won\"]').length"))->toBe(2);
+});

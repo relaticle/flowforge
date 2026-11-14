@@ -52,6 +52,7 @@ export default function flowforgeModern() {
         addingColumn: false,
         newColumnName: '',
         newColumnTouched: false,
+        addingColumnPending: false,
         placeholder: null,
         stopTrackingPointer: null,
 
@@ -250,13 +251,25 @@ export default function flowforgeModern() {
 
         cancelNewColumn() {
             this.addingColumn = false;
+            this.newColumnTouched = true;
             this.newColumnName = '';
         },
 
         async submitNewColumn() {
-            this.newColumnTouched = false;
+            if (this.addingColumnPending) {
+                return;
+            }
 
-            await this.$wire.addBoardColumn(this.newColumnName);
+            this.addingColumnPending = true;
+            this.newColumnTouched = true;
+
+            try {
+                await this.$wire.addBoardColumn(this.newColumnName);
+            } finally {
+                this.addingColumnPending = false;
+            }
+
+            this.newColumnTouched = false;
 
             if (!this.$root.querySelector('.ff-add-column-error')) {
                 this.cancelNewColumn();

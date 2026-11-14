@@ -669,6 +669,9 @@
         flex-shrink: 0;
         align-self: stretch;
         width: var(--_collapsed-width);
+    }
+
+    .ff-columns > .ff-add-column {
         min-height: 3rem;
     }
 

@@ -29,6 +29,7 @@ class ModernPanelProvider extends PanelProvider
             ->pages([
                 TestBoard::class,
                 TestAddColumnBoard::class,
+                TestAddColumnGroupedBoard::class,
                 TestBrowserBoard::class,
                 TestClassicBoard::class,
                 TestCollapsibleBoard::class,
