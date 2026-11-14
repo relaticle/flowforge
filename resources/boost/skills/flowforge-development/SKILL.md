@@ -361,7 +361,11 @@ The closure gets the column's query with the active filters and search applied. 
 ])
 ```
 
-A "Group by" select appears and the choice lives in `?groupBy=`. `lanes()` returns `Lane::make($name)->label()->query(fn (Builder $query) => ...)` objects. Give every custom grouping an `emptyLane()`, because the header `+` creates a card without knowing the lane. Without `moveUsing()` the lanes are read-only. Throw `CardMoveRejectedException::because('...')` in `moveUsing()` to refuse a move and roll back both writes. `collapseEmptyColumns()` applies to the plain board only.
+A "Group by" select appears and the choice lives in `?groupBy=`. `lanes()` returns `Lane::make($name)->label()->query(fn (Builder $query) => ...)` objects. Give every custom grouping an `emptyLane()`, because the header `+` creates a card without knowing the lane. Without `moveUsing()` the lanes are read-only. Throw `CardMoveRejectedException::because('...')` in `moveUsing()` to refuse a move and roll back both writes. `collapseEmptyColumns()` applies to the plain board only. Columns collapsed with `collapsedColumns()` or `collapseAllColumns()` hold in lanes too: each takes a narrow track, its cells show their count, and the track opens while a card is dragged.
+
+### Column controls
+
+The host owns the state and Flowforge renders it. `collapsedColumns(fn () => [...])` and `collapseAllColumns(fn () => ...)` collapse columns. `collapsibleColumns(fn (string $columnId, bool $collapsed) => ...)` lets a double-click on a header collapse it and a click on its rail expand it. Only columns listed in `collapsedColumns()` expand by click. `columnHeaderMenu(fn (array $column): ?Htmlable => ...)` turns the header into a menu holding the host block above the column actions. `addColumnUsing(fn (string $name) => ...)` with `addColumnLabel()` adds a tile after the last column; throw a `ValidationException` to show a message under its input. Pass any value the page changes during a request as a closure, because the board is built before the action runs.
 
 ### Styling a Modern Board
 
