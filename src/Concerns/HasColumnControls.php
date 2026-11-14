@@ -21,6 +21,10 @@ trait HasColumnControls
 
     protected ?Closure $columnHeaderMenu = null;
 
+    protected ?Closure $addColumn = null;
+
+    protected string | Closure | null $addColumnLabel = null;
+
     /**
      * @param  array<int, mixed>|Closure  $columnIds
      */
@@ -110,5 +114,40 @@ trait HasColumnControls
         }
 
         return $this->evaluate($this->columnHeaderMenu, ['column' => $column]);
+    }
+
+    public function addColumnUsing(?Closure $using): static
+    {
+        $this->addColumn = $using;
+
+        return $this;
+    }
+
+    public function addColumnLabel(string | Closure | null $label): static
+    {
+        $this->addColumnLabel = $label;
+
+        return $this;
+    }
+
+    public function canAddColumns(): bool
+    {
+        return $this->addColumn instanceof Closure;
+    }
+
+    public function getAddColumnLabel(): string
+    {
+        $label = $this->evaluate($this->addColumnLabel);
+
+        return filled($label) ? (string) $label : __('flowforge::flowforge.add_column');
+    }
+
+    public function addColumn(string $name): void
+    {
+        if (! $this->addColumn instanceof Closure) {
+            return;
+        }
+
+        $this->evaluate($this->addColumn, ['name' => $name]);
     }
 }

@@ -129,6 +129,8 @@ class Board extends ViewComponent
                 'pluralCardLabel' => $this->getPluralCardLabel(),
                 'headerToolbar' => $this->hasHeaderToolbar(),
                 'collapsible' => $this->isColumnCollapsible(),
+                'canAddColumns' => $this->canAddColumns(),
+                'addColumnLabel' => $this->getAddColumnLabel(),
                 'collapseEmptyColumns' => $grouping === null
                     && $this->collapsesEmptyColumns()
                     && array_sum(array_column($columns, 'total')) > 0,

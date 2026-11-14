@@ -11,6 +11,7 @@ use Illuminate\Auth\Access\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
+use Illuminate\Validation\ValidationException;
 use Relaticle\Flowforge\Board;
 use Relaticle\Flowforge\Column;
 use Relaticle\Flowforge\Exceptions\CardMoveRejectedException;
@@ -39,6 +40,14 @@ class TestBoard extends BoardPage
     public bool $nullMenuBlock = false;
 
     public array $toggled = [];
+
+    public bool $withAddColumn = false;
+
+    public array $addedColumns = [];
+
+    public ?string $rejectColumnName = null;
+
+    public ?string $addColumnTitle = null;
 
     public bool $withHeaderToolbar = false;
 
@@ -98,6 +107,8 @@ class TestBoard extends BoardPage
                         : array_values(array_diff($this->collapsedIds, [$columnId]));
                 }
                 : null)
+            ->addColumnUsing($this->withAddColumn ? $this->addColumnClosure(...) : null)
+            ->addColumnLabel($this->addColumnTitle)
             ->headerToolbar($this->withHeaderToolbar)
             ->columnActions(match (true) {
                 $this->withHeaderMenu => [Action::make('archiveColumn')->label('Archive column')->action(function (): void {})],
@@ -139,7 +150,17 @@ class TestBoard extends BoardPage
                 Column::make('archived')->label('Archived Column')->hidden(true),
                 Column::make('in_progress')->label($this->htmlLabel ? new HtmlString('<em>In Progress</em>') : 'In Progress')->color('blue')->visible(fn () => ! $this->hideEverything),
                 Column::make('completed')->label('Completed')->color('green')->visible(fn () => ! $this->hideEverything),
+                ...array_map(fn (string $name): Column => Column::make($name)->label($name), $this->addedColumns),
             ]);
+    }
+
+    protected function addColumnClosure(string $name): void
+    {
+        if ($name === $this->rejectColumnName) {
+            throw ValidationException::withMessages(['name' => 'Taken']);
+        }
+
+        $this->addedColumns[] = $name;
     }
 
     protected function authorizeCardMove(Model $card, string $targetColumnId, ?string $toLaneId = null): void

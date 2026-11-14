@@ -10,11 +10,15 @@
         ->map(fn (array $column): string => ($column['isCollapsed'] ?? false) ? 'var(--_collapsed-width)' : 'var(--_column-width)')
         ->implode(' ');
     $tracksStyle = '--_tracks: ' . $tracks . '; --_tracks-open: repeat(' . count($columns) . ', var(--_column-width))';
+    $canAddColumns = (bool) ($config['canAddColumns'] ?? false);
+    $headsStyle = $canAddColumns
+        ? '--_tracks: ' . $tracks . ' var(--_collapsed-width); --_tracks-open: repeat(' . count($columns) . ', var(--_column-width)) var(--_collapsed-width)'
+        : $tracksStyle;
 @endphp
 
 <div class="ff-lanes">
     <div class="ff-lanes-grid" style="{{ $tracksStyle }}">
-        <div class="ff-lanes-heads" style="{{ $tracksStyle }}" wire:key="column-headers">
+        <div class="ff-lanes-heads" style="{{ $headsStyle }}" wire:key="column-headers">
             @foreach ($columns as $columnId => $column)
                 @php $isCollapsed = (bool) ($column['isCollapsed'] ?? false); @endphp
 
@@ -35,6 +39,10 @@
                     <x-flowforge::modern.column-header :columnId="(string) $columnId" :column="$column" :isCollapsed="$isCollapsed" />
                 </div>
             @endforeach
+
+            @if ($canAddColumns)
+                <x-flowforge::modern.add-column :label="$config['addColumnLabel']" />
+            @endif
         </div>
 
         @foreach ($lanes as $lane)

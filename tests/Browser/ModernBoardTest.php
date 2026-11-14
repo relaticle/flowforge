@@ -1035,3 +1035,50 @@ test('a limited collapsed lane head keeps its dot and count inside the rail', fu
     expect($page->script("document.querySelector('{$heading}').innerText.trim()"))->toContain('13/20')
         ->and($page->script("document.querySelector('{$heading}').scrollWidth"))->toBeLessThanOrEqual(40);
 });
+
+test('clicking the add column tile, typing a name and pressing enter adds the column', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+    $input = '.ff-add-column-input';
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+    $page->type($input, 'Won');
+    $page->keys($input, 'Enter');
+    $pointer->untilScript("document.querySelectorAll('[data-column-root=\"Won\"]').length === 1");
+
+    expect($page->script("document.querySelector('{$input}').offsetParent === null"))->toBeTrue()
+        ->and($page->script("document.querySelector('{$input}').value"))->toBe('');
+});
+
+test('escape cancels the add column input without calling the host', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+    $input = '.ff-add-column-input';
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+    $page->type($input, 'Won');
+    $page->keys($input, 'Escape');
+    $pointer->untilScript("document.querySelector('{$input}').offsetParent === null");
+    $pointer->wait(400);
+
+    expect($page->script("document.querySelectorAll('[data-column-root]').length"))->toBe(3)
+        ->and($page->script("document.querySelector('{$input}').value"))->toBe('');
+});
+
+test('a blank add column name shows its error under the input and keeps it open', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+    $input = '.ff-add-column-input';
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+    $page->keys($input, 'Enter');
+    $pointer->untilScript("document.querySelector('.ff-add-column-error')?.offsetParent !== null && document.querySelector('.ff-add-column-error') !== null");
+
+    expect($page->script("document.querySelector('{$input}').offsetParent !== null"))->toBeTrue();
+});

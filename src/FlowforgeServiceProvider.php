@@ -131,6 +131,7 @@ class FlowforgeServiceProvider extends PackageServiceProvider
         Blade::component('flowforge::modern.livewire.card', 'flowforge::modern.card');
         Blade::component('flowforge::modern.livewire.column-count', 'flowforge::modern.column-count');
         Blade::component('flowforge::modern.livewire.add-card-row', 'flowforge::modern.add-card-row');
+        Blade::component('flowforge::modern.livewire.add-column', 'flowforge::modern.add-column');
         Blade::component('flowforge::modern.livewire.lanes', 'flowforge::modern.lanes');
         Blade::component('flowforge::modern.components.grouping-picker', 'flowforge::modern.grouping-picker');
     }

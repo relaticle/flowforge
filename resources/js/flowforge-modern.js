@@ -49,6 +49,9 @@ export default function flowforgeModern() {
         pendingCounts: {},
         pendingMoves: 0,
         collapsedLanes: {},
+        addingColumn: false,
+        newColumnName: '',
+        newColumnTouched: false,
         placeholder: null,
         stopTrackingPointer: null,
 
@@ -237,6 +240,27 @@ export default function flowforgeModern() {
             }
 
             this.$wire.toggleBoardColumnCollapse(columnId);
+        },
+
+        openNewColumn() {
+            this.addingColumn = true;
+            this.newColumnTouched = true;
+            this.$nextTick(() => this.$refs.newColumnInput.focus());
+        },
+
+        cancelNewColumn() {
+            this.addingColumn = false;
+            this.newColumnName = '';
+        },
+
+        async submitNewColumn() {
+            this.newColumnTouched = false;
+
+            await this.$wire.addBoardColumn(this.newColumnName);
+
+            if (!this.$root.querySelector('.ff-add-column-error')) {
+                this.cancelNewColumn();
+            }
         },
 
         suppressDoubleClickSelection(event) {

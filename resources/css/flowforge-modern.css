@@ -60,6 +60,7 @@
     }
 
     .ff-column,
+    .ff-add-column,
     .ff-lanes-grid,
     .ff-lanes-heads {
         --_column-width: var(--ff-column-width, 300px);
@@ -660,6 +661,75 @@
         font-size: 0.75rem;
         line-height: 1rem;
         color: var(--_text-muted);
+    }
+
+    .ff-add-column {
+        --_add-border: var(--ff-border, color-mix(in oklab, var(--gray-950) 15%, transparent));
+        position: relative;
+        flex-shrink: 0;
+        align-self: stretch;
+        width: var(--_collapsed-width);
+        min-height: 3rem;
+    }
+
+    :where(.dark) .ff-add-column {
+        --_add-border: var(--ff-border, color-mix(in oklab, #fff 20%, transparent));
+    }
+
+    .ff-add-column-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        color: var(--_text-muted);
+        border: 1px dashed var(--_add-border);
+        border-radius: var(--ff-tray-radius, calc(var(--ff-radius, 0.75rem) + 0.25rem));
+        transition:
+            color var(--_duration) var(--_ease),
+            border-color var(--_duration) var(--_ease);
+    }
+
+    .ff-add-column-button:hover,
+    .ff-add-column-button:focus-visible {
+        color: var(--_text);
+        border-color: var(--_accent);
+    }
+
+    .ff-add-column[data-adding] .ff-add-column-button {
+        visibility: hidden;
+    }
+
+    .ff-add-column-form {
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline-start: 0;
+        z-index: 20;
+        width: var(--_column-width);
+    }
+
+    .ff-add-column-input {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: var(--_text);
+        background-color: var(--ff-surface-raised, #fff);
+        border: 1px solid var(--_accent);
+        border-radius: 0.5rem;
+        outline: none;
+    }
+
+    :where(.dark) .ff-add-column-input {
+        background-color: var(--ff-surface-raised, var(--gray-900));
+    }
+
+    .ff-add-column-error {
+        margin: 0.25rem 0 0;
+        font-size: 0.75rem;
+        line-height: 1rem;
+        font-weight: 500;
+        color: var(--_danger);
     }
 
     .ff-lanes {

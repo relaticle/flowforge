@@ -15,6 +15,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
@@ -123,6 +124,28 @@ trait InteractsWithBoard
     public function toggleBoardColumnCollapse(string $columnId): void
     {
         $this->getBoard()->toggleColumnCollapse($columnId);
+        $this->board = $this->board($this->makeBoard());
+    }
+
+    public function addBoardColumn(string $name): void
+    {
+        $name = trim($name);
+
+        if ($name === '') {
+            $this->addError('boardNewColumn', __('flowforge::flowforge.column_name_required'));
+
+            return;
+        }
+
+        try {
+            $this->getBoard()->addColumn($name);
+        } catch (ValidationException $exception) {
+            $this->addError('boardNewColumn', (string) collect($exception->errors())->flatten()->first());
+
+            return;
+        }
+
+        $this->resetErrorBag('boardNewColumn');
         $this->board = $this->board($this->makeBoard());
     }
 
