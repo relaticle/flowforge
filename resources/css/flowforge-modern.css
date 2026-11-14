@@ -202,11 +202,6 @@
         padding: 0 0.25rem 0.5rem;
     }
 
-    .ff-column[data-collapsed]:not([data-drop], .ff-lanes-heads .ff-column) .ff-column-header {
-        flex-direction: column;
-        justify-content: normal;
-    }
-
     .ff-column-heading {
         display: flex;
         align-items: center;
@@ -214,8 +209,14 @@
         min-width: 0;
     }
 
-    .ff-column[data-collapsed]:not([data-drop], .ff-lanes-heads .ff-column) .ff-column-heading {
-        display: contents;
+    .ff-tray > .ff-column-heading {
+        flex-shrink: 0;
+        padding: 0.75rem 0.25rem 0;
+    }
+
+    .ff-column[data-collapsed]:not([data-drop], .ff-lanes-heads .ff-column) .ff-tray > .ff-column-heading {
+        flex-direction: column;
+        justify-content: flex-start;
     }
 
     .ff-column-dot {

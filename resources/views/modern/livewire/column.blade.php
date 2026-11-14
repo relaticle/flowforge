@@ -27,13 +27,19 @@
     @endif
     x-bind:data-drop="columnDrop(@js((string) $columnId))"
 >
-    <x-flowforge::modern.column-header :columnId="(string) $columnId" :column="$column" :isCollapsed="$isCollapsed" />
+    @unless ($isCollapsed)
+        <x-flowforge::modern.column-header :columnId="(string) $columnId" :column="$column" />
+    @endunless
 
     <div
         class="ff-tray"
         role="region"
         aria-label="{{ $trayLabel }}"
     >
+        @if ($isCollapsed)
+            <x-flowforge::modern.column-heading :columnId="(string) $columnId" :column="$column" :isCollapsed="true" />
+        @endif
+
         @if (($column['limit'] ?? null) !== null)
             <p
                 x-cloak

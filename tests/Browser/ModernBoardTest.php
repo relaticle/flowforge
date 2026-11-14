@@ -830,6 +830,19 @@ test('a collapsed column widens while a card hovers it and accepts the drop', fu
     $pointer->untilEquals(fn () => boardStyle($page, $root, 'width'), '48px', 'the rail width after the drop');
 });
 
+test('every collapsed rail starts at the same top and none draws an add card button', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsed-all-board');
+
+    $tops = $page->script('[...document.querySelectorAll(".ff-column[data-collapsed] .ff-tray")].map((tray) => tray.getBoundingClientRect().top)');
+    $labelTops = $page->script('[...document.querySelectorAll(".ff-column[data-collapsed] .ff-column-heading")].map((heading) => Math.round(heading.getBoundingClientRect().top))');
+
+    expect($tops)->toHaveCount(3)
+        ->and(array_unique($tops))->toHaveCount(1)
+        ->and(array_unique($labelTops))->toHaveCount(1)
+        ->and($page->script('document.querySelectorAll(".ff-column[data-collapsed] .ff-column-actions, .ff-column[data-collapsed] .ff-add-slot").length'))->toBe(0);
+});
+
 test('double clicking a collapsed rail expands it', function () {
     boardSeed();
     $page = boardPage('/modern/test-collapsible-board');

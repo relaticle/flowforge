@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Livewire\Livewire;
 use Relaticle\Flowforge\Tests\Fixtures\Modern\Task;
 use Relaticle\Flowforge\Tests\Fixtures\Modern\TestBoard;
+use Relaticle\Flowforge\Tests\Fixtures\Modern\TestCollapsibleBoard;
 
 describe('collapsed columns', function () {
     test('renders a listed column as a collapsed rail', function () {
@@ -77,6 +78,26 @@ describe('collapsed columns', function () {
         $html = Livewire::test(TestBoard::class, ['collapsedIdsAs' => 'enum', 'collapsedIds' => ['todo', ['x'], null]])->html();
 
         expect(substr_count($html, 'data-collapsed'))->toBe(1);
+    });
+});
+
+describe('collapsed column anatomy', function () {
+    test('a collapsed column renders no add card button and no column actions', function () {
+        $expanded = Livewire::test(TestCollapsibleBoard::class, ['collapsedIds' => []])->html();
+        $collapsed = Livewire::test(TestCollapsibleBoard::class, ['collapseAll' => true])->html();
+
+        expect($expanded)->toContain('ff-column-actions')
+            ->and($collapsed)->not->toContain('ff-column-actions')
+            ->and($collapsed)->not->toContain('ff-column-header')
+            ->and($collapsed)->not->toContain('ff-add-slot');
+    });
+
+    test('a collapsed column draws its label inside the tray', function () {
+        $html = Livewire::test(TestBoard::class, ['collapsedIds' => ['in_progress']])->html();
+
+        $own = '(?:(?!data-column-root).)*?';
+
+        expect($html)->toMatch('/data-column-root="in_progress"[^>]*data-collapsed' . $own . 'class="ff-tray"' . $own . 'ff-column-heading' . $own . 'ff-column-title[^>]*>\s*In Progress' . $own . 'class="ff-cards"/s');
     });
 });
 
