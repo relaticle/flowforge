@@ -163,15 +163,15 @@ class Board extends ViewComponent
             && array_sum(array_map(fn (Column $column): int => $allCounts[$column->getName()] ?? 0, $this->getColumns())) > 0;
 
         return function (string $columnId) use ($listed, $visible, $collapseAll, $collapseEmpty, $allCounts): array {
-            $byRule = $collapseAll || ($collapseEmpty && ($allCounts[$columnId] ?? 0) === 0);
+            $byEmptyRule = ! $collapseAll && $collapseEmpty && ($allCounts[$columnId] ?? 0) === 0;
             $isListed = in_array($columnId, $listed, true);
-            $collapsed = $byRule || $isListed;
+            $collapsed = $collapseAll || $byEmptyRule || $isListed;
 
             return [
                 'collapsed' => $collapsed,
                 'toggleable' => $this->isColumnCollapsible()
                     && in_array($columnId, $visible, true)
-                    && (! $collapsed || ($isListed && ! $byRule)),
+                    && ! $byEmptyRule,
             ];
         };
     }
