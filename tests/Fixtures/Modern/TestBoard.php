@@ -67,6 +67,8 @@ class TestBoard extends BoardPage
 
     public bool $htmlLabel = false;
 
+    public bool $hexCompleted = false;
+
     public ?int $todoLimit = null;
 
     public ?string $denyMovesFor = null;
@@ -152,7 +154,7 @@ class TestBoard extends BoardPage
                 Column::make('hidden_column')->visible(fn () => $this->showAllColumns && ! $this->hideEverything)->label('Hidden Column'),
                 Column::make('archived')->label('Archived Column')->hidden(true),
                 Column::make('in_progress')->label($this->htmlLabel ? new HtmlString('<em>In Progress</em>') : 'In Progress')->color('blue')->visible(fn () => ! $this->hideEverything),
-                Column::make('completed')->label('Completed')->color('green')->visible(fn () => ! $this->hideEverything),
+                Column::make('completed')->label('Completed')->color($this->hexCompleted ? '#FF5454' : 'green')->visible(fn () => ! $this->hideEverything),
                 ...array_map(fn (string $name): Column => Column::make($name)->label($name), $this->addedColumns),
             ]);
     }

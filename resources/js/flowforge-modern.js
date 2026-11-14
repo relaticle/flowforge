@@ -28,6 +28,8 @@ const FLOWFORGE_TOKENS = [
 
 const HEADER_GESTURE_IGNORED = '.ff-column-actions, .fi-dropdown-panel, input, textarea, select, [contenteditable]:not([contenteditable="false"])';
 
+const EMPTY_SPACE_IGNORED = `.ff-card, .ff-column-header, .ff-add-slot, .ff-add-row, .ff-cards-more, .ff-limit-hint, button, a, ${HEADER_GESTURE_IGNORED}`;
+
 const MENU_DRAG_THRESHOLD = 4;
 
 const focusMenuField = (panel) => {
@@ -268,6 +270,18 @@ export default function flowforgeModern() {
             }
 
             this.$wire.toggleBoardColumnCollapse(columnId);
+        },
+
+        collapseFromEmptySpace(event, columnId) {
+            if (!event.target.closest(EMPTY_SPACE_IGNORED)) {
+                this.toggleColumnCollapse(event, columnId);
+            }
+        },
+
+        suppressEmptySpaceSelection(event) {
+            if (event.detail > 1 && !event.target.closest(EMPTY_SPACE_IGNORED)) {
+                event.preventDefault();
+            }
         },
 
         openNewColumn() {

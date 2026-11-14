@@ -26,6 +26,10 @@
         x-on:pointerdown="railPress($event)"
         x-on:mousedown="suppressDoubleClickSelection($event)"
     @endif
+    @if (! $isCollapsed && ($column['canToggleCollapse'] ?? false))
+        x-on:dblclick="collapseFromEmptySpace($event, @js((string) $columnId))"
+        x-on:mousedown="suppressEmptySpaceSelection($event)"
+    @endif
     x-bind:data-drop="columnDrop(@js((string) $columnId))"
 >
     @unless ($isCollapsed)

@@ -7,6 +7,8 @@ namespace Relaticle\Flowforge\Support;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
 
+use function Filament\Support\get_color_css_variables;
+
 /**
  * Resolves color values from various formats into a consistent structure.
  *
@@ -59,6 +61,22 @@ class ColorResolver
         }
 
         return null;
+    }
+
+    // A hex stays exactly as given: Filament's generated palette keeps only its hue at shade 500.
+    public static function dotStyle(mixed $color): ?string
+    {
+        $resolved = self::resolve($color);
+
+        if ($resolved === null) {
+            return null;
+        }
+
+        if (is_string($color) && preg_match('/^#[0-9A-Fa-f]{6}$/', $color)) {
+            return '--color-500:' . strtolower($color);
+        }
+
+        return get_color_css_variables($resolved, shades: [500]);
     }
 
     /**

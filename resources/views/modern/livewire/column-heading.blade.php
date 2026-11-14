@@ -3,17 +3,13 @@
 @php
     use Filament\Support\Enums\IconSize;
     use Relaticle\Flowforge\Support\ColorResolver;
-    use function Filament\Support\get_color_css_variables;
 
-    $dotColor = ColorResolver::resolve($column['color'] ?? null);
+    $dotStyle = ColorResolver::dotStyle($column['color'] ?? null);
 @endphp
 
 <div {{ $attributes->class(['ff-column-heading']) }}>
-    @if ($dotColor)
-        <span
-            class="ff-column-dot"
-            style="{{ get_color_css_variables($dotColor, shades: [500]) }}"
-        ></span>
+    @if ($dotStyle)
+        <span class="ff-column-dot" style="{{ $dotStyle }}"></span>
     @endif
 
     @if ($column['icon'] ?? null)

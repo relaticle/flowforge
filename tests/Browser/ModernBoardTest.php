@@ -906,6 +906,33 @@ test('double clicking a header with a menu leaves the menu open and the column e
         ->and($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
 })->with(['/modern/test-menu-board', '/modern/test-menu-static-board']);
 
+test('double clicking a column\'s empty space collapses it and a card leaves it open', function () {
+    [, , , $card] = boardSeed();
+    $page = boardPage('/modern/test-menu-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="in_progress"]';
+
+    $pointer->doubleClick(boardCard($card), 120)->wait(600);
+
+    expect($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
+
+    $pointer->doubleClick("{$root} .ff-cards", 120);
+    $pointer->untilScript("document.querySelector('{$root}').hasAttribute('data-collapsed')");
+
+    $pointer->doubleClick($root, 120)->wait(800);
+
+    expect($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
+});
+
+test('double clicking an empty lane cell collapses its column', function () {
+    boardSeed('high');
+    $page = boardPage('/modern/test-collapsible-grouped-board?groupBy=priority');
+    $pointer = Pointer::on($page);
+
+    $pointer->doubleClick('.ff-cell-cards[data-column-id="in_progress"][data-lane-id="high"]', 120);
+    $pointer->untilScript("document.querySelector('.ff-lanes-heads [data-column-root=\"in_progress\"]').hasAttribute('data-collapsed')");
+});
+
 test('a header click opens the menu over its column with the marked field focused', function () {
     boardSeed();
     $page = boardPage('/modern/test-menu-board');
@@ -924,7 +951,7 @@ test('a header click opens the menu over its column with the marked field focuse
         })()
     JS);
 
-    expect($geometry)->toBe([4, 4, 8])
+    expect($geometry)->toBe([0, 0, 0])
         ->and($page->script('document.activeElement.selectionStart'))->toBe(7);
 });
 

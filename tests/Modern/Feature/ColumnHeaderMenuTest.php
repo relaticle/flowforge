@@ -46,7 +46,8 @@ describe('column header menu', function () {
     test('a collapsible header with a menu leaves the double click to the menu', function () {
         $html = Livewire::test(TestBoard::class, ['withHeaderMenu' => true, 'collapsible' => true])->html();
 
-        expect($html)->not->toContain('x-on:dblclick');
+        expect($html)->not->toMatch('/<div\s[^>]*class="ff-column-header"[^>]*x-on:dblclick/')
+            ->and($html)->toMatch('/<div\s[^>]*data-column-root="todo"[^>]*x-on:dblclick="collapseFromEmptySpace/');
     });
 
     test('the trigger is a div with the button role so a header drag handle does not filter it out', function () {

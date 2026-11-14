@@ -287,11 +287,11 @@
         padding: 0.5rem 0.75rem;
     }
 
-    /* The menu opens over its column, 4px past each edge, so it covers the header it came from. */
+    /* The menu opens over its column at the column's width, so it covers the header it came from. */
     @media (width >= 40rem) {
         .ff-column-menu > .fi-dropdown-panel {
-            width: calc(var(--_column-width) + 0.5rem);
-            min-width: calc(var(--_column-width) + 0.5rem);
+            width: var(--_column-width);
+            min-width: var(--_column-width);
         }
     }
 

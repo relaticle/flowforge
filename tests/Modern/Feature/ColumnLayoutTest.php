@@ -37,6 +37,12 @@ test('a colored column shows a dot before its label', function () {
     Livewire::test(TestBoard::class)->assertSeeHtml('ff-column-dot');
 });
 
+test('a hex column color draws its dot in that exact color', function () {
+    $html = Livewire::test(TestBoard::class, ['hexCompleted' => true])->html();
+
+    expect($html)->toContain('style="--color-500:#ff5454"');
+});
+
 test('the header sits above the tray, outside it', function () {
     $html = Livewire::test(TestBoard::class)->html();
 

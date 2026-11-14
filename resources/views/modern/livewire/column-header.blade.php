@@ -21,8 +21,8 @@
 
     $createAction = $createAction?->isVisible() ? $createAction : null;
 
-    // x-float reads this before the board's Alpine data loads, so it carries its own logic. The 4px matches the 0.5rem wider panel.
-    $menuOffset = '({ elements: { reference } }) => { const column = reference.closest(\'[data-column-root]\').getBoundingClientRect(); const trigger = reference.getBoundingClientRect(); return { mainAxis: column.top - 4 - trigger.bottom, crossAxis: column.left - 4 - trigger.left }; }';
+    // x-float reads this before the board's Alpine data loads, so it carries its own logic.
+    $menuOffset = '({ elements: { reference } }) => { const column = reference.closest(\'[data-column-root]\').getBoundingClientRect(); const trigger = reference.getBoundingClientRect(); return { mainAxis: column.top - trigger.bottom, crossAxis: column.left - trigger.left }; }';
 @endphp
 
 <div

@@ -90,6 +90,10 @@
                 <div
                     class="ff-cell"
                     @if ($isCollapsed) data-collapsed @endif
+                    @if (! $isCollapsed && ($column['canToggleCollapse'] ?? false))
+                        x-on:dblclick="collapseFromEmptySpace($event, @js((string) $columnId))"
+                        x-on:mousedown="suppressEmptySpaceSelection($event)"
+                    @endif
                     x-show="! isLaneCollapsed(@js($laneKey))"
                     x-bind:data-drop="cellDrop(@js((string) $columnId), @js((string) $lane['id']))"
                     wire:key="cell-{{ $lane['id'] }}-{{ $columnId }}"
