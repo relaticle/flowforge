@@ -44,6 +44,7 @@ export default function flowforgeModern() {
 
         railToggledAt: 0,
         columnMenuPressAt: null,
+        railPressAt: null,
         dragOverLane: null,
         dragSource: null,
         pendingCounts: {},
@@ -226,9 +227,23 @@ export default function flowforgeModern() {
             this.dragSource = null;
         },
 
+        railPress(event) {
+            this.railPressAt = { x: event.clientX, y: event.clientY };
+        },
+
         toggleColumnCollapse(event, columnId, fromRail = false) {
             if (event.target.closest(HEADER_GESTURE_IGNORED) || (fromRail && event.detail > 1)) {
                 return;
+            }
+
+            if (fromRail) {
+                const press = this.railPressAt;
+
+                this.railPressAt = null;
+
+                if (press && Math.hypot(event.clientX - press.x, event.clientY - press.y) > MENU_DRAG_THRESHOLD) {
+                    return;
+                }
             }
 
             // The click that expands a rail must not let its double click collapse the header again.

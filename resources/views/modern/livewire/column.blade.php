@@ -23,6 +23,7 @@
     @if ($isCollapsed) data-collapsed title="{{ $plainLabel }}" @endif
     @if ($isCollapsed && ($column['canToggleCollapse'] ?? false))
         x-on:click="toggleColumnCollapse($event, @js((string) $columnId), true)"
+        x-on:pointerdown="railPress($event)"
         x-on:mousedown="suppressDoubleClickSelection($event)"
     @endif
     x-bind:data-drop="columnDrop(@js((string) $columnId))"

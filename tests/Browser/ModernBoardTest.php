@@ -801,6 +801,20 @@ test('double clicking a header collapses its column and clicking the rail expand
     expect(boardStyle($page, $root, 'width'))->toBe('300px');
 });
 
+test('a press on a rail that moves before release leaves the rail collapsed', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="completed"]';
+
+    $pointer->press($root)->nudge(0, 30)->release()->wait(600);
+
+    expect($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeTrue();
+
+    $pointer->click($root);
+    $pointer->untilScript("! document.querySelector('{$root}').hasAttribute('data-collapsed')");
+});
+
 test('double clicking the add card button leaves the column expanded', function () {
     boardSeed();
     $page = boardPage('/modern/test-collapsible-board');
