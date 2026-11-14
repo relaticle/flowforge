@@ -86,14 +86,16 @@
     }
 
     .ff-tray,
-    .ff-cell {
+    .ff-cell,
+    .ff-add-column-ghost {
         --_accent-tint: var(--ff-accent-tint, var(--primary-50));
         --_tray-bg: var(--ff-tray-bg, var(--ff-surface-sunken, var(--gray-100)));
         --_tray-radius: var(--ff-tray-radius, calc(var(--ff-radius, 0.75rem) + 0.25rem));
     }
 
     :where(.dark) .ff-tray,
-    :where(.dark) .ff-cell {
+    :where(.dark) .ff-cell,
+    :where(.dark) .ff-add-column-ghost {
         --_accent-tint: var(--ff-accent-tint, color-mix(in oklab, var(--primary-500) 10%, transparent));
         --_tray-bg: var(--ff-tray-bg, var(--ff-surface-sunken, color-mix(in oklab, #fff 5%, transparent)));
     }
@@ -676,10 +678,10 @@
         --_tile-bg: color-mix(in oklab, var(--gray-950) 5%, transparent);
         --_tile-bg-hover: color-mix(in oklab, var(--gray-950) 9%, transparent);
         position: relative;
+        display: flex;
         flex-shrink: 0;
-        align-self: start;
-        width: var(--_collapsed-width);
-        height: var(--_collapsed-width);
+        align-items: flex-start;
+        gap: var(--_gap);
     }
 
     :where(.dark) .ff-add-column {
@@ -689,10 +691,11 @@
 
     .ff-add-column-button {
         display: flex;
+        flex-shrink: 0;
         align-items: center;
         justify-content: center;
-        width: 100%;
-        height: 100%;
+        width: var(--_collapsed-width);
+        height: var(--_collapsed-width);
         color: var(--_text-muted);
         background-color: var(--_tile-bg);
         border-radius: 0.75rem;
@@ -707,32 +710,83 @@
         background-color: var(--_tile-bg-hover);
     }
 
-    .ff-add-column[data-adding] .ff-add-column-button {
-        visibility: hidden;
+    .ff-add-column-ghost {
+        position: relative;
+        flex-shrink: 0;
+        align-self: stretch;
+        width: var(--_column-width);
+        background-color: var(--_tray-bg);
+        border-radius: var(--_tray-radius);
+    }
+
+    .ff-lanes-heads .ff-add-column-ghost {
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline-start: 0;
+        z-index: 20;
+        background-color: transparent;
     }
 
     .ff-add-column-form {
         position: absolute;
         inset-block-start: 0;
-        inset-inline-start: 0;
+        inset-inline: 0;
         z-index: 20;
-        width: var(--_column-width);
+        padding: 0.75rem;
+        background-color: var(--ff-surface-raised, #fff);
+        border-radius: 0.75rem;
+        box-shadow:
+            0 0 0 1px color-mix(in oklab, var(--gray-950) 5%, transparent),
+            0 10px 15px -3px rgb(0 0 0 / 0.1),
+            0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    :where(.dark) .ff-add-column-form {
+        background-color: var(--ff-surface-raised, var(--gray-900));
+        box-shadow:
+            0 0 0 1px color-mix(in oklab, #fff 10%, transparent),
+            0 10px 15px -3px rgb(0 0 0 / 0.3);
+    }
+
+    .ff-add-column-field {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        height: 2.25rem;
+        padding: 0 0.75rem;
+        border: 1px solid var(--gray-200);
+        border-radius: 0.625rem;
+        transition: border-color var(--_duration) var(--_ease);
+    }
+
+    :where(.dark) .ff-add-column-field {
+        border-color: color-mix(in oklab, #fff 10%, transparent);
+    }
+
+    .ff-add-column-field:focus-within {
+        border-color: var(--_accent);
+    }
+
+    .ff-add-column-dot {
+        flex-shrink: 0;
+        width: 0.875rem;
+        height: 0.875rem;
+        background-color: var(--gray-400);
+        border-radius: 9999px;
     }
 
     .ff-add-column-input {
-        width: 100%;
-        padding: 0.5rem 0.75rem;
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 0;
         font-size: 0.875rem;
         line-height: 1.25rem;
+        font-weight: 600;
         color: var(--_text);
-        background-color: var(--ff-surface-raised, #fff);
-        border: 1px solid var(--_accent);
-        border-radius: 0.5rem;
+        background-color: transparent;
+        border: 0;
         outline: none;
-    }
-
-    :where(.dark) .ff-add-column-input {
-        background-color: var(--ff-surface-raised, var(--gray-900));
+        box-shadow: none;
     }
 
     .ff-add-column-error {
@@ -806,8 +860,8 @@
         height: 1.75rem;
     }
 
-    .ff-lanes-heads .ff-add-column-input {
-        padding-block: 0.1875rem;
+    .ff-lanes-heads .ff-add-column-button {
+        height: 100%;
     }
 
     .ff-lanes-heads:has(> .ff-add-column) {

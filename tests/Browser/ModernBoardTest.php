@@ -1158,28 +1158,59 @@ test('the add column tile is a square at the column header level on a flat board
         ->and(abs($box[2]))->toBeLessThan(1.5);
 });
 
-test('the add column tile and its input sit inside the painted lane heads box', function () {
+test('the add column tile sits in the lane heads and its form opens on top of the lanes', function () {
     boardSeed('high');
     $page = boardPage('/modern/test-add-column-grouped-board?groupBy=priority');
     $pointer = Pointer::on($page);
-    $inside = <<<'JS'
+    $tile = <<<'JS'
         (() => {
             const heads = document.querySelector('.ff-lanes-heads').getBoundingClientRect();
             const column = document.querySelector('.ff-lanes-heads .ff-column').getBoundingClientRect();
-            const target = document.querySelector('.ff-add-column-input')?.offsetParent
-                ? document.querySelector('.ff-add-column-input').getBoundingClientRect()
-                : document.querySelector('.ff-add-column-button').getBoundingClientRect();
+            const tile = document.querySelector('.ff-add-column-button').getBoundingClientRect();
 
-            return [target.left >= heads.left - 0.5, target.right <= heads.right + 0.5, target.top >= heads.top - 0.5, target.bottom <= heads.bottom + 0.5, Math.abs(document.querySelector('.ff-add-column-button').getBoundingClientRect().top - column.top) < 1.5];
+            return [tile.left >= heads.left - 0.5, tile.right <= heads.right + 0.5, tile.top >= heads.top - 0.5, tile.bottom <= heads.bottom + 0.5, Math.abs(tile.top - column.top) < 1.5];
         })()
     JS;
 
-    expect($page->script($inside))->toBe([true, true, true, true, true]);
+    expect($page->script($tile))->toBe([true, true, true, true, true]);
 
     $pointer->click('.ff-add-column-button');
     $pointer->untilScript("document.activeElement === document.querySelector('.ff-add-column-input')");
 
-    expect($page->script($inside))->toBe([true, true, true, true, true]);
+    $reachable = <<<'JS'
+        (() => {
+            const input = document.querySelector('.ff-add-column-input').getBoundingClientRect();
+
+            return document.elementFromPoint(input.left + input.width / 2, input.top + input.height / 2) === document.querySelector('.ff-add-column-input');
+        })()
+    JS;
+
+    expect($page->script($reachable))->toBeTrue();
+});
+
+test('the add column form opens as a column before the tile and an outside click closes it', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('.ff-add-column-input')");
+
+    $geometry = $page->script(<<<'JS'
+        (() => {
+            const column = document.querySelector('.ff-columns > .ff-column').getBoundingClientRect();
+            const ghost = document.querySelector('.ff-add-column-ghost').getBoundingClientRect();
+            const tile = document.querySelector('.ff-add-column-button').getBoundingClientRect();
+
+            return [Math.round(ghost.width) === Math.round(column.width), Math.abs(ghost.height - column.height) < 1.5, tile.left > ghost.right, getComputedStyle(document.querySelector('.ff-add-column-button')).visibility];
+        })()
+    JS);
+
+    expect($geometry)->toBe([true, true, true, 'visible']);
+
+    $page->script("document.querySelector('.ff-add-column-input').value = 'Draft'");
+    $pointer->click('[data-column-root="todo"] .ff-column-title');
+    $pointer->untilScript("getComputedStyle(document.querySelector('.ff-add-column-ghost')).display === 'none'");
 });
 
 test('the add column tile leaves the lane heads row height unchanged', function () {
