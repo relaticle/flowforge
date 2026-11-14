@@ -20,17 +20,20 @@
     }
 
     $createAction = $createAction?->isVisible() ? $createAction : null;
+
+    // x-float reads this before the board's Alpine data loads, so it carries its own logic. The 4px matches the 0.5rem wider panel.
+    $menuOffset = '({ elements: { reference } }) => { const column = reference.closest(\'[data-column-root]\').getBoundingClientRect(); const trigger = reference.getBoundingClientRect(); return { mainAxis: column.top - 4 - trigger.bottom, crossAxis: column.left - 4 - trigger.left }; }';
 @endphp
 
 <div
     class="ff-column-header"
-    @if (($column['canToggleCollapse'] ?? false) && ! $isCollapsed)
+    @if (($column['canToggleCollapse'] ?? false) && ! $isCollapsed && ! $hasMenu)
         x-on:dblclick="toggleColumnCollapse($event, @js($columnId))"
         x-on:mousedown="suppressDoubleClickSelection($event)"
     @endif
 >
     @if ($hasMenu)
-        <x-filament::dropdown class="ff-column-menu" placement="bottom-start" wire:key="column-menu-{{ $columnId }}">
+        <x-filament::dropdown class="ff-column-menu" placement="bottom-start" :offset="$menuOffset" :flip="false" wire:key="column-menu-{{ $columnId }}">
             <x-slot name="trigger">
                 <x-flowforge::modern.column-heading
                     :columnId="$columnId"

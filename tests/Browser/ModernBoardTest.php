@@ -894,16 +894,38 @@ test('clicking a header opens its menu at once', function (string $column, strin
     expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').innerText"))->toContain("Block for {$label}")->toContain('Archive column');
 })->with([['todo', 'To Do'], ['in_progress', 'In Progress']]);
 
-test('double clicking a header with a menu closes the menu and collapses the column', function () {
+test('double clicking a header with a menu leaves the menu open and the column expanded', function (string $path) {
+    boardSeed();
+    $page = boardPage($path);
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="todo"]';
+
+    $pointer->doubleClick("{$root} .ff-column-heading", 120)->wait(600);
+
+    expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').style.display"))->toBe('block')
+        ->and($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
+})->with(['/modern/test-menu-board', '/modern/test-menu-static-board']);
+
+test('a header click opens the menu over its column with the marked field focused', function () {
     boardSeed();
     $page = boardPage('/modern/test-menu-board');
     $pointer = Pointer::on($page);
     $root = '[data-column-root="todo"]';
 
-    $pointer->doubleClick("{$root} .ff-column-heading");
-    $pointer->untilScript("document.querySelector('{$root}').hasAttribute('data-collapsed')");
+    $pointer->click("{$root} .ff-column-heading");
+    $pointer->untilScript("document.activeElement.matches('{$root} .ff-test-menu-input')");
 
-    expect($page->script("document.querySelectorAll('.fi-dropdown-panel[style*=\"display: block\"]').length"))->toBe(0);
+    $geometry = $page->script(<<<JS
+        (() => {
+            const column = document.querySelector('{$root}').getBoundingClientRect();
+            const panel = document.querySelector('{$root} .fi-dropdown-panel').getBoundingClientRect();
+
+            return [column.left - panel.left, column.top - panel.top, panel.width - column.width];
+        })()
+    JS);
+
+    expect($geometry)->toBe([4, 4, 8])
+        ->and($page->script('document.activeElement.selectionStart'))->toBe(7);
 });
 
 test('releasing a header drag does not open the menu', function (string $column) {
@@ -933,18 +955,6 @@ test('a column expanded from its rail opens its menu on click and not on a drag'
 
     $pointer->click("{$root} .ff-column-heading");
     $pointer->untilScript("document.querySelector('{$root} .fi-dropdown-panel').style.display === 'block'");
-});
-
-test('a double click closes the menu it opened when nothing collapses', function () {
-    boardSeed();
-    $page = boardPage('/modern/test-menu-static-board');
-    $pointer = Pointer::on($page);
-    $root = '[data-column-root="todo"]';
-
-    $pointer->doubleClick("{$root} .ff-column-heading", 120)->wait(600);
-
-    expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').style.display"))->not->toBe('block')
-        ->and($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
 });
 
 test('a board update leaves an open menu open', function () {

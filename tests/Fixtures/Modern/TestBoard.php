@@ -121,7 +121,7 @@ class TestBoard extends BoardPage
             ->columnHeaderMenu($this->withHeaderMenu
                 ? fn (array $column): ?HtmlString => $this->nullMenuBlock
                     ? null
-                    : new HtmlString('<div class="ff-test-menu-block">Block for ' . $column['label'] . '<input class="ff-test-menu-input" size="7" value="Backlog"></div>')
+                    : new HtmlString('<div class="ff-test-menu-block">Block for ' . $column['label'] . '<input class="ff-test-menu-input" size="7" value="Backlog" data-autofocus></div>')
                 : null)
             ->query($this->getEloquentQuery())
             ->recordTitleAttribute('title')

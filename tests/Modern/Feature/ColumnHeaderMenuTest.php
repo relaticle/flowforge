@@ -43,6 +43,12 @@ describe('column header menu', function () {
             ->and(menuXpath($html, '//div[' . menuHasClass('ff-column-actions') . ']//button'))->toHaveCount(3);
     });
 
+    test('a collapsible header with a menu leaves the double click to the menu', function () {
+        $html = Livewire::test(TestBoard::class, ['withHeaderMenu' => true, 'collapsible' => true])->html();
+
+        expect($html)->not->toContain('x-on:dblclick');
+    });
+
     test('the trigger is a div with the button role so a header drag handle does not filter it out', function () {
         $html = Livewire::test(TestBoard::class, ['withHeaderMenu' => true])->html();
 

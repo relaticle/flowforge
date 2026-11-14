@@ -30,6 +30,18 @@ const HEADER_GESTURE_IGNORED = '.ff-column-actions, .fi-dropdown-panel, input, t
 
 const MENU_DRAG_THRESHOLD = 4;
 
+const focusMenuField = (panel) => {
+    const field = panel.querySelector('[data-autofocus]');
+
+    // A touch screen would raise its keyboard for a menu opened to collapse or hide.
+    if (!field || panel.style.display !== 'block' || !window.matchMedia('(pointer: fine)').matches) {
+        return;
+    }
+
+    field.focus({ preventScroll: true });
+    field.setSelectionRange?.(field.value.length, field.value.length);
+};
+
 const menusIgnoringMousedown = new WeakSet();
 
 const sortablesAwaitingDrag = new WeakSet();
@@ -324,11 +336,14 @@ export default function flowforgeModern() {
 
             this.columnMenuPressAt = null;
 
-            if (press && Math.hypot(event.clientX - press.x, event.clientY - press.y) > MENU_DRAG_THRESHOLD) {
+            if (event.detail > 1 || (press && Math.hypot(event.clientX - press.x, event.clientY - press.y) > MENU_DRAG_THRESHOLD)) {
                 return;
             }
 
-            window.Alpine.$data(event.currentTarget.closest('.fi-dropdown')).toggle(event);
+            const root = event.currentTarget.closest('.fi-dropdown');
+
+            window.Alpine.$data(root).toggle(event);
+            requestAnimationFrame(() => focusMenuField(root.querySelector(':scope > .fi-dropdown-panel')));
         },
 
         columnDrop(columnId) {
