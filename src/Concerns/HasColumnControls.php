@@ -30,6 +30,8 @@ trait HasColumnControls
     /** @var array<string, string>|Closure|null */
     protected array | Closure | null $addColumnColors = null;
 
+    protected string | Closure | null $addColumnDefaultColor = null;
+
     /**
      * @param  array<int, mixed>|Closure  $columnIds
      */
@@ -159,6 +161,20 @@ trait HasColumnControls
     public function getAddColumnColors(): array
     {
         return $this->evaluate($this->addColumnColors) ?? [];
+    }
+
+    public function addColumnDefaultColor(string | Closure | null $color): static
+    {
+        $this->addColumnDefaultColor = $color;
+
+        return $this;
+    }
+
+    public function getAddColumnDefaultColor(): ?string
+    {
+        $color = $this->evaluate($this->addColumnDefaultColor);
+
+        return is_string($color) && array_key_exists($color, $this->getAddColumnColors()) ? $color : null;
     }
 
     public function canAddColumns(): bool

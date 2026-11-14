@@ -51,6 +51,8 @@ class TestBoard extends BoardPage
 
     public bool $withAddColumnColors = false;
 
+    public ?string $addColumnDefault = null;
+
     public ?string $rejectColumnName = null;
 
     public ?string $addColumnTitle = null;
@@ -120,6 +122,7 @@ class TestBoard extends BoardPage
                 : null)
             ->addColumnUsing($this->withAddColumn ? $this->addColumnClosure(...) : null)
             ->addColumnColors($this->withAddColumnColors ? ['#ff5454' => 'Red', 'blue' => 'Blue'] : null)
+            ->addColumnDefaultColor($this->addColumnDefault)
             ->addColumnLabel($this->addColumnTitle)
             ->addColumnPlaceholder($this->addColumnHint)
             ->headerToolbar($this->withHeaderToolbar)

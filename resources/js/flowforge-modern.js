@@ -72,6 +72,7 @@ export default function flowforgeModern() {
         newColumnName: '',
         newColumnColor: null,
         newColumnDotStyle: '',
+        newColumnColorPicked: false,
         choosingNewColumnColor: false,
         newColumnTouched: false,
         addingColumnPending: false,
@@ -309,13 +310,20 @@ export default function flowforgeModern() {
             }
         },
 
-        openNewColumn() {
+        openNewColumn(defaultColor = null, defaultStyle = '') {
             this.addingColumn = true;
             this.newColumnTouched = true;
+            this.newColumnColor = defaultColor;
+            this.newColumnDotStyle = defaultStyle;
+            this.newColumnColorPicked = false;
             // WebKit ignores a focus on the next tick, right after the ghost column shows. One frame later it takes it.
             this.$nextTick(() => requestAnimationFrame(() => {
-                this.$refs.newColumnInput.focus({ preventScroll: true });
-                this.$refs.newColumnInput.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                const input = this.$refs.newColumnInput;
+                const addColumn = input.closest('.ff-add-column');
+                const shown = addColumn.closest('.ff-lanes-heads') ? input.closest('.ff-add-column-ghost') : addColumn;
+
+                input.focus({ preventScroll: true });
+                shown.scrollIntoView({ block: 'nearest', inline: 'end' });
             }));
         },
 
@@ -329,6 +337,7 @@ export default function flowforgeModern() {
         },
 
         pickNewColumnColor(color, style) {
+            this.newColumnColorPicked = true;
             this.newColumnColor = color;
             this.newColumnDotStyle = style;
             this.choosingNewColumnColor = false;
@@ -344,7 +353,7 @@ export default function flowforgeModern() {
             this.newColumnTouched = true;
 
             try {
-                await this.$wire.addBoardColumn(this.newColumnName, this.newColumnColor);
+                await this.$wire.addBoardColumn(this.newColumnName, this.newColumnColorPicked ? this.newColumnColor : null);
             } finally {
                 this.addingColumnPending = false;
             }

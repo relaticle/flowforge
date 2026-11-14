@@ -1,7 +1,9 @@
-@props(['label', 'placeholder', 'colors' => []])
+@props(['label', 'placeholder', 'colors' => [], 'defaultColor' => null])
 
 @php
     use Filament\Support\Enums\IconSize;
+
+    $defaultStyle = collect($colors)->firstWhere('value', $defaultColor)['style'] ?? '';
 @endphp
 
 <div class="ff-add-column" x-bind:data-adding="addingColumn" wire:key="add-column">
@@ -66,7 +68,7 @@
         class="ff-add-column-button"
         title="{{ $label }}"
         aria-label="{{ $label }}"
-        x-on:click="openNewColumn()"
+        x-on:click="openNewColumn(@js($defaultColor), @js($defaultStyle))"
     >
         <x-filament::icon icon="heroicon-m-plus" :size="IconSize::Small" />
     </button>

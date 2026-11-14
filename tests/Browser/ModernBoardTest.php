@@ -1188,6 +1188,27 @@ test('the add column tile sits in the lane heads and its form opens on top of th
     expect($page->script($reachable))->toBeTrue();
 });
 
+test('opening the add column form scrolls the new column and the tile into the board', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+
+    $page->script("document.querySelector('.ff-columns').style.width = '700px'");
+    $page->script("const columns = document.querySelector('.ff-columns'); columns.scrollLeft = columns.scrollWidth");
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('.ff-add-column-input')");
+
+    expect($page->script(<<<'JS'
+        (() => {
+            const board = document.querySelector('.ff-columns').getBoundingClientRect();
+            const ghost = document.querySelector('.ff-add-column-ghost').getBoundingClientRect();
+            const tile = document.querySelector('.ff-add-column-button').getBoundingClientRect();
+
+            return ghost.left >= board.left - 0.5 && tile.right <= board.right + 0.5;
+        })()
+    JS))->toBeTrue();
+});
+
 test('the add column form opens as a column before the tile and an outside click closes it', function () {
     boardSeed();
     $page = boardPage('/modern/test-add-column-board');
@@ -1209,6 +1230,7 @@ test('the add column form opens as a column before the tile and an outside click
     expect($geometry)->toBe([true, true, true, 'visible']);
 
     $page->script("document.querySelector('.ff-add-column-input').value = 'Draft'");
+    $page->script("document.querySelector('.ff-columns').scrollLeft = 0");
     $pointer->click('[data-column-root="todo"] .ff-column-title');
     $pointer->untilScript("getComputedStyle(document.querySelector('.ff-add-column-ghost')).display === 'none'");
 });

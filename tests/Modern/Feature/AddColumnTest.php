@@ -80,6 +80,13 @@ describe('add column tile', function () {
         expect($component->get('addedColumnColors'))->toBe(['#ff5454', null, null]);
     });
 
+    test('the form opens on the default color when it is in the palette', function () {
+        $board = fn (string $default) => Livewire::test(TestBoard::class, ['withAddColumn' => true, 'withAddColumnColors' => true, 'addColumnDefault' => $default])->instance()->getBoard();
+
+        expect($board('blue')->getAddColumnDefaultColor())->toBe('blue')
+            ->and($board('#000000')->getAddColumnDefaultColor())->toBeNull();
+    });
+
     test('the board shows the new column in the same response', function () {
         Livewire::test(TestBoard::class, ['withAddColumn' => true])
             ->call('addBoardColumn', 'Won')

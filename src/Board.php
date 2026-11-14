@@ -138,6 +138,7 @@ class Board extends ViewComponent
                     array_keys($this->getAddColumnColors()),
                     $this->getAddColumnColors(),
                 ),
+                'addColumnDefaultColor' => $this->getAddColumnDefaultColor(),
                 'collapseEmptyColumns' => $grouping === null
                     && $this->collapsesEmptyColumns()
                     && array_sum(array_column($columns, 'total')) > 0,
