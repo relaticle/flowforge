@@ -990,3 +990,29 @@ test('a collapsed column in lanes opens while a card is dragged and takes the dr
 
     expect(Task::query()->find($a->id)->priority)->toBe('high');
 });
+
+test('collapsing a lane column keeps the heads row height, also while a card is dragged', function () {
+    boardSeed('high');
+    $page = boardPage('/modern/test-collapsible-grouped-board?groupBy=priority');
+    $pointer = Pointer::on($page);
+    $height = "document.querySelector('.ff-lanes-heads').offsetHeight";
+    $rail = '.ff-lanes-heads [data-column-root="in_progress"]';
+    $root = '.ff-lanes-heads [data-column-root="todo"]';
+
+    $pointer->click($rail);
+    $pointer->untilScript("! document.querySelector('{$rail}').hasAttribute('data-collapsed')");
+    $restingHeight = $page->script($height);
+
+    $pointer->wait(600);
+    $pointer->doubleClick("{$root} .ff-column-title");
+    $pointer->untilScript("document.querySelector('{$root}').hasAttribute('data-collapsed')");
+
+    expect($page->script($height))->toBe($restingHeight);
+
+    $pointer->press('[data-lane-id="high"][data-column-id="in_progress"] [data-card-id]')->nudge(30, 30);
+    $pointer->untilScript("document.documentElement.classList.contains('ff-dragging')");
+
+    expect($page->script($height))->toBe($restingHeight);
+
+    $pointer->release();
+});

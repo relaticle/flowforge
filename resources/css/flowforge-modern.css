@@ -188,7 +188,7 @@
         max-height: 100%;
     }
 
-    .ff-column[data-collapsed]:not([data-drop], .ff-dragging .ff-lanes-heads .ff-column) {
+    .ff-column[data-collapsed]:not([data-drop], .ff-lanes-heads .ff-column) {
         width: var(--_collapsed-width);
         min-width: var(--_collapsed-width);
     }
@@ -201,7 +201,7 @@
         padding: 0 0.25rem 0.5rem;
     }
 
-    .ff-column[data-collapsed]:not([data-drop], .ff-dragging .ff-lanes-heads .ff-column) .ff-column-header {
+    .ff-column[data-collapsed]:not([data-drop], .ff-lanes-heads .ff-column) .ff-column-header {
         flex-direction: column;
         justify-content: normal;
     }
@@ -213,7 +213,7 @@
         min-width: 0;
     }
 
-    .ff-column[data-collapsed]:not([data-drop], .ff-dragging .ff-lanes-heads .ff-column) .ff-column-heading {
+    .ff-column[data-collapsed]:not([data-drop], .ff-lanes-heads .ff-column) .ff-column-heading {
         display: contents;
     }
 
@@ -241,7 +241,7 @@
         white-space: nowrap;
     }
 
-    .ff-column[data-collapsed]:not([data-drop], .ff-dragging .ff-lanes-heads .ff-column) .ff-column-title {
+    .ff-column[data-collapsed]:not([data-drop], .ff-lanes-heads .ff-column) .ff-column-title {
         max-height: 16rem;
         writing-mode: vertical-rl;
     }
@@ -341,7 +341,7 @@
         overscroll-behavior-y: contain;
     }
 
-    .ff-column[data-collapsed]:not([data-drop], .ff-dragging .ff-lanes-heads .ff-column) .ff-cards {
+    .ff-column[data-collapsed]:not([data-drop], .ff-lanes-heads .ff-column) .ff-cards {
         padding: 0;
     }
 
@@ -686,6 +686,24 @@
     .ff-lanes-heads .ff-column {
         width: auto;
         min-width: 0;
+    }
+
+    .ff-lanes-heads .ff-column[data-collapsed] .ff-column-header {
+        justify-content: center;
+    }
+
+    .ff-lanes-heads .ff-column[data-collapsed] .ff-column-title {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    .ff-lanes-heads .ff-column[data-collapsed] .ff-column-icon,
+    .ff-lanes-heads .ff-column[data-collapsed] .ff-column-actions {
+        display: none;
     }
 
     .ff-lanes-heads {

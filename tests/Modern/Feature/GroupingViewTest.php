@@ -9,6 +9,7 @@ use Livewire\Livewire;
 use Relaticle\Flowforge\Tests\Fixtures\Modern\Task;
 use Relaticle\Flowforge\Tests\Fixtures\Modern\TestBoard;
 use Relaticle\Flowforge\Tests\Fixtures\Modern\TestGroupedBoard;
+use Relaticle\Flowforge\Tests\Fixtures\Modern\TestNumericGroupedBoard;
 use Relaticle\Flowforge\Tests\Fixtures\Modern\User;
 
 function viewTask(string $title, string $priority, string $position, string $status = 'todo'): Task
@@ -463,4 +464,16 @@ test('a card dropped into a collapsed cell stays in that column and lane', funct
         ->and($fresh->priority)->toBe('high')
         ->and(laneCells($html, 'high', 'in_progress'))->toMatch('/class="ff-count"[^>]*>\s*2\s*</')
         ->and($html)->not->toContain('Mover');
+});
+
+test('a cell under a collapsed numeric column id renders no card', function () {
+    viewTask('Low one', 'low', '65535.0000000000', '1');
+    viewTask('Low two', 'low', '131070.0000000000', '2');
+
+    $html = Livewire::test(TestNumericGroupedBoard::class, ['groupBy' => 'priority'])->html();
+    $collapsed = laneCells($html, 'low', '1');
+
+    expect($collapsed)->toContain('data-collapsed')
+        ->and($collapsed)->not->toContain('Low one')
+        ->and(laneCells($html, 'low', '2'))->toContain('Low two');
 });
