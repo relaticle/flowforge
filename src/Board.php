@@ -131,6 +131,7 @@ class Board extends ViewComponent
                 'collapsible' => $this->isColumnCollapsible(),
                 'canAddColumns' => $this->canAddColumns(),
                 'addColumnLabel' => $this->getAddColumnLabel(),
+                'addColumnPlaceholder' => $this->getAddColumnPlaceholder(),
                 'collapseEmptyColumns' => $grouping === null
                     && $this->collapsesEmptyColumns()
                     && array_sum(array_column($columns, 'total')) > 0,

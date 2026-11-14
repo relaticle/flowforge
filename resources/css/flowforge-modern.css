@@ -665,19 +665,18 @@
     }
 
     .ff-add-column {
-        --_add-border: var(--ff-border, color-mix(in oklab, var(--gray-950) 15%, transparent));
+        --_tile-bg: var(--ff-add-bg, color-mix(in oklab, var(--gray-950) 5%, transparent));
+        --_tile-bg-hover: var(--ff-add-bg-hover, color-mix(in oklab, var(--gray-950) 9%, transparent));
         position: relative;
         flex-shrink: 0;
-        align-self: stretch;
+        align-self: start;
         width: var(--_collapsed-width);
-    }
-
-    .ff-columns > .ff-add-column {
-        min-height: 3rem;
+        height: var(--_collapsed-width);
     }
 
     :where(.dark) .ff-add-column {
-        --_add-border: var(--ff-border, color-mix(in oklab, #fff 20%, transparent));
+        --_tile-bg: var(--ff-add-bg, color-mix(in oklab, #fff 8%, transparent));
+        --_tile-bg-hover: var(--ff-add-bg-hover, color-mix(in oklab, #fff 13%, transparent));
     }
 
     .ff-add-column-button {
@@ -687,17 +686,17 @@
         width: 100%;
         height: 100%;
         color: var(--_text-muted);
-        border: 1px dashed var(--_add-border);
-        border-radius: var(--ff-tray-radius, calc(var(--ff-radius, 0.75rem) + 0.25rem));
+        background-color: var(--_tile-bg);
+        border-radius: 0.75rem;
         transition:
             color var(--_duration) var(--_ease),
-            border-color var(--_duration) var(--_ease);
+            background-color var(--_duration) var(--_ease);
     }
 
     .ff-add-column-button:hover,
     .ff-add-column-button:focus-visible {
         color: var(--_text);
-        border-color: var(--_accent);
+        background-color: var(--_tile-bg-hover);
     }
 
     .ff-add-column[data-adding] .ff-add-column-button {
@@ -793,6 +792,14 @@
     .ff-lanes-heads .ff-column[data-collapsed] .ff-column-icon,
     .ff-lanes-heads .ff-column[data-collapsed] .ff-column-actions {
         display: none;
+    }
+
+    .ff-lanes-heads:has(> .ff-add-column) {
+        width: calc(100% + var(--_gap) + var(--_collapsed-width));
+    }
+
+    .ff-lanes-heads:has(> .ff-add-column[data-adding]) {
+        width: calc(100% + var(--_gap) + var(--_column-width));
     }
 
     .ff-lanes-heads {

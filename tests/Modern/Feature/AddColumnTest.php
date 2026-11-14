@@ -44,6 +44,23 @@ describe('add column tile', function () {
             ->assertSeeHtml('title="Add stage"');
     });
 
+    test('the input placeholder defaults to the column name text', function () {
+        Livewire::test(TestBoard::class, ['withAddColumn' => true])
+            ->assertSeeHtml('placeholder="' . __('flowforge::flowforge.column_name') . '"');
+    });
+
+    test('the input placeholder carries the host text', function () {
+        Livewire::test(TestBoard::class, ['withAddColumn' => true, 'addColumnHint' => 'Stage name'])
+            ->assertSeeHtml('placeholder="Stage name"')
+            ->assertDontSeeHtml('placeholder="' . __('flowforge::flowforge.column_name') . '"');
+    });
+
+    test('a blank name reads as a request for a name', function () {
+        $component = Livewire::test(TestBoard::class, ['withAddColumn' => true])->call('addBoardColumn', ' ');
+
+        expect($component->errors()->get('boardNewColumn'))->toBe(['Enter a name.']);
+    });
+
     test('adding a column passes the trimmed name to the host', function () {
         Livewire::test(TestBoard::class, ['withAddColumn' => true])
             ->call('addBoardColumn', '  Won  ')

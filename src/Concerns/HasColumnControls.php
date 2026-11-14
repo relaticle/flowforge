@@ -25,6 +25,8 @@ trait HasColumnControls
 
     protected string | Closure | null $addColumnLabel = null;
 
+    protected string | Closure | null $addColumnPlaceholder = null;
+
     /**
      * @param  array<int, mixed>|Closure  $columnIds
      */
@@ -130,6 +132,13 @@ trait HasColumnControls
         return $this;
     }
 
+    public function addColumnPlaceholder(string | Closure | null $placeholder): static
+    {
+        $this->addColumnPlaceholder = $placeholder;
+
+        return $this;
+    }
+
     public function canAddColumns(): bool
     {
         return $this->addColumn instanceof Closure;
@@ -140,6 +149,13 @@ trait HasColumnControls
         $label = $this->evaluate($this->addColumnLabel);
 
         return filled($label) ? (string) $label : __('flowforge::flowforge.add_column');
+    }
+
+    public function getAddColumnPlaceholder(): string
+    {
+        $placeholder = $this->evaluate($this->addColumnPlaceholder);
+
+        return filled($placeholder) ? (string) $placeholder : __('flowforge::flowforge.column_name');
     }
 
     public function addColumn(string $name): void

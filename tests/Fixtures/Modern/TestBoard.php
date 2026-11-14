@@ -49,6 +49,8 @@ class TestBoard extends BoardPage
 
     public ?string $addColumnTitle = null;
 
+    public ?string $addColumnHint = null;
+
     public bool $withHeaderToolbar = false;
 
     public bool $withCreateAction = false;
@@ -109,6 +111,7 @@ class TestBoard extends BoardPage
                 : null)
             ->addColumnUsing($this->withAddColumn ? $this->addColumnClosure(...) : null)
             ->addColumnLabel($this->addColumnTitle)
+            ->addColumnPlaceholder($this->addColumnHint)
             ->headerToolbar($this->withHeaderToolbar)
             ->columnActions(match (true) {
                 $this->withHeaderMenu => [Action::make('archiveColumn')->label('Archive column')->action(function (): void {})],

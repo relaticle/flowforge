@@ -261,7 +261,10 @@ export default function flowforgeModern() {
         openNewColumn() {
             this.addingColumn = true;
             this.newColumnTouched = true;
-            this.$nextTick(() => this.$refs.newColumnInput.focus());
+            this.$nextTick(() => {
+                this.$refs.newColumnInput.focus({ preventScroll: true });
+                requestAnimationFrame(() => this.$refs.newColumnInput.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
+            });
         },
 
         cancelNewColumn() {

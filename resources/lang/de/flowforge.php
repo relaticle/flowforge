@@ -22,7 +22,7 @@ return [
     'no_grouping' => 'Keine',
     'show_more_lanes' => 'Weitere Bahnen anzeigen',
     'add_column' => 'Spalte hinzufügen',
-    'column_name_required' => 'Name ist erforderlich',
+    'column_name_required' => 'Gib einen Namen ein.',
     'column_name' => 'Spaltenname',
     'show_more_cards' => ':count weitere anzeigen',
     'lane_write_failed' => 'Die Karte konnte nicht in diese Bahn verschoben werden.',

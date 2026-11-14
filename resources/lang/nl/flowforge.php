@@ -22,7 +22,7 @@ return [
     'no_grouping' => 'Geen',
     'show_more_lanes' => 'Meer banen tonen',
     'add_column' => 'Kolom toevoegen',
-    'column_name_required' => 'Naam is verplicht',
+    'column_name_required' => 'Voer een naam in.',
     'column_name' => 'Kolomnaam',
     'show_more_cards' => ':count meer tonen',
     'lane_write_failed' => 'De kaart kon niet naar die baan worden verplaatst.',

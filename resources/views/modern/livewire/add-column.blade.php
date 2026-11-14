@@ -1,4 +1,4 @@
-@props(['label'])
+@props(['label', 'placeholder'])
 
 @php
     use Filament\Support\Enums\IconSize;
@@ -28,7 +28,7 @@
             x-model="newColumnName"
             x-on:input="newColumnTouched = true"
             x-on:keydown.escape.prevent="cancelNewColumn()"
-            placeholder="{{ __('flowforge::flowforge.column_name') }}"
+            placeholder="{{ $placeholder }}"
             aria-label="{{ $label }}"
         />
 

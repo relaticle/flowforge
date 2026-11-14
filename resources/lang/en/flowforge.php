@@ -22,7 +22,7 @@ return [
     'no_grouping' => 'None',
     'show_more_lanes' => 'Show more lanes',
     'add_column' => 'Add column',
-    'column_name_required' => 'Name is required',
+    'column_name_required' => 'Enter a name.',
     'column_name' => 'Column name',
     'show_more_cards' => 'Show :count more',
     'lane_write_failed' => 'The card could not be moved to that lane.',

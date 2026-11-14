@@ -1110,14 +1110,39 @@ test('a blank add column name shows its error under the input and keeps it open'
     expect($page->script("document.querySelector('{$input}').offsetParent !== null"))->toBeTrue();
 });
 
-test('the add column tile leaves the lane heads row height unchanged', function () {
+test('the add column tile is a square at the column header level on a flat board', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+
+    $box = $page->script("(() => { const tile = document.querySelector('.ff-add-column-button').getBoundingClientRect(); const column = document.querySelector('.ff-column').getBoundingClientRect(); return [tile.width, tile.height, tile.top - column.top]; })()");
+
+    expect($box[0])->toBeGreaterThan(44)->toBeLessThan(52)
+        ->and($box[1])->toBeGreaterThan(44)->toBeLessThan(52)
+        ->and(abs($box[2]))->toBeLessThan(1.5);
+});
+
+test('the add column tile and its input sit inside the painted lane heads box', function () {
     boardSeed('high');
-    $height = "document.querySelector('.ff-lanes-heads').offsetHeight";
-
-    $without = boardPage('/modern/test-grouped-board?groupBy=priority')->script($height);
     $page = boardPage('/modern/test-add-column-grouped-board?groupBy=priority');
+    $pointer = Pointer::on($page);
+    $inside = <<<'JS'
+        (() => {
+            const heads = document.querySelector('.ff-lanes-heads').getBoundingClientRect();
+            const column = document.querySelector('.ff-lanes-heads .ff-column').getBoundingClientRect();
+            const target = document.querySelector('.ff-add-column-input')?.offsetParent
+                ? document.querySelector('.ff-add-column-input').getBoundingClientRect()
+                : document.querySelector('.ff-add-column-button').getBoundingClientRect();
 
-    expect($page->script($height))->toBe($without);
+            return [target.left >= heads.left - 0.5, target.right <= heads.right + 0.5, target.top >= heads.top - 0.5, target.bottom <= heads.bottom + 0.5, Math.abs(document.querySelector('.ff-add-column-button').getBoundingClientRect().top - column.top) < 1.5];
+        })()
+    JS;
+
+    expect($page->script($inside))->toBe([true, true, true, true, true]);
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('.ff-add-column-input')");
+
+    expect($page->script($inside))->toBe([true, true, true, true, true]);
 });
 
 test('pressing enter twice quickly adds the column once', function () {
