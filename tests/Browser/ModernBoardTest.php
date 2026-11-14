@@ -1179,6 +1179,12 @@ test('the add column tile sits in the lane heads and its form opens on top of th
 
     $reachable = <<<'JS'
         (() => {
+            const lanes = document.querySelector('.ff-lanes');
+
+            if (Math.abs(lanes.scrollLeft - (lanes.scrollWidth - lanes.clientWidth)) >= 1) {
+                return false;
+            }
+
             const input = document.querySelector('.ff-add-column-input').getBoundingClientRect();
 
             return document.elementFromPoint(input.left + input.width / 2, input.top + input.height / 2) === document.querySelector('.ff-add-column-input');
@@ -1204,7 +1210,9 @@ test('opening the add column form scrolls the new column and the tile into the b
             const ghost = document.querySelector('.ff-add-column-ghost').getBoundingClientRect();
             const tile = document.querySelector('.ff-add-column-button').getBoundingClientRect();
 
-            return ghost.left >= board.left - 0.5 && tile.right <= board.right + 0.5;
+            const columns = document.querySelector('.ff-columns');
+
+            return ghost.left >= board.left - 0.5 && tile.right <= board.right + 0.5 && Math.abs(columns.scrollLeft - (columns.scrollWidth - columns.clientWidth)) < 1;
         })()
     JS))->toBeTrue();
 });

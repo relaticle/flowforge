@@ -319,11 +319,11 @@ export default function flowforgeModern() {
             // WebKit ignores a focus on the next tick, right after the ghost column shows. One frame later it takes it.
             this.$nextTick(() => requestAnimationFrame(() => {
                 const input = this.$refs.newColumnInput;
-                const addColumn = input.closest('.ff-add-column');
-                const shown = addColumn.closest('.ff-lanes-heads') ? input.closest('.ff-add-column-ghost') : addColumn;
+                const board = input.closest('.ff-columns, .ff-lanes');
 
                 input.focus({ preventScroll: true });
-                shown.scrollIntoView({ block: 'nearest', inline: 'end' });
+                board?.scrollTo({ left: board.scrollWidth });
+                input.closest('.ff-add-column-ghost').scrollIntoView({ block: 'nearest' });
             }));
         },
 
