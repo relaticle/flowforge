@@ -33,6 +33,17 @@ describe('collapsed columns', function () {
             ->assertDontSeeHtml('data-collapsed');
     });
 
+    test('a rail the user can expand is a labelled button and a fixed one is not', function () {
+        $expandable = Livewire::test(TestCollapsibleBoard::class, ['collapsedIds' => ['in_progress']])->html();
+        $fixed = Livewire::test(TestBoard::class, ['collapsedIds' => ['in_progress']])->html();
+
+        expect($expandable)->toMatch('/<div\s[^>]*data-column-root="in_progress"[^>]*role="button"[^>]*tabindex="0"[^>]*aria-label="Expand In Progress"/')
+            ->and($expandable)->toContain("content: 'Expand In Progress'")
+            ->and($expandable)->not->toContain('data-collapsed title=')
+            ->and($fixed)->not->toContain('role="button"')
+            ->and($fixed)->not->toContain('data-collapsed title=');
+    });
+
     test('a collapsed column keeps its drop binding', function () {
         $html = Livewire::test(TestBoard::class, ['collapsedIds' => ['todo']])->html();
 

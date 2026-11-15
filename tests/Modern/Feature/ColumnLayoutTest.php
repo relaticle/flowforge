@@ -72,6 +72,7 @@ test('a collapsed rail titles itself with the plain column label', function () {
 
     $html = Livewire::test(TestBoard::class, ['htmlLabel' => true, 'collapseEmpty' => true])->html();
 
-    expect($html)->toContain('title="In Progress"')
-        ->and($html)->not->toContain('title="&lt;em&gt;');
+    expect($html)->toContain("content: 'In Progress'")
+        ->and($html)->not->toContain("content: '<em>")
+        ->and($html)->not->toContain('data-collapsed title=');
 });

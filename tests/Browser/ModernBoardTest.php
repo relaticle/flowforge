@@ -801,6 +801,33 @@ test('double clicking a header collapses its column and clicking the rail expand
     expect(boardStyle($page, $root, 'width'))->toBe('300px');
 });
 
+test('enter and space on a focused rail expand it like a click', function (string $key) {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="in_progress"]';
+
+    $pointer->doubleClick("{$root} .ff-column-title");
+    $pointer->untilScript("document.querySelector('{$root}').hasAttribute('data-collapsed')");
+    $page->script("document.querySelector('{$root}').focus()");
+
+    expect($page->script("document.querySelector('{$root}').getAttribute('role')"))->toBe('button');
+
+    $page->keys($root, $key);
+    $pointer->untilScript("! document.querySelector('{$root}').hasAttribute('data-collapsed')");
+})->with(['Enter', 'Space']);
+
+test('enter on a focused rail under collapse all sends the single click after the double click window', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsed-all-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="in_progress"]';
+
+    $page->script("document.querySelector('{$root}').focus()");
+    $page->keys($root, 'Enter');
+    $pointer->untilScript("window.Alpine.\$data(document.querySelector('{$root}')).railToggledAt > 0");
+});
+
 test('a press on a rail that moves before release leaves the rail collapsed', function () {
     boardSeed();
     $page = boardPage('/modern/test-collapsible-board');

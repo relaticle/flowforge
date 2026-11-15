@@ -4,6 +4,7 @@
     $total = $column['total'] ?? (isset($column['items']) ? count($column['items']) : 0);
     $isCollapsed = (bool) ($column['isCollapsed'] ?? false);
     $plainLabel = strip_tags((string) $column['label']);
+    $expandLabel = __('flowforge::flowforge.expand_column', ['column' => $plainLabel]);
     $trayLabel = __('flowforge::flowforge.column_label', [
         'column' => $plainLabel,
         'count' => $total,
@@ -20,8 +21,17 @@
     data-column-total="{{ $column['limitTotal'] ?? $total }}"
     @if (($column['limit'] ?? null) !== null) data-column-limit="{{ $column['limit'] }}" @endif
     @if ($column['isFull'] ?? false) data-full @endif
-    @if ($isCollapsed) data-collapsed title="{{ $plainLabel }}" @endif
+    @if ($isCollapsed) data-collapsed @endif
+    @if ($isCollapsed && ! ($column['canToggleCollapse'] ?? false))
+        x-tooltip="{ content: @js($plainLabel), theme: $store.theme }"
+    @endif
     @if ($isCollapsed && ($column['canToggleCollapse'] ?? false))
+        role="button"
+        tabindex="0"
+        aria-label="{{ $expandLabel }}"
+        x-tooltip="{ content: @js($expandLabel), theme: $store.theme }"
+        x-on:keydown.enter.self.prevent="$el.click()"
+        x-on:keydown.space.self.prevent="$el.click()"
         @if ($column['isCollapsedByAll'] ?? false)
             x-on:click="expandFromCollapseAll($event, @js((string) $columnId))"
         @else

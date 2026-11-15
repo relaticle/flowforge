@@ -20,7 +20,11 @@
     <div class="ff-lanes-grid" style="{{ $tracksStyle }}">
         <div class="ff-lanes-heads" style="{{ $headsStyle }}" wire:key="column-headers">
             @foreach ($columns as $columnId => $column)
-                @php $isCollapsed = (bool) ($column['isCollapsed'] ?? false); @endphp
+                @php
+                    $isCollapsed = (bool) ($column['isCollapsed'] ?? false);
+                    $plainLabel = strip_tags((string) $column['label']);
+                    $expandLabel = __('flowforge::flowforge.expand_column', ['column' => $plainLabel]);
+                @endphp
 
                 <div
                     class="ff-column"
@@ -28,8 +32,17 @@
                     data-column-total="{{ $column['limitTotal'] ?? $column['total'] }}"
                     @if (($column['limit'] ?? null) !== null) data-column-limit="{{ $column['limit'] }}" @endif
                     @if ($column['isFull'] ?? false) data-full @endif
-                    @if ($isCollapsed) data-collapsed title="{{ strip_tags((string) $column['label']) }}" @endif
+                    @if ($isCollapsed) data-collapsed @endif
+                    @if ($isCollapsed && ! ($column['canToggleCollapse'] ?? false))
+                        x-tooltip="{ content: @js($plainLabel), theme: $store.theme }"
+                    @endif
                     @if ($isCollapsed && ($column['canToggleCollapse'] ?? false))
+                        role="button"
+                        tabindex="0"
+                        aria-label="{{ $expandLabel }}"
+                        x-tooltip="{ content: @js($expandLabel), theme: $store.theme }"
+                        x-on:keydown.enter.self.prevent="$el.click()"
+                        x-on:keydown.space.self.prevent="$el.click()"
                         @if ($column['isCollapsedByAll'] ?? false)
                             x-on:click="expandFromCollapseAll($event, @js((string) $columnId))"
                         @else
