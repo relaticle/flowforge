@@ -1127,6 +1127,21 @@ test('a limited collapsed lane head keeps its dot and count inside the rail', fu
         ->and($page->script("document.querySelector('{$heading}').scrollWidth"))->toBeLessThanOrEqual(40);
 });
 
+test('an unbreakable card title wraps inside the title box and clear of the hover actions', function () {
+    $task = Task::query()->create([
+        'title' => 'https://github.com/llyapashayan20/c3-engine',
+        'status' => 'todo',
+        'order_position' => '500.0000000000',
+        'priority' => 'medium',
+    ]);
+    $page = boardPage('/modern/test-add-column-board');
+    $title = boardCard($task) . ' .ff-card-title';
+
+    $overflow = $page->script("(() => { const title = document.querySelector('{$title}'); const box = title.getBoundingClientRect(); const limit = box.right - parseFloat(getComputedStyle(title).paddingInlineEnd); const range = document.createRange(); range.selectNodeContents(title); return Math.max(...[...range.getClientRects()].map((line) => line.right - limit)); })()");
+
+    expect($overflow)->toBeLessThanOrEqual(0.5);
+});
+
 test('clicking the add column tile, typing a name and pressing enter adds the column', function () {
     boardSeed();
     $page = boardPage('/modern/test-add-column-board');
