@@ -1,4 +1,4 @@
-@props(['columnId', 'record'])
+@props(['columnId', 'record', 'config' => []])
 
 @php
     $processedRecordActions = $this->getBoard()->getBoardRecordActions($record);
@@ -33,13 +33,13 @@
 @endphp
 
 <div
-    @class([
+    {{ $attributes->class([
         'flowforge-card mb-3 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200 hover:shadow-md',
         'cursor-pointer' => $hasActions || $hasCardAction,
         'cursor-pointer transition-all duration-100 ease-in-out hover:shadow-lg hover:border-gray-400 active:shadow-md' => $hasCardAction,
         'cursor-grab hover:cursor-grabbing' => $hasPositionIdentifier,
         'cursor-default' => !$hasActions && !$hasCardAction && !$hasPositionIdentifier,
-    ])
+    ]) }}
     x-sortable-item="{{ $record['id'] }}"
     data-card-id="{{ $record['id'] }}"
     @if($hasPositionIdentifier)

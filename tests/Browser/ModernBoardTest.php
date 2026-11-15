@@ -854,6 +854,25 @@ test('double clicking the add card button leaves the column expanded', function 
     expect($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
 });
 
+test('the add card spinner stays in its own column after a column is inserted before it', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+
+    $page->script("Livewire.find(document.querySelector('[data-column-root]').closest('[wire\\\\:id]').getAttribute('wire:id')).\$set('showAllColumns', true)");
+    $page->assertSee('Hidden Column');
+    boardHoldUpdates($page);
+    $page->script("document.querySelector('[data-column-root=\"in_progress\"] .ff-add-row').click()");
+    Pointer::on($page)->wait(400);
+
+    expect($page->script(<<<'JS'
+        [...document.querySelectorAll('.fi-loading-indicator')]
+            .filter((spinner) => spinner.getClientRects().length > 0)
+            .map((spinner) => spinner.closest('[data-column-root]')?.dataset.columnRoot)
+    JS))->toBe(['in_progress']);
+
+    boardReleaseUpdates($page);
+});
+
 test('a collapsed column widens while a card hovers it and accepts the drop', function () {
     [$a] = boardSeed();
     $page = boardPage('/modern/test-collapsible-board');

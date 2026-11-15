@@ -16,7 +16,7 @@
 @endphp
 
 <div
-    class="ff-column"
+    {{ $attributes->class('ff-column') }}
     data-column-root="{{ $columnId }}"
     data-column-total="{{ $column['limitTotal'] ?? $total }}"
     @if (($column['limit'] ?? null) !== null) data-column-limit="{{ $column['limit'] }}" @endif

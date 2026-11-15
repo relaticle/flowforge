@@ -12,11 +12,11 @@
 @endphp
 
 <div
-    @class([
+    {{ $attributes->class([
         'flowforge-column flex-shrink-0 border border-gray-200 dark:border-gray-700 shadow-sm dark:shadow-md rounded-xl flex flex-col max-h-full overflow-hidden',
         'w-[300px] min-w-[300px]' => ! $isCollapsed,
         'flowforge-column-collapsed w-12 min-w-12' => $isCollapsed,
-    ])
+    ]) }}
     {{-- SortableJS stops propagation inside its own container, so the header and
          footer of a rail need their own hook to register as hovered. --}}
     x-on:dragenter="dragOverColumn = @js($columnId)"
