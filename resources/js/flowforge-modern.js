@@ -50,6 +50,26 @@ const focusMenuField = (panel) => {
     field.setSelectionRange?.(field.value.length, field.value.length);
 };
 
+// A menu opens over its column, so a column cut off at the board's edge first scrolls fully inside the padding.
+const revealColumn = (column) => {
+    const board = column?.closest('.ff-columns, .ff-lanes');
+
+    if (!board) {
+        return;
+    }
+
+    const style = getComputedStyle(board);
+    const edge = board.getBoundingClientRect().left + board.clientLeft;
+    const start = edge + parseFloat(style.paddingLeft);
+    const end = edge + board.clientWidth - parseFloat(style.paddingRight);
+    const { left, right } = column.getBoundingClientRect();
+    const offset = left < start ? left - start : Math.max(0, Math.min(right - end, left - start));
+
+    if (offset !== 0) {
+        board.scrollBy({ left: offset });
+    }
+};
+
 const SWATCH_COLUMNS = 4;
 
 const swatchesOf = (group) => [...group.querySelectorAll('[role="radio"]')];
@@ -393,9 +413,27 @@ export default function flowforgeModern() {
 
             const dropdown = window.Alpine.$data(root);
             const toggle = dropdown.toggle.bind(dropdown);
+            const open = dropdown.open.bind(dropdown);
+            const panel = root.querySelector(':scope > .fi-dropdown-panel');
+            const revealBeforeOpening = () => {
+                if (panel?.style.display !== 'block') {
+                    revealColumn(trigger.closest('[data-column-root]'));
+                }
+            };
 
             menusIgnoringMousedown.add(root);
-            dropdown.toggle = (event) => (event?.type === 'mousedown' ? undefined : toggle(event));
+            dropdown.toggle = (event) => {
+                if (event?.type === 'mousedown') {
+                    return;
+                }
+
+                revealBeforeOpening();
+                toggle(event);
+            };
+            dropdown.open = (event) => {
+                revealBeforeOpening();
+                open(event);
+            };
         },
 
         columnMenuPress(event) {
