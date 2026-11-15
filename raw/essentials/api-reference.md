@@ -330,6 +330,182 @@ canonical_url: "https://relaticle.github.io/essentials/api-reference"
       
     </td>
   </tr>
+  
+  <tr>
+    <td>
+      <code>
+        collapsedColumns(array|Closure)
+      </code>
+    </td>
+    
+    <td>
+      Collapse the listed column ids into a rail. Unknown and hidden ids are ignored
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        collapseAllColumns(bool|Closure)
+      </code>
+    </td>
+    
+    <td>
+      Collapse every visible column into a rail
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        collapsibleColumns(?Closure)
+      </code>
+    </td>
+    
+    <td>
+      Let users toggle a column by double-clicking its empty space or its header (one without a <code>
+        columnHeaderMenu()
+      </code>
+      
+      ), or clicking its rail. Columns from <code>
+        collapsedColumns()
+      </code>
+      
+       or <code>
+        collapseAllColumns()
+      </code>
+      
+       expand from the rail. The closure receives <code>
+        string $columnId
+      </code>
+      
+       and <code>
+        bool $collapsed
+      </code>
+      
+       (the new state)
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        columnHeaderMenu(?Closure)
+      </code>
+    </td>
+    
+    <td>
+      Turn the column heading into a menu trigger. The closure receives <code>
+        array $column
+      </code>
+      
+       and returns an <code>
+        Htmlable
+      </code>
+      
+       block, or <code>
+        null
+      </code>
+      
+       for none. The panel holds the block, then the column actions as list items
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        addColumnUsing(?Closure)
+      </code>
+    </td>
+    
+    <td>
+      Show an add column tile after the last column. The closure receives <code>
+        string $name
+      </code>
+      
+      , the trimmed name the user typed. Throw a <code>
+        ValidationException
+      </code>
+      
+       to show its first message under the input. Leave it unset to hide the tile
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        addColumnLabel(string|Closure|null)
+      </code>
+    </td>
+    
+    <td>
+      The tile's tooltip and input label. Defaults to "Add column"
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        addColumnPlaceholder(string|Closure|null)
+      </code>
+    </td>
+    
+    <td>
+      The input's placeholder. Defaults to "Column name"
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        addColumnColorLabel(string|Closure|null)
+      </code>
+    </td>
+    
+    <td>
+      The accessible name of each swatch in the color picker. <code>
+        :color
+      </code>
+      
+       stands for the palette label. Defaults to "Set color to <color>
+        
+      </color>
+      
+      "
+    </td>
+    
+    <td>
+      
+    </td>
+  </tr>
 </tbody>
 </table>
 
@@ -442,6 +618,14 @@ use Filament\Support\Enums\Width;
 ->filtersFormColumns(3)                           // Columns in filter form
 ->headerToolbar()                                 // Inline filters/search in page header
 ->collapseEmptyColumns()                          // Collapse columns holding no cards
+->collapsedColumns(['won', 'lost'])               // Collapse the listed columns
+->collapseAllColumns()                            // Collapse every column
+->collapsibleColumns(fn (string $columnId, bool $collapsed) => ...) // Toggle from the header and the rail
+->columnHeaderMenu(fn (array $column) => new HtmlString('...')) // Open a host block and the column actions from the heading
+->addColumnUsing(fn (string $name) => ...)       // Add a column from a tile after the last one
+->addColumnLabel('Add stage')                     // Tooltip for the tile
+->addColumnPlaceholder('Stage name')              // Placeholder for the name input
+->addColumnColorLabel('Pick :color')               // Accessible name of a color swatch
 ```
 
 ### Modern board additions

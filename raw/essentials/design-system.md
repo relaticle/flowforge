@@ -504,6 +504,90 @@ The dark column shows where the default changes under Filament's `.dark` class. 
   <tr>
     <td>
       <code>
+        --ff-dot-size
+      </code>
+    </td>
+    
+    <td>
+      component
+    </td>
+    
+    <td>
+      <code>
+        0.5rem
+      </code>
+    </td>
+    
+    <td>
+      4.4.0
+    </td>
+    
+    <td>
+      Diameter of the color dot in a column header and in the add column field.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-overlay-radius
+      </code>
+    </td>
+    
+    <td>
+      component
+    </td>
+    
+    <td>
+      <code>
+        0.75rem
+      </code>
+    </td>
+    
+    <td>
+      4.4.0
+    </td>
+    
+    <td>
+      Corner radius of the add column form, its name field and the color swatch grid.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
+        --ff-overlay-shadow
+      </code>
+    </td>
+    
+    <td>
+      component
+    </td>
+    
+    <td>
+      <code>
+        0 0 0 1px color-mix(in oklab, var(--gray-950) 5%, transparent), 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)
+      </code>
+      
+       / the same with a <code>
+        #fff
+      </code>
+      
+       10% ring and a 0.3 shadow
+    </td>
+    
+    <td>
+      4.4.0
+    </td>
+    
+    <td>
+      Ring and shadow list of the add column form and the color swatch grid.
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      <code>
         --ff-tray-bg
       </code>
     </td>
@@ -1102,11 +1186,11 @@ Flowforge reports state through data attributes. SortableJS toggles classes only
     </td>
     
     <td>
-      A column, or a lane header
+      A column, a lane header, or a lane cell
     </td>
     
     <td>
-      The column shows as a collapsed rail, or the lane's cells are hidden
+      The column shows as a collapsed rail, the lane's cells are hidden, or the cell sits under a collapsed column and shows its count only
     </td>
   </tr>
   
