@@ -940,6 +940,35 @@ test('clicking a header opens its menu at once', function (string $column, strin
     expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').innerText"))->toContain("Block for {$label}")->toContain('Archive column');
 })->with([['todo', 'To Do'], ['in_progress', 'In Progress']]);
 
+test('clicking the header of a column cut off at the board edge scrolls the column fully into view', function (string $column, int $scrollLeft) {
+    boardSeed();
+    $page = boardPage('/modern/test-menu-board')->resize(520, 800);
+    $pointer = Pointer::on($page);
+    $root = "[data-column-root=\"{$column}\"]";
+    $inside = <<<JS
+        (() => {
+            const board = document.querySelector('.ff-columns');
+            const style = getComputedStyle(board);
+            const edge = board.getBoundingClientRect().left + board.clientLeft;
+            const column = document.querySelector('{$root}').getBoundingClientRect();
+
+            return Math.round(column.left) >= Math.round(edge + parseFloat(style.paddingLeft))
+                && Math.round(column.right) <= Math.round(edge + board.clientWidth - parseFloat(style.paddingRight));
+        })()
+    JS;
+
+    $page->script("document.querySelector('.ff-columns').scrollLeft = {$scrollLeft}");
+
+    expect($page->script($inside))->toBeFalse();
+
+    $pointer->click("{$root} .ff-column-heading");
+    $pointer->untilScript("document.querySelector('{$root} .fi-dropdown-panel').style.display === 'block'");
+    $pointer->untilScript($inside);
+})->with([
+    'cut off at the right' => ['in_progress', 0],
+    'cut off at the left' => ['todo', 24],
+]);
+
 test('double clicking a header with a menu leaves the menu open and the column expanded', function (string $path) {
     boardSeed();
     $page = boardPage($path);
