@@ -15,6 +15,8 @@ const FLOWFORGE_TOKENS = [
     '--ff-duration',
     '--ff-column-width',
     '--ff-dot-size',
+    '--ff-overlay-radius',
+    '--ff-overlay-shadow',
     '--ff-tray-bg',
     '--ff-tray-radius',
     '--ff-card-bg',

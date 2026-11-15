@@ -19,6 +19,8 @@ return [
     '--ff-duration' => ['tier' => 'semantic', 'since' => '4.2.0'],
     '--ff-column-width' => ['tier' => 'component', 'since' => '4.2.0'],
     '--ff-dot-size' => ['tier' => 'component', 'since' => '4.4.0'],
+    '--ff-overlay-radius' => ['tier' => 'component', 'since' => '4.4.0'],
+    '--ff-overlay-shadow' => ['tier' => 'component', 'since' => '4.4.0'],
     '--ff-tray-bg' => ['tier' => 'component', 'since' => '4.2.0'],
     '--ff-tray-radius' => ['tier' => 'component', 'since' => '4.2.0'],
     '--ff-card-bg' => ['tier' => 'component', 'since' => '4.2.0'],
