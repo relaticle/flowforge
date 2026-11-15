@@ -134,6 +134,7 @@ class FlowforgeServiceProvider extends PackageServiceProvider
         Blade::component('flowforge::modern.livewire.add-column', 'flowforge::modern.add-column');
         Blade::component('flowforge::modern.livewire.lanes', 'flowforge::modern.lanes');
         Blade::component('flowforge::modern.components.grouping-picker', 'flowforge::modern.grouping-picker');
+        Blade::component('flowforge::modern.components.color-swatches', 'flowforge::modern.color-swatches');
     }
 
     protected function getAssetPackageName(): ?string

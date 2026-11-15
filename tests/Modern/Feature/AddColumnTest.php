@@ -83,13 +83,29 @@ describe('add column tile', function () {
     test('a color from the host palette reaches the host, and any other color arrives as null', function () {
         $component = Livewire::test(TestBoard::class, ['withAddColumn' => true, 'withAddColumnColors' => true]);
 
-        expect($component->html())->toContain('aria-label="Red"')->toContain('style="--color-500:#ff5454"');
+        expect($component->html())->toContain('aria-label="Set color to Red"')->toContain('style="--color-500:#ff5454"');
 
         $component->call('addBoardColumn', 'Won', '#ff5454')
             ->call('addBoardColumn', 'Lost', '#000000')
             ->call('addBoardColumn', 'Paused');
 
         expect($component->get('addedColumnColors'))->toBe(['#ff5454', null, null]);
+    });
+
+    test('the palette is a radio group of labelled swatches with one tab stop', function () {
+        $html = Livewire::test(TestBoard::class, ['withAddColumn' => true, 'withAddColumnColors' => true])->html();
+
+        expect($html)->toContain('role="radiogroup"')
+            ->and(substr_count($html, 'role="radio"'))->toBe(2)
+            ->and(substr_count($html, 'class="ff-swatch"'))->toBe(2)
+            ->and(substr_count($html, 'tabindex="0"'))->toBeGreaterThanOrEqual(1)
+            ->and($html)->not->toContain('aria-pressed');
+    });
+
+    test('the host sets the swatch label', function () {
+        $html = Livewire::test(TestBoard::class, ['withAddColumn' => true, 'withAddColumnColors' => true, 'addColumnColorLabel' => 'Use :color'])->html();
+
+        expect($html)->toContain('aria-label="Use Red"')->not->toContain('Set color to');
     });
 
     test('the form opens on the default color when it is in the palette', function () {

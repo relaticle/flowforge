@@ -48,6 +48,10 @@ const focusMenuField = (panel) => {
     field.setSelectionRange?.(field.value.length, field.value.length);
 };
 
+const SWATCH_COLUMNS = 4;
+
+const swatchesOf = (group) => [...group.querySelectorAll('[role="radio"]')];
+
 const menusIgnoringMousedown = new WeakSet();
 
 const sortablesAwaitingDrag = new WeakSet();
@@ -337,6 +341,11 @@ export default function flowforgeModern() {
             this.choosingNewColumnColor = false;
         },
 
+        closeNewColumnColors() {
+            this.choosingNewColumnColor = false;
+            this.$refs.newColumnDot?.focus({ preventScroll: true });
+        },
+
         pickNewColumnColor(color, style) {
             this.newColumnColorPicked = true;
             this.newColumnColor = color;
@@ -404,6 +413,40 @@ export default function flowforgeModern() {
 
             window.Alpine.$data(root).toggle(event);
             requestAnimationFrame(() => focusMenuField(root.querySelector(':scope > .fi-dropdown-panel')));
+        },
+
+        focusSwatch(group) {
+            const swatches = swatchesOf(group);
+            const target = swatches.find((swatch) => swatch.getAttribute('aria-checked') === 'true') ?? swatches[0];
+
+            target?.focus({ preventScroll: true });
+        },
+
+        swatchFocused(event) {
+            const group = event.target.closest('[role="radiogroup"]');
+
+            swatchesOf(group).forEach((swatch) => swatch.setAttribute('tabindex', swatch === event.target ? '0' : '-1'));
+        },
+
+        swatchKey(event) {
+            const swatches = swatchesOf(event.currentTarget);
+            const index = swatches.indexOf(event.target);
+            const last = swatches.length - 1;
+            const next = {
+                ArrowRight: index === last ? 0 : index + 1,
+                ArrowLeft: index === 0 ? last : index - 1,
+                ArrowDown: Math.min(index + SWATCH_COLUMNS, last),
+                ArrowUp: Math.max(index - SWATCH_COLUMNS, 0),
+                Home: 0,
+                End: last,
+            }[event.key];
+
+            if (index < 0 || next === undefined) {
+                return;
+            }
+
+            event.preventDefault();
+            swatches[next].focus({ preventScroll: true });
         },
 
         columnDrop(columnId) {

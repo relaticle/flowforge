@@ -1158,6 +1158,33 @@ test('the add column tile is a square at the column header level on a flat board
         ->and(abs($box[2]))->toBeLessThan(1.5);
 });
 
+test('the add column swatches move by arrow keys, pick with enter and close with escape back on the dot', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-colors-board');
+    $pointer = Pointer::on($page);
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('.ff-add-column-input')");
+    $pointer->click('.ff-add-column-dot');
+    $pointer->untilScript("document.activeElement?.getAttribute('role') === 'radio'");
+
+    $page->keys('.ff-swatch[tabindex="0"]', 'ArrowRight');
+    $pointer->untilScript("document.activeElement.dataset.swatch === 'blue'");
+    $page->keys('.ff-swatch[tabindex="0"]', 'Enter');
+    $pointer->untilScript("document.querySelector('.ff-swatches').offsetParent === null");
+
+    expect($page->script("document.querySelector('.ff-add-column-dot').style.getPropertyValue('--color-500')"))->not->toBe('')
+        ->and($page->script("document.querySelector('.ff-swatch[data-swatch=\"blue\"]').getAttribute('aria-checked')"))->toBe('true');
+
+    $pointer->click('.ff-add-column-dot');
+    $pointer->untilScript("document.activeElement?.getAttribute('role') === 'radio'");
+    $page->keys('.ff-swatch[tabindex="0"]', 'Escape');
+    $pointer->untilScript("document.querySelector('.ff-swatches').offsetParent === null");
+
+    expect($page->script('document.activeElement === document.querySelector(".ff-add-column-dot")'))->toBeTrue()
+        ->and($page->script("document.querySelector('.ff-add-column-ghost').offsetParent !== null"))->toBeTrue();
+});
+
 test('the add column tile sits in the lane heads and its form opens on top of the lanes', function () {
     boardSeed('high');
     $page = boardPage('/modern/test-add-column-grouped-board?groupBy=priority');

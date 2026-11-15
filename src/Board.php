@@ -133,6 +133,7 @@ class Board extends ViewComponent
                 'canAddColumns' => $this->canAddColumns(),
                 'addColumnLabel' => $this->getAddColumnLabel(),
                 'addColumnPlaceholder' => $this->getAddColumnPlaceholder(),
+                'addColumnColorLabel' => $this->getAddColumnColorLabel(),
                 'addColumnColors' => array_map(
                     fn (string $value, string $label): array => ['value' => $value, 'label' => $label, 'style' => ColorResolver::dotStyle($value)],
                     array_keys($this->getAddColumnColors()),

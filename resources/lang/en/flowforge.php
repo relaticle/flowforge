@@ -25,6 +25,7 @@ return [
     'column_name_required' => 'Enter a name.',
     'column_name' => 'Column name',
     'column_color' => 'Column color',
+    'set_column_color' => 'Set color to :color',
     'show_more_cards' => 'Show :count more',
     'lane_write_failed' => 'The card could not be moved to that lane.',
 ];

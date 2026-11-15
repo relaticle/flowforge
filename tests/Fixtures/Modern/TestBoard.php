@@ -59,6 +59,8 @@ class TestBoard extends BoardPage
 
     public ?string $addColumnHint = null;
 
+    public ?string $addColumnColorLabel = null;
+
     public bool $withHeaderToolbar = false;
 
     public bool $withCreateAction = false;
@@ -125,6 +127,7 @@ class TestBoard extends BoardPage
             ->addColumnDefaultColor($this->addColumnDefault)
             ->addColumnLabel($this->addColumnTitle)
             ->addColumnPlaceholder($this->addColumnHint)
+            ->addColumnColorLabel($this->addColumnColorLabel)
             ->headerToolbar($this->withHeaderToolbar)
             ->columnActions(match (true) {
                 $this->withHeaderMenu => [Action::make('archiveColumn')->label('Archive column')->action(function (): void {})],

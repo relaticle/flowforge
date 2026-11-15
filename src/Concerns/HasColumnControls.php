@@ -27,6 +27,8 @@ trait HasColumnControls
 
     protected string | Closure | null $addColumnPlaceholder = null;
 
+    protected string | Closure | null $addColumnColorLabel = null;
+
     /** @var array<string, string>|Closure|null */
     protected array | Closure | null $addColumnColors = null;
 
@@ -143,6 +145,20 @@ trait HasColumnControls
         $this->addColumnPlaceholder = $placeholder;
 
         return $this;
+    }
+
+    public function addColumnColorLabel(string | Closure | null $label): static
+    {
+        $this->addColumnColorLabel = $label;
+
+        return $this;
+    }
+
+    public function getAddColumnColorLabel(): string
+    {
+        $label = $this->evaluate($this->addColumnColorLabel);
+
+        return filled($label) ? (string) $label : __('flowforge::flowforge.set_column_color');
     }
 
     /**

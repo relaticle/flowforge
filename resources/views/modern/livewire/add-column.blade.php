@@ -1,4 +1,4 @@
-@props(['label', 'placeholder', 'colors' => [], 'defaultColor' => null])
+@props(['label', 'placeholder', 'colors' => [], 'defaultColor' => null, 'colorLabel' => null])
 
 @php
     use Filament\Support\Enums\IconSize;
@@ -18,29 +18,23 @@
                     <button
                         type="button"
                         class="ff-add-column-dot"
+                        x-ref="newColumnDot"
                         x-bind:style="newColumnDotStyle"
+                        aria-haspopup="true"
                         x-bind:aria-expanded="choosingNewColumnColor.toString()"
                         x-on:click="choosingNewColumnColor = ! choosingNewColumnColor"
                         aria-label="{{ __('flowforge::flowforge.column_color') }}"
                     ></button>
 
-                    <div
-                        class="ff-add-column-swatches"
-                        x-cloak
-                        x-show="choosingNewColumnColor"
+                    <x-flowforge::modern.color-swatches
+                        :colors="$colors"
+                        open="choosingNewColumnColor"
+                        selected-expression="newColumnColor"
+                        :set-color-label="$colorLabel"
+                        x-on:swatch-pick="pickNewColumnColor($event.detail.value, $event.detail.style)"
+                        x-on:swatch-close="closeNewColumnColors()"
                         x-on:click.outside="choosingNewColumnColor = false"
-                    >
-                        @foreach ($colors as $color)
-                            <button
-                                type="button"
-                                class="ff-add-column-swatch"
-                                style="{{ $color['style'] }}"
-                                aria-label="{{ $color['label'] }}"
-                                x-bind:aria-pressed="(newColumnColor === @js($color['value'])).toString()"
-                                x-on:click="pickNewColumnColor(@js($color['value']), @js($color['style']))"
-                            ></button>
-                        @endforeach
-                    </div>
+                    />
                 @else
                     <span class="ff-add-column-dot"></span>
                 @endif
