@@ -421,7 +421,8 @@ export default function flowforgeModern() {
             const swatches = swatchesOf(group);
             const target = swatches.find((swatch) => swatch.getAttribute('aria-checked') === 'true') ?? swatches[0];
 
-            target?.focus({ preventScroll: true });
+            // WebKit applies x-show a frame after Alpine's next tick, and a hidden button refuses focus.
+            requestAnimationFrame(() => target?.focus({ preventScroll: true }));
         },
 
         swatchFocused(event) {
