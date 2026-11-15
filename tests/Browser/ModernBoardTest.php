@@ -1153,9 +1153,9 @@ test('clicking the add column tile, typing a name and pressing enter adds the co
     $page->type($input, 'Won');
     $page->keys($input, 'Enter');
     $pointer->untilScript("document.querySelectorAll('[data-column-root=\"Won\"]').length === 1");
+    $pointer->untilScript("document.querySelector('{$input}').offsetParent === null");
 
-    expect($page->script("document.querySelector('{$input}').offsetParent === null"))->toBeTrue()
-        ->and($page->script("document.querySelector('{$input}').value"))->toBe('');
+    expect($page->script("document.querySelector('{$input}').value"))->toBe('');
 });
 
 test('escape cancels the add column input without calling the host', function () {
