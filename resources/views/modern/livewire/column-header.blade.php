@@ -32,7 +32,7 @@
     @endif
 >
     @if ($hasMenu)
-        <x-filament::dropdown class="ff-column-menu" placement="bottom-start" :offset="$menuOffset" :flip="false" wire:key="column-menu-{{ $columnId }}">
+        <x-filament::dropdown class="ff-column-menu" placement="bottom-start" :offset="$menuOffset" :flip="false" :size="true" wire:key="column-menu-{{ $columnId }}">
             <x-slot name="trigger">
                 <x-flowforge::modern.column-heading
                     :columnId="$columnId"
