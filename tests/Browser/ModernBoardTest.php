@@ -782,3 +782,640 @@ test('a click that drifts a few pixels opens the card action instead of dragging
 
     expect(boardStored('todo'))->toBe([$a->id, $b->id, $c->id]);
 });
+
+test('double clicking a header collapses its column and clicking the rail expands it', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="in_progress"]';
+
+    $pointer->doubleClick("{$root} .ff-column-title");
+    $pointer->untilScript("document.querySelector('{$root}').hasAttribute('data-collapsed')");
+
+    expect(boardStyle($page, $root, 'width'))->toBe('48px')
+        ->and($page->script('window.getSelection().toString()'))->toBe('');
+
+    $pointer->click($root);
+    $pointer->untilScript("! document.querySelector('{$root}').hasAttribute('data-collapsed')");
+
+    expect(boardStyle($page, $root, 'width'))->toBe('300px');
+});
+
+test('enter and space on a focused rail expand it like a click', function (string $key) {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="in_progress"]';
+
+    $pointer->doubleClick("{$root} .ff-column-title");
+    $pointer->untilScript("document.querySelector('{$root}').hasAttribute('data-collapsed')");
+    $page->script("document.querySelector('{$root}').focus()");
+
+    expect($page->script("document.querySelector('{$root}').getAttribute('role')"))->toBe('button');
+
+    $page->keys($root, $key);
+    $pointer->untilScript("! document.querySelector('{$root}').hasAttribute('data-collapsed')");
+})->with(['Enter', 'Space']);
+
+test('enter on a focused rail under collapse all sends the single click after the double click window', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsed-all-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="in_progress"]';
+
+    $page->script("document.querySelector('{$root}').focus()");
+    $page->keys($root, 'Enter');
+    $pointer->untilScript("window.Alpine.\$data(document.querySelector('{$root}')).railToggledAt > 0");
+});
+
+test('a press on a rail that moves before release leaves the rail collapsed', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="completed"]';
+
+    $pointer->press($root)->nudge(0, 30)->release()->wait(600);
+
+    expect($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeTrue();
+
+    $pointer->click($root);
+    $pointer->untilScript("! document.querySelector('{$root}').hasAttribute('data-collapsed')");
+});
+
+test('double clicking the add card button leaves the column expanded', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="todo"]';
+
+    $page->script("document.querySelector('{$root} .ff-column-actions button').dispatchEvent(new MouseEvent('dblclick', { bubbles: true }))");
+    $pointer->wait(600);
+
+    expect($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
+});
+
+test('a collapsed column widens while a card hovers it and accepts the drop', function () {
+    [$a] = boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="completed"]';
+
+    expect(boardStyle($page, $root, 'width'))->toBe('48px');
+
+    $pointer->press(boardCard($a))->glideTo($root);
+
+    expect(boardStyle($page, $root, 'width'))->toBe('300px');
+
+    $pointer->release();
+    $pointer->untilEquals(fn () => Task::query()->find($a->id)->status, 'completed', 'the moved card status');
+    $pointer->untilEquals(fn () => boardStyle($page, $root, 'width'), '48px', 'the rail width after the drop');
+});
+
+test('every collapsed rail starts at the same top and none draws an add card button', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsed-all-board');
+
+    $tops = $page->script('[...document.querySelectorAll(".ff-column[data-collapsed] .ff-tray")].map((tray) => tray.getBoundingClientRect().top)');
+    $labelTops = $page->script('[...document.querySelectorAll(".ff-column[data-collapsed] .ff-column-heading")].map((heading) => Math.round(heading.getBoundingClientRect().top))');
+
+    expect($tops)->toHaveCount(3)
+        ->and(array_unique($tops))->toHaveCount(1)
+        ->and(array_unique($labelTops))->toHaveCount(1)
+        ->and($page->script('document.querySelectorAll(".ff-column[data-collapsed] .ff-column-actions, .ff-column[data-collapsed] .ff-add-slot").length'))->toBe(0);
+});
+
+test('double clicking a collapsed rail expands it', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="completed"]';
+
+    $pointer->doubleClick("{$root} .ff-column-title");
+    $pointer->untilScript("! document.querySelector('{$root}').hasAttribute('data-collapsed')");
+    $pointer->wait(600);
+
+    expect($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
+});
+
+test('double clicking the column actions trigger leaves the column expanded', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-collapsible-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="todo"]';
+
+    $pointer->doubleClick("{$root} .ff-column-actions .fi-dropdown-trigger button");
+    $pointer->wait(600);
+
+    expect($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
+});
+
+test('clicking a header opens its menu at once', function (string $column, string $label) {
+    boardSeed();
+    $page = boardPage('/modern/test-menu-board');
+    $pointer = Pointer::on($page);
+    $root = "[data-column-root=\"{$column}\"]";
+
+    $pointer->click("{$root} .ff-column-heading");
+    $pointer->untilScript("document.querySelector('{$root} .fi-dropdown-panel').style.display === 'block'");
+
+    expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').innerText"))->toContain("Block for {$label}")->toContain('Archive column');
+})->with([['todo', 'To Do'], ['in_progress', 'In Progress']]);
+
+test('double clicking a header with a menu leaves the menu open and the column expanded', function (string $path) {
+    boardSeed();
+    $page = boardPage($path);
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="todo"]';
+
+    $pointer->doubleClick("{$root} .ff-column-heading", 120)->wait(600);
+
+    expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').style.display"))->toBe('block')
+        ->and($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
+})->with(['/modern/test-menu-board', '/modern/test-menu-static-board']);
+
+test('double clicking a column\'s empty space collapses it and a card leaves it open', function () {
+    [, , , $card] = boardSeed();
+    $page = boardPage('/modern/test-menu-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="in_progress"]';
+
+    $pointer->doubleClick(boardCard($card), 120)->wait(600);
+
+    expect($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
+
+    $pointer->doubleClick("{$root} .ff-cards", 120);
+    $pointer->untilScript("document.querySelector('{$root}').hasAttribute('data-collapsed')");
+
+    $pointer->doubleClick($root, 120)->wait(800);
+
+    expect($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
+});
+
+test('double clicking an empty lane cell collapses its column', function () {
+    boardSeed('high');
+    $page = boardPage('/modern/test-collapsible-grouped-board?groupBy=priority');
+    $pointer = Pointer::on($page);
+
+    $pointer->doubleClick('.ff-cell-cards[data-column-id="in_progress"][data-lane-id="high"]', 120);
+    $pointer->untilScript("document.querySelector('.ff-lanes-heads [data-column-root=\"in_progress\"]').hasAttribute('data-collapsed')");
+});
+
+test('a header click opens the menu over its column with the marked field focused', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-menu-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="todo"]';
+
+    $pointer->click("{$root} .ff-column-heading");
+    $pointer->untilScript("document.activeElement.matches('{$root} .ff-test-menu-input')");
+
+    $geometry = $page->script(<<<JS
+        (() => {
+            const column = document.querySelector('{$root}').getBoundingClientRect();
+            const panel = document.querySelector('{$root} .fi-dropdown-panel').getBoundingClientRect();
+
+            return [column.left - panel.left, column.top - panel.top, panel.width - column.width];
+        })()
+    JS);
+
+    expect($geometry)->toBe([0, 0, 0])
+        ->and($page->script('document.activeElement.selectionStart'))->toBe(7);
+});
+
+test('releasing a header drag does not open the menu', function (string $column) {
+    boardSeed();
+    $page = boardPage('/modern/test-menu-board');
+    $pointer = Pointer::on($page);
+    $root = "[data-column-root=\"{$column}\"]";
+
+    $pointer->press("{$root} .ff-column-heading")->nudge(40, 0)->release()->wait(400);
+
+    expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').style.display"))->not->toBe('block');
+})->with(['todo', 'in_progress']);
+
+test('a column expanded from its rail opens its menu on click and not on a drag', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-menu-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="completed"]';
+
+    $pointer->click($root);
+    $pointer->untilScript("! document.querySelector('{$root}').hasAttribute('data-collapsed')");
+    $pointer->untilScript("Boolean(document.querySelector('{$root} .fi-dropdown-panel'))");
+
+    $pointer->press("{$root} .ff-column-heading")->nudge(40, 0)->release()->wait(400);
+
+    expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').style.display"))->not->toBe('block');
+
+    $pointer->click("{$root} .ff-column-heading");
+    $pointer->untilScript("document.querySelector('{$root} .fi-dropdown-panel').style.display === 'block'");
+});
+
+test('a board update leaves an open menu open', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-menu-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="todo"]';
+
+    $pointer->click("{$root} .ff-column-heading");
+    $pointer->untilScript("document.querySelector('{$root} .fi-dropdown-panel').style.display === 'block'");
+    $page->script('Livewire.first().$refresh()');
+    $pointer->wait(1000);
+
+    expect($page->script("document.querySelector('{$root} .fi-dropdown-panel').style.display"))->toBe('block');
+});
+
+test('double clicking a word in the menu input selects it and leaves the column expanded', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-menu-board');
+    $pointer = Pointer::on($page);
+    $root = '[data-column-root="todo"]';
+
+    $pointer->click("{$root} .ff-column-heading");
+    $pointer->untilScript("document.querySelector('{$root} .fi-dropdown-panel').style.display === 'block'");
+    $pointer->doubleClick("{$root} .ff-test-menu-input");
+    $pointer->wait(600);
+
+    expect($page->script('document.activeElement.value.substring(document.activeElement.selectionStart, document.activeElement.selectionEnd)'))->toBe('Backlog')
+        ->and($page->script("document.querySelector('{$root}').hasAttribute('data-collapsed')"))->toBeFalse();
+});
+
+test('double clicking a lane head collapses its column and clicking the rail expands it', function () {
+    boardSeed('high');
+    $page = boardPage('/modern/test-collapsible-grouped-board?groupBy=priority');
+    $pointer = Pointer::on($page);
+    $root = '.ff-lanes-heads [data-column-root="todo"]';
+
+    expect($page->script("document.querySelectorAll('.ff-lanes-heads [data-column-root=\"in_progress\"][data-collapsed]').length"))->toBe(1);
+
+    $pointer->doubleClick("{$root} .ff-column-title");
+    $pointer->untilScript("document.querySelector('{$root}').hasAttribute('data-collapsed')");
+
+    expect(boardStyle($page, $root, 'width'))->toBe('48px')
+        ->and($page->script("document.querySelector('.ff-cell[data-collapsed] .ff-count').innerText.trim()"))->toBe('3');
+
+    $pointer->click($root);
+    $pointer->untilScript("! document.querySelector('{$root}').hasAttribute('data-collapsed')");
+
+    expect(boardStyle($page, $root, 'width'))->toBe('300px');
+});
+
+test('a collapsed column in lanes opens while a card is dragged and takes the drop', function () {
+    [$a] = boardSeed('high');
+    $page = boardPage('/modern/test-collapsible-grouped-board?groupBy=priority');
+    $pointer = Pointer::on($page);
+    $cell = '[data-lane-id="high"][data-column-id="in_progress"]';
+    $width = "Math.round(document.querySelector('{$cell}').closest('.ff-cell').getBoundingClientRect().width)";
+
+    expect($page->script($width))->toBeLessThan(100);
+
+    $pointer->press(boardCard($a))->nudge(30, 30);
+    $pointer->untilScript("document.documentElement.classList.contains('ff-dragging')");
+    $pointer->glideTo($cell);
+
+    expect($page->script($width))->toBeGreaterThan(250);
+
+    $pointer->release();
+    $pointer->untilEquals(fn () => Task::query()->find($a->id)->status, 'in_progress', 'the moved card status');
+    $pointer->untilEquals(fn () => $page->script($width) < 100, true, 'the cell track after the drop');
+
+    expect(Task::query()->find($a->id)->priority)->toBe('high');
+});
+
+test('collapsing a lane column keeps the heads row height, also while a card is dragged', function () {
+    boardSeed('high');
+    $page = boardPage('/modern/test-collapsible-grouped-board?groupBy=priority');
+    $pointer = Pointer::on($page);
+    $height = "document.querySelector('.ff-lanes-heads').offsetHeight";
+    $rail = '.ff-lanes-heads [data-column-root="in_progress"]';
+    $root = '.ff-lanes-heads [data-column-root="todo"]';
+
+    $pointer->click($rail);
+    $pointer->untilScript("! document.querySelector('{$rail}').hasAttribute('data-collapsed')");
+    $restingHeight = $page->script($height);
+
+    $pointer->wait(600);
+    $pointer->doubleClick("{$root} .ff-column-title");
+    $pointer->untilScript("document.querySelector('{$root}').hasAttribute('data-collapsed')");
+
+    expect($page->script($height))->toBe($restingHeight);
+
+    $pointer->press('[data-lane-id="high"][data-column-id="in_progress"] [data-card-id]')->nudge(30, 30);
+    $pointer->untilScript("document.documentElement.classList.contains('ff-dragging')");
+
+    expect($page->script($height))->toBe($restingHeight);
+
+    $pointer->release();
+});
+
+test('a limited collapsed lane head keeps its dot and count inside the rail', function () {
+    boardSeed('high');
+
+    foreach (range(1, 12) as $index) {
+        Task::query()->create([
+            'title' => "Extra {$index}",
+            'status' => 'in_progress',
+            'order_position' => (2000 + $index * 1000) . '.0000000000',
+            'priority' => 'high',
+        ]);
+    }
+
+    $page = boardPage('/modern/test-collapsible-grouped-board?groupBy=priority');
+    $heading = '.ff-lanes-heads [data-column-root="in_progress"][data-collapsed] .ff-column-heading';
+
+    expect($page->script("document.querySelector('{$heading}').innerText.trim()"))->toContain('13/20')
+        ->and($page->script("document.querySelector('{$heading}').scrollWidth"))->toBeLessThanOrEqual(40);
+});
+
+test('an unbreakable card title wraps inside the title box and clear of the hover actions', function () {
+    $task = Task::query()->create([
+        'title' => 'https://github.com/llyapashayan20/c3-engine',
+        'status' => 'todo',
+        'order_position' => '500.0000000000',
+        'priority' => 'medium',
+    ]);
+    $page = boardPage('/modern/test-add-column-board');
+    $title = boardCard($task) . ' .ff-card-title';
+
+    $overflow = $page->script("(() => { const title = document.querySelector('{$title}'); const box = title.getBoundingClientRect(); const limit = box.right - parseFloat(getComputedStyle(title).paddingInlineEnd); const range = document.createRange(); range.selectNodeContents(title); return Math.max(...[...range.getClientRects()].map((line) => line.right - limit)); })()");
+
+    expect($overflow)->toBeLessThanOrEqual(0.5);
+});
+
+test('clicking the add column tile, typing a name and pressing enter adds the column', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+    $input = '.ff-add-column-input';
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+    $page->type($input, 'Won');
+    $page->keys($input, 'Enter');
+    $pointer->untilScript("document.querySelectorAll('[data-column-root=\"Won\"]').length === 1");
+
+    expect($page->script("document.querySelector('{$input}').offsetParent === null"))->toBeTrue()
+        ->and($page->script("document.querySelector('{$input}').value"))->toBe('');
+});
+
+test('escape cancels the add column input without calling the host', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+    $input = '.ff-add-column-input';
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+    $page->type($input, 'Won');
+    $page->keys($input, 'Escape');
+    $pointer->untilScript("document.querySelector('{$input}').offsetParent === null");
+    $pointer->wait(400);
+
+    expect($page->script("document.querySelectorAll('[data-column-root]').length"))->toBe(3)
+        ->and($page->script("document.querySelector('{$input}').value"))->toBe('');
+});
+
+test('a blank add column name shows its error under the input and keeps it open', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+    $input = '.ff-add-column-input';
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+    $page->keys($input, 'Enter');
+    $pointer->untilScript("document.querySelector('.ff-add-column-error')?.offsetParent !== null && document.querySelector('.ff-add-column-error') !== null");
+
+    expect($page->script("document.querySelector('{$input}').offsetParent !== null"))->toBeTrue();
+});
+
+test('the add column tile is a square at the column header level on a flat board', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+
+    $box = $page->script("(() => { const tile = document.querySelector('.ff-add-column-button').getBoundingClientRect(); const column = document.querySelector('.ff-column').getBoundingClientRect(); return [tile.width, tile.height, tile.top - column.top]; })()");
+
+    expect($box[0])->toBeGreaterThan(44)->toBeLessThan(52)
+        ->and($box[1])->toBeGreaterThan(44)->toBeLessThan(52)
+        ->and(abs($box[2]))->toBeLessThan(1.5);
+});
+
+test('the add column swatches move by arrow keys, pick with enter and close with escape back on the dot', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-colors-board');
+    $pointer = Pointer::on($page);
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('.ff-add-column-input')");
+    $pointer->click('.ff-add-column-dot');
+    $pointer->untilScript("document.activeElement?.getAttribute('role') === 'radio'");
+
+    $page->keys('.ff-swatch[tabindex="0"]', 'ArrowRight');
+    $pointer->untilScript("document.activeElement.dataset.swatch === 'blue'");
+    $page->keys('.ff-swatch[tabindex="0"]', 'Enter');
+    $pointer->untilScript("document.querySelector('.ff-swatches').offsetParent === null");
+
+    expect($page->script("document.querySelector('.ff-add-column-dot').style.getPropertyValue('--color-500')"))->not->toBe('')
+        ->and($page->script("document.querySelector('.ff-swatch[data-swatch=\"blue\"]').getAttribute('aria-checked')"))->toBe('true');
+
+    $pointer->click('.ff-add-column-dot');
+    $pointer->untilScript("document.activeElement?.getAttribute('role') === 'radio'");
+    $page->keys('.ff-swatch[tabindex="0"]', 'Escape');
+    $pointer->untilScript("document.querySelector('.ff-swatches').offsetParent === null");
+
+    expect($page->script('document.activeElement === document.querySelector(".ff-add-column-dot")'))->toBeTrue()
+        ->and($page->script("document.querySelector('.ff-add-column-ghost').offsetParent !== null"))->toBeTrue();
+});
+
+test('the add column tile sits in the lane heads and its form opens on top of the lanes', function () {
+    boardSeed('high');
+    $page = boardPage('/modern/test-add-column-grouped-board?groupBy=priority');
+    $pointer = Pointer::on($page);
+    $tile = <<<'JS'
+        (() => {
+            const heads = document.querySelector('.ff-lanes-heads').getBoundingClientRect();
+            const column = document.querySelector('.ff-lanes-heads .ff-column').getBoundingClientRect();
+            const tile = document.querySelector('.ff-add-column-button').getBoundingClientRect();
+
+            return [tile.left >= heads.left - 0.5, tile.right <= heads.right + 0.5, tile.top >= heads.top - 0.5, tile.bottom <= heads.bottom + 0.5, Math.abs(tile.top - column.top) < 1.5];
+        })()
+    JS;
+
+    expect($page->script($tile))->toBe([true, true, true, true, true]);
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('.ff-add-column-input')");
+
+    $reachable = <<<'JS'
+        (() => {
+            const lanes = document.querySelector('.ff-lanes');
+
+            if (Math.abs(lanes.scrollLeft - (lanes.scrollWidth - lanes.clientWidth)) >= 1) {
+                return false;
+            }
+
+            const input = document.querySelector('.ff-add-column-input').getBoundingClientRect();
+
+            return document.elementFromPoint(input.left + input.width / 2, input.top + input.height / 2) === document.querySelector('.ff-add-column-input');
+        })()
+    JS;
+
+    expect($page->script($reachable))->toBeTrue();
+});
+
+test('opening the add column form scrolls the new column and the tile into the board', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+
+    $page->script("document.querySelector('.ff-columns').style.width = '700px'");
+    $page->script("const columns = document.querySelector('.ff-columns'); columns.scrollLeft = columns.scrollWidth");
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('.ff-add-column-input')");
+
+    expect($page->script(<<<'JS'
+        (() => {
+            const board = document.querySelector('.ff-columns').getBoundingClientRect();
+            const ghost = document.querySelector('.ff-add-column-ghost').getBoundingClientRect();
+            const tile = document.querySelector('.ff-add-column-button').getBoundingClientRect();
+
+            const columns = document.querySelector('.ff-columns');
+
+            return ghost.left >= board.left - 0.5 && tile.right <= board.right + 0.5 && Math.abs(columns.scrollLeft - (columns.scrollWidth - columns.clientWidth)) < 1;
+        })()
+    JS))->toBeTrue();
+});
+
+test('the add column form opens as a column before the tile and an outside click closes it', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('.ff-add-column-input')");
+
+    $geometry = $page->script(<<<'JS'
+        (() => {
+            const column = document.querySelector('.ff-columns > .ff-column').getBoundingClientRect();
+            const ghost = document.querySelector('.ff-add-column-ghost').getBoundingClientRect();
+            const tile = document.querySelector('.ff-add-column-button').getBoundingClientRect();
+
+            return [Math.round(ghost.width) === Math.round(column.width), Math.abs(ghost.height - column.height) < 1.5, tile.left > ghost.right, getComputedStyle(document.querySelector('.ff-add-column-button')).visibility];
+        })()
+    JS);
+
+    expect($geometry)->toBe([true, true, true, 'visible']);
+
+    $page->script("document.querySelector('.ff-add-column-input').value = 'Draft'");
+    $page->script("document.querySelector('.ff-columns').scrollLeft = 0");
+    $pointer->click('[data-column-root="todo"] .ff-column-title');
+    $pointer->untilScript("getComputedStyle(document.querySelector('.ff-add-column-ghost')).display === 'none'");
+});
+
+test('the add column tile leaves the lane heads row height unchanged', function () {
+    boardSeed('high');
+    $height = "document.querySelector('.ff-lanes-heads').offsetHeight";
+
+    $without = boardPage('/modern/test-grouped-board?groupBy=priority')->script($height);
+    $page = boardPage('/modern/test-add-column-grouped-board?groupBy=priority');
+
+    expect($page->script($height))->toBe($without);
+});
+
+test('pressing enter twice quickly adds the column once', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+    $input = '.ff-add-column-input';
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+    $page->type($input, 'Won');
+    $page->script(<<<'JS'
+        (() => {
+            window.__addCalls = 0;
+
+            window.Livewire.hook('commit', ({ commit }) => {
+                window.__addCalls += (commit.calls ?? []).filter((call) => call.method === 'addBoardColumn').length;
+            });
+        })()
+    JS);
+    $page->script(<<<'JS'
+        (async () => {
+            const form = document.querySelector('.ff-add-column-form');
+
+            form.requestSubmit();
+            await new Promise((resolve) => setTimeout(resolve, 20));
+            form.requestSubmit();
+        })()
+    JS);
+    $pointer->untilScript("document.querySelectorAll('[data-column-root=\"Won\"]').length >= 1");
+    $pointer->wait(600);
+
+    expect($page->script("document.querySelectorAll('[data-column-root=\"Won\"]').length"))->toBe(1)
+        ->and($page->script('window.__addCalls'))->toBe(1);
+});
+
+test('a host rejection shows under the input, hides while the next submit is pending, and a valid name then adds the column', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+    $input = '.ff-add-column-input';
+    $error = '.ff-add-column-error';
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+    $page->type($input, 'Lost');
+    $page->keys($input, 'Enter');
+    $pointer->untilScript("document.querySelector('{$error}')?.offsetParent !== null && document.querySelector('{$error}') !== null");
+
+    expect($page->script("document.querySelector('{$error}').innerText.trim()"))->toBe('Taken');
+
+    boardHoldUpdates($page);
+    $page->type($input, 'Won');
+    $page->keys($input, 'Enter');
+    $pointer->wait(300);
+
+    expect($page->script("document.querySelector('{$error}') === null || document.querySelector('{$error}').offsetParent === null"))->toBeTrue();
+
+    boardReleaseUpdates($page);
+    $pointer->untilScript("document.querySelectorAll('[data-column-root=\"Won\"]').length === 1");
+    $pointer->untilScript("document.querySelector('{$input}').offsetParent === null");
+});
+
+test('reopening the add column input after escape shows no stale error', function () {
+    boardSeed();
+    $page = boardPage('/modern/test-add-column-board');
+    $pointer = Pointer::on($page);
+    $input = '.ff-add-column-input';
+    $error = '.ff-add-column-error';
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+    $page->type($input, 'Lost');
+    $page->keys($input, 'Enter');
+    $pointer->untilScript("document.querySelector('{$error}')?.offsetParent !== null && document.querySelector('{$error}') !== null");
+    $page->keys($input, 'Escape');
+    $pointer->untilScript("document.querySelector('{$input}').offsetParent === null");
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+
+    expect($page->script("document.querySelector('{$error}') === null || document.querySelector('{$error}').offsetParent === null"))->toBeTrue();
+});
+
+test('the add column tile in lanes adds a column and every lane gets its cell', function () {
+    boardSeed('high');
+    Task::query()->create(['title' => 'Low one', 'status' => 'todo', 'order_position' => '9000.0000000000', 'priority' => 'low']);
+    $page = boardPage('/modern/test-add-column-grouped-board?groupBy=priority');
+    $pointer = Pointer::on($page);
+    $input = '.ff-add-column-input';
+
+    $pointer->click('.ff-add-column-button');
+    $pointer->untilScript("document.activeElement === document.querySelector('{$input}')");
+    $page->type($input, 'Won');
+    $page->keys($input, 'Enter');
+    $pointer->untilScript("document.querySelectorAll('.ff-lanes-heads [data-column-root=\"Won\"]').length === 1");
+
+    expect($page->script("document.querySelectorAll('.ff-cell').length"))->toBe(2 * 3)
+        ->and($page->script("document.querySelectorAll('[data-column-id=\"Won\"]').length"))->toBe(2);
+});

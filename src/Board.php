@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\Flowforge;
 
+use Closure;
 use Filament\Support\Components\ViewComponent;
 use Relaticle\Flowforge\Concerns\BelongsToLivewire;
 use Relaticle\Flowforge\Concerns\CanSearchBoardRecords;
@@ -14,9 +15,11 @@ use Relaticle\Flowforge\Concerns\HasBoardGroupings;
 use Relaticle\Flowforge\Concerns\HasBoardRecords;
 use Relaticle\Flowforge\Concerns\HasCardLabels;
 use Relaticle\Flowforge\Concerns\HasCardSchema;
+use Relaticle\Flowforge\Concerns\HasColumnControls;
 use Relaticle\Flowforge\Concerns\HasColumnSummaries;
 use Relaticle\Flowforge\Concerns\InteractsWithKanbanQuery;
 use Relaticle\Flowforge\Contracts\HasBoard;
+use Relaticle\Flowforge\Support\ColorResolver;
 
 class Board extends ViewComponent
 {
@@ -29,6 +32,7 @@ class Board extends ViewComponent
     use HasBoardRecords;
     use HasCardLabels;
     use HasCardSchema;
+    use HasColumnControls;
     use HasColumnSummaries;
     use InteractsWithKanbanQuery;
 
@@ -108,6 +112,10 @@ class Board extends ViewComponent
                 $grouping,
                 $livewire->visibleLaneCount ?? $this->getLanesPerPage(),
                 $livewire->cellCardLimits ?? [],
+                array_values(array_map(
+                    fn (array $column): string => (string) $column['id'],
+                    array_filter($columns, fn (array $column): bool => $column['isCollapsed']),
+                )),
             );
 
         return [
@@ -121,6 +129,17 @@ class Board extends ViewComponent
                 'cardLabel' => $this->getCardLabel(),
                 'pluralCardLabel' => $this->getPluralCardLabel(),
                 'headerToolbar' => $this->hasHeaderToolbar(),
+                'collapsible' => $this->isColumnCollapsible(),
+                'canAddColumns' => $this->canAddColumns(),
+                'addColumnLabel' => $this->getAddColumnLabel(),
+                'addColumnPlaceholder' => $this->getAddColumnPlaceholder(),
+                'addColumnColorLabel' => $this->getAddColumnColorLabel(),
+                'addColumnColors' => array_map(
+                    fn (string $value, string $label): array => ['value' => $value, 'label' => $label, 'style' => ColorResolver::dotStyle($value)],
+                    array_keys($this->getAddColumnColors()),
+                    $this->getAddColumnColors(),
+                ),
+                'addColumnDefaultColor' => $this->getAddColumnDefaultColor(),
                 'collapseEmptyColumns' => $grouping === null
                     && $this->collapsesEmptyColumns()
                     && array_sum(array_column($columns, 'total')) > 0,
@@ -131,13 +150,53 @@ class Board extends ViewComponent
     }
 
     /**
+     * @return array{collapsed: bool, toggleable: bool, byAll: bool}
+     */
+    public function getColumnCollapseState(string $columnId): array
+    {
+        return $this->makeCollapseResolver($this->getBatchedBoardRecordCounts())($columnId);
+    }
+
+    /**
+     * @param  array<string, int>  $allCounts
+     * @return Closure(string): array{collapsed: bool, toggleable: bool, byAll: bool}
+     */
+    protected function makeCollapseResolver(array $allCounts): Closure
+    {
+        $listed = $this->getCollapsedColumns();
+        $visible = $this->getColumnIdentifiers();
+        $collapseAll = $this->collapsesAllColumns();
+        $collapseEmpty = $this->collapsesEmptyColumns()
+            && $this->getActiveGrouping() === null
+            && array_sum(array_map(fn (Column $column): int => $allCounts[$column->getName()] ?? 0, $this->getColumns())) > 0;
+
+        return function (string $columnId) use ($listed, $visible, $collapseAll, $collapseEmpty, $allCounts): array {
+            $byEmptyRule = ! $collapseAll && $collapseEmpty && ($allCounts[$columnId] ?? 0) === 0;
+            $isListed = in_array($columnId, $listed, true);
+            $collapsed = $collapseAll || $byEmptyRule || $isListed;
+
+            return [
+                'collapsed' => $collapsed,
+                'toggleable' => $this->isColumnCollapsible()
+                    && in_array($columnId, $visible, true)
+                    && ! $byEmptyRule,
+                'byAll' => $collapseAll,
+            ];
+        };
+    }
+
+    /**
      * @return array<string, array<string, mixed>>
      */
     protected function getColumnViewData(bool $withItems): array
     {
         $allCounts = $this->getBatchedBoardRecordCounts();
+        $isCollapsed = $this->makeCollapseResolver($allCounts);
         $recordsByColumn = $withItems
-            ? $this->getBoardRecordsForColumns(array_map(fn (Column $column): string => $column->getName(), $this->getColumns()))
+            ? $this->getBoardRecordsForColumns(array_values(array_filter(
+                array_map(fn (Column $column): string => $column->getName(), $this->getColumns()),
+                fn (string $columnId): bool => ! $isCollapsed($columnId)['collapsed'],
+            )))
             : [];
         $columns = [];
 
@@ -145,6 +204,8 @@ class Board extends ViewComponent
             $columnId = $column->getName();
             $limit = $column->getLimit();
             $limitTotal = $limit === null ? null : $this->getUnfilteredColumnRecordCount($columnId);
+            $total = $allCounts[$columnId] ?? 0;
+            $state = $isCollapsed($columnId);
 
             $columns[$columnId] = [
                 'id' => $columnId,
@@ -154,7 +215,10 @@ class Board extends ViewComponent
                 'items' => isset($recordsByColumn[$columnId])
                     ? $recordsByColumn[$columnId]->map(fn ($record) => $this->formatBoardRecord($record))->toArray()
                     : [],
-                'total' => $allCounts[$columnId] ?? 0,
+                'total' => $total,
+                'isCollapsed' => $state['collapsed'],
+                'canToggleCollapse' => $state['toggleable'],
+                'isCollapsedByAll' => $state['byAll'],
                 'summary' => $this->getColumnSummary($column),
                 'limit' => $limit,
                 'limitTotal' => $limitTotal,

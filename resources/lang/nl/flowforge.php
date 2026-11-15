@@ -21,6 +21,12 @@ return [
     'group_by' => 'Groeperen op',
     'no_grouping' => 'Geen',
     'show_more_lanes' => 'Meer banen tonen',
+    'add_column' => 'Kolom toevoegen',
+    'column_name_required' => 'Voer een naam in.',
+    'column_name' => 'Kolomnaam',
+    'column_color' => 'Kolomkleur',
+    'expand_column' => ':column uitvouwen',
+    'set_column_color' => 'Kleur instellen op :color',
     'show_more_cards' => ':count meer tonen',
     'lane_write_failed' => 'De kaart kon niet naar die baan worden verplaatst.',
 ];

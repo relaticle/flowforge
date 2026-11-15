@@ -361,7 +361,11 @@ The closure gets the column's query with the active filters and search applied. 
 ])
 ```
 
-A "Group by" select appears and the choice lives in `?groupBy=`. `lanes()` returns `Lane::make($name)->label()->query(fn (Builder $query) => ...)` objects. Give every custom grouping an `emptyLane()`, because the header `+` creates a card without knowing the lane. Without `moveUsing()` the lanes are read-only. Throw `CardMoveRejectedException::because('...')` in `moveUsing()` to refuse a move and roll back both writes. `collapseEmptyColumns()` applies to the plain board only.
+A "Group by" select appears and the choice lives in `?groupBy=`. `lanes()` returns `Lane::make($name)->label()->query(fn (Builder $query) => ...)` objects. Give every custom grouping an `emptyLane()`, because the header `+` creates a card without knowing the lane. Without `moveUsing()` the lanes are read-only. Throw `CardMoveRejectedException::because('...')` in `moveUsing()` to refuse a move and roll back both writes. `collapseEmptyColumns()` applies to the plain board only. Columns collapsed with `collapsedColumns()` or `collapseAllColumns()` hold in lanes too: each takes a narrow track, its cells show their count, and the track opens while a card is dragged.
+
+### Column controls
+
+The host owns the state and Flowforge renders it. `collapsedColumns(fn () => [...])` and `collapseAllColumns(fn () => ...)` collapse columns. `collapsibleColumns(fn (string $columnId, bool $collapsed) => ...)` lets a double-click in a column's empty space, or on a header without a menu, collapse it and a click on its rail expand it. Columns from `collapsedColumns()` or `collapseAllColumns()` expand by click. Under collapse all the closure also gets `bool $alone`: false for a click, true for a double-click. `columnHeaderMenu(fn (array $column): ?Htmlable => ...)` turns the header into a menu holding the host block above the column actions. It opens over its column, takes the header's clicks, and focuses a `data-autofocus` field on a mouse click. `addColumnUsing(fn (string $name, ?string $color) => ...)` with `addColumnLabel()`, `addColumnPlaceholder()` and an optional `addColumnColors([value => label])` palette adds a tile after the last column; throw a `ValidationException` to show a message under its input. Pass any value the page changes during a request as a closure, because the board is built before the action runs.
 
 ### Styling a Modern Board
 

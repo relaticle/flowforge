@@ -39,6 +39,10 @@
                         wire:key="column-{{ $columnId }}"
                     />
                 @endforeach
+
+                @if ($config['canAddColumns'] ?? false)
+                    <x-flowforge::modern.add-column :label="$config['addColumnLabel']" :placeholder="$config['addColumnPlaceholder']" :colorLabel="$config['addColumnColorLabel']" :colors="$config['addColumnColors'] ?? []" :defaultColor="$config['addColumnDefaultColor'] ?? null" />
+                @endif
             </div>
         @endif
     </div>

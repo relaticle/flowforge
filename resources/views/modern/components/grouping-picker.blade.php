@@ -20,13 +20,14 @@
                 color="gray"
                 size="sm"
                 icon="heroicon-o-queue-list"
+                :icon-alias="\Relaticle\Flowforge\View\FlowforgeIconAlias::GROUPING_TRIGGER"
                 :aria-label="$activeLabel ? __('flowforge::flowforge.group_by') . ': ' . $activeLabel : __('flowforge::flowforge.group_by')"
                 :data-grouped="$activeLabel !== null"
                 class="ff-grouping-trigger"
             >
                 <span class="ff-grouping-label">{{ $activeLabel ?? __('flowforge::flowforge.group_by') }}</span>
 
-                <x-filament::icon icon="heroicon-m-chevron-down" class="ff-grouping-chevron" />
+                <x-filament::icon :alias="\Relaticle\Flowforge\View\FlowforgeIconAlias::GROUPING_CHEVRON" icon="heroicon-m-chevron-down" class="ff-grouping-chevron" />
             </x-filament::button>
         </x-slot>
 
@@ -52,7 +53,7 @@
 
                     @if ($isActive)
                         <x-slot name="badge">
-                            <x-filament::icon icon="heroicon-m-check" class="ff-grouping-check" />
+                            <x-filament::icon :alias="\Relaticle\Flowforge\View\FlowforgeIconAlias::GROUPING_CHECK" icon="heroicon-m-check" class="ff-grouping-check" />
                         </x-slot>
                     @endif
                 </x-filament::dropdown.list.item>

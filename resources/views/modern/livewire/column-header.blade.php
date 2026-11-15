@@ -3,55 +3,71 @@
 @php
     use Filament\Actions\Action;
     use Filament\Actions\ActionGroup;
-    use Filament\Support\Enums\IconSize;
-    use Relaticle\Flowforge\Support\ColorResolver;
-    use function Filament\Support\get_color_css_variables;
+    use Filament\Support\Facades\FilamentIcon;
+    use Relaticle\Flowforge\View\FlowforgeIconAlias;
 
     $actions = array_values(array_filter($this->getBoardColumnActions($columnId), fn (Action | ActionGroup $action): bool => $action->isVisible()));
-    $dotColor = ColorResolver::resolve($column['color'] ?? null);
+    $menuBlock = $isCollapsed ? null : $this->getBoard()->getColumnHeaderMenuBlock($column);
+    $menuActions = $this->getBoard()->hasColumnHeaderMenu() && ! $isCollapsed ? $actions : [];
+    $hasMenu = $menuBlock || $menuActions;
     $createAction = $this->getBoardCreateCardAction($columnId)
         ?->getClone()
         ->iconButton()
-        ->icon('heroicon-m-plus')
+        ->icon(FilamentIcon::resolve(FlowforgeIconAlias::ADD_CARD) ?? 'heroicon-m-plus')
         ->label(__('flowforge::flowforge.add_card', ['card' => $this->getBoard()->getCardLabel()]))
+        ->tooltip(($column['isFull'] ?? false) ? __('flowforge::flowforge.limit_reached') : __('flowforge::flowforge.add_card', ['card' => $this->getBoard()->getCardLabel()]))
         ->disabled($column['isFull'] ?? false);
 
-    if ($column['isFull'] ?? false) {
-        $createAction?->tooltip(__('flowforge::flowforge.limit_reached'));
-    }
-
     $createAction = $createAction?->isVisible() ? $createAction : null;
+
+    // x-float reads this before the board's Alpine data loads, so it carries its own logic.
+    $menuOffset = '({ elements: { reference } }) => { const column = reference.closest(\'[data-column-root]\').getBoundingClientRect(); const trigger = reference.getBoundingClientRect(); return { mainAxis: column.top - trigger.bottom, crossAxis: column.left - trigger.left }; }';
 @endphp
 
-<div class="ff-column-header">
-    <div class="ff-column-heading">
-        @if ($dotColor)
-            <span
-                class="ff-column-dot"
-                style="{{ get_color_css_variables($dotColor, shades: [500]) }}"
-            ></span>
-        @endif
+<div
+    class="ff-column-header"
+    @if (($column['canToggleCollapse'] ?? false) && ! $isCollapsed && ! $hasMenu)
+        x-on:dblclick="toggleColumnCollapse($event, @js($columnId))"
+        x-on:mousedown="suppressDoubleClickSelection($event)"
+    @endif
+>
+    @if ($hasMenu)
+        <x-filament::dropdown class="ff-column-menu" placement="bottom-start" :offset="$menuOffset" :flip="false" :size="true" wire:key="column-menu-{{ $columnId }}">
+            <x-slot name="trigger">
+                <x-flowforge::modern.column-heading
+                    :columnId="$columnId"
+                    :column="$column"
+                    role="button"
+                    tabindex="0"
+                    x-init="initColumnMenu($el)"
+                    x-on:mousedown="columnMenuPress($event)"
+                    x-on:click="columnMenuClick($event)"
+                />
+            </x-slot>
 
-        @if ($column['icon'] ?? null)
-            <x-filament::icon :icon="$column['icon']" :size="IconSize::Small" class="ff-column-icon" />
-        @endif
+            @if ($menuBlock)
+                <div class="ff-column-menu-block">{{ $menuBlock }}</div>
+            @endif
 
-        <h3 class="ff-column-title">{{ $column['label'] }}</h3>
+            @if ($menuActions)
+                <x-filament::dropdown.list>
+                    @foreach ($menuActions as $menuAction)
+                        {{ $menuAction->grouped() }}
+                    @endforeach
+                </x-filament::dropdown.list>
+            @endif
+        </x-filament::dropdown>
+    @else
+        <x-flowforge::modern.column-heading :columnId="$columnId" :column="$column" :isCollapsed="$isCollapsed" />
+    @endif
 
-        <x-flowforge::modern.column-count :column="$column" :columnId="$columnId" />
-
-        @if (! $isCollapsed && filled($column['summary'] ?? null))
-            <span class="ff-summary">{{ $column['summary'] }}</span>
-        @endif
-    </div>
-
-    @if($createAction || count($actions) > 0)
+    @if ($createAction || (! $hasMenu && count($actions) > 0))
         <div class="ff-column-actions">
             {{ $createAction }}
 
-            @if(count($actions) === 1)
+            @if (! $hasMenu && count($actions) === 1)
                 {{ $actions[0] }}
-            @elseif(count($actions) > 1)
+            @elseif (! $hasMenu && count($actions) > 1)
                 <x-filament-actions::group :actions="$actions" />
             @endif
         </div>

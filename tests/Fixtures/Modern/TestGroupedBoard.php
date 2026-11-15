@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use PDOException;
 use Relaticle\Flowforge\Board;
 use Relaticle\Flowforge\Column;
@@ -23,9 +24,23 @@ class TestGroupedBoard extends BoardPage
 
     public int $cardsPerCell = 20;
 
+    public bool $withAddColumn = false;
+
+    public array $addedColumns = [];
+
+    public ?string $rejectColumnName = null;
+
     public bool $withHeaderToolbar = false;
 
     public bool $collapseEmpty = false;
+
+    public array $collapsedIds = [];
+
+    public bool $collapseAll = false;
+
+    public bool $collapsible = false;
+
+    public array $toggled = [];
 
     public ?int $inProgressLimit = null;
 
@@ -99,11 +114,23 @@ class TestGroupedBoard extends BoardPage
             ->positionIdentifier('order_position')
             ->cardsPerColumn($this->cardsPerCell)
             ->lanesPerPage($this->lanesPerPage)
+            ->addColumnUsing($this->withAddColumn ? $this->addColumnClosure(...) : null)
             ->headerToolbar($this->withHeaderToolbar)
             ->collapseEmptyColumns($this->collapseEmpty)
+            ->collapsedColumns($this->collapsedIds)
+            ->collapseAllColumns($this->collapseAll)
+            ->collapsibleColumns($this->collapsible
+                ? function (string $columnId, bool $collapsed): void {
+                    $this->toggled[] = [$columnId, $collapsed];
+                    $this->collapsedIds = $collapsed
+                        ? [...$this->collapsedIds, $columnId]
+                        : array_values(array_diff($this->collapsedIds, [$columnId]));
+                }
+                : null)
             ->columns([
                 Column::make('todo')->label('To Do'),
                 Column::make('in_progress')->label('In Progress')->limit($this->inProgressLimit),
+                ...array_map(fn (string $name): Column => Column::make($name)->label($name), $this->addedColumns),
             ])
             ->groupings([
                 Grouping::attribute('priority')->label('Priority'),
@@ -153,6 +180,15 @@ class TestGroupedBoard extends BoardPage
 
             throw new QueryException('sqlite', 'x', [], new PDOException('UNIQUE constraint failed'));
         }
+    }
+
+    protected function addColumnClosure(string $name): void
+    {
+        if ($name === $this->rejectColumnName) {
+            throw ValidationException::withMessages(['name' => 'Taken']);
+        }
+
+        $this->addedColumns[] = $name;
     }
 
     protected function assigneeGrouping(string $name = 'assignee'): Grouping

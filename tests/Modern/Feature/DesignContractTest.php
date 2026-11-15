@@ -230,7 +230,7 @@ test('every documented variable names a tier and a version', function () {
     foreach (contractTokens() as $name => $token) {
         expect($name)->toStartWith('--ff-')
             ->and($token['tier'])->toBeIn(['semantic', 'component'])
-            ->and($token['since'])->toBe('4.2.0');
+            ->and($token['since'])->toBeIn(['4.2.0', '4.4.0']);
     }
 });
 

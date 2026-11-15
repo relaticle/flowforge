@@ -21,6 +21,12 @@ return [
     'group_by' => 'Gruppieren nach',
     'no_grouping' => 'Keine',
     'show_more_lanes' => 'Weitere Bahnen anzeigen',
+    'add_column' => 'Spalte hinzufügen',
+    'column_name_required' => 'Gib einen Namen ein.',
+    'column_name' => 'Spaltenname',
+    'column_color' => 'Spaltenfarbe',
+    'expand_column' => ':column erweitern',
+    'set_column_color' => 'Farbe auf :color setzen',
     'show_more_cards' => ':count weitere anzeigen',
     'lane_write_failed' => 'Die Karte konnte nicht in diese Bahn verschoben werden.',
 ];

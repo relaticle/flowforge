@@ -14,6 +14,9 @@ const FLOWFORGE_TOKENS = [
     '--ff-ease',
     '--ff-duration',
     '--ff-column-width',
+    '--ff-dot-size',
+    '--ff-overlay-radius',
+    '--ff-overlay-shadow',
     '--ff-tray-bg',
     '--ff-tray-radius',
     '--ff-card-bg',
@@ -26,6 +29,33 @@ const FLOWFORGE_TOKENS = [
     '--ff-placeholder-border',
 ];
 
+const HEADER_GESTURE_IGNORED = '.ff-column-actions, .fi-dropdown-panel, input, textarea, select, [contenteditable]:not([contenteditable="false"])';
+
+const EMPTY_SPACE_IGNORED = `.ff-card, .ff-column-header, .ff-add-slot, .ff-add-row, .ff-cards-more, .ff-limit-hint, button, a, ${HEADER_GESTURE_IGNORED}`;
+
+const MENU_DRAG_THRESHOLD = 4;
+
+// A rail under collapse all waits this long, so a second click can claim the column alone.
+const DOUBLE_CLICK_WINDOW = 300;
+
+const focusMenuField = (panel) => {
+    const field = panel.querySelector('[data-autofocus]');
+
+    // A touch screen would raise its keyboard for a menu opened to collapse or hide.
+    if (!field || panel.style.display !== 'block' || !window.matchMedia('(pointer: fine)').matches) {
+        return;
+    }
+
+    field.focus({ preventScroll: true });
+    field.setSelectionRange?.(field.value.length, field.value.length);
+};
+
+const SWATCH_COLUMNS = 4;
+
+const swatchesOf = (group) => [...group.querySelectorAll('[role="radio"]')];
+
+const menusIgnoringMousedown = new WeakSet();
+
 const sortablesAwaitingDrag = new WeakSet();
 
 const sortableIsBusy = () => window.Sortable.active || window.Sortable.dragged;
@@ -35,11 +65,24 @@ export default function flowforgeModern() {
         isLoading: {},
         fullyLoaded: {},
         dragOverColumn: null,
+
+        railToggledAt: 0,
+        railClickTimer: null,
+        columnMenuPressAt: null,
+        railPressAt: null,
         dragOverLane: null,
         dragSource: null,
         pendingCounts: {},
         pendingMoves: 0,
         collapsedLanes: {},
+        addingColumn: false,
+        newColumnName: '',
+        newColumnColor: null,
+        newColumnDotStyle: '',
+        newColumnColorPicked: false,
+        choosingNewColumnColor: false,
+        newColumnTouched: false,
+        addingColumnPending: false,
         placeholder: null,
         stopTrackingPointer: null,
 
@@ -211,6 +254,202 @@ export default function flowforgeModern() {
             this.dragOverColumn = null;
             this.dragOverLane = null;
             this.dragSource = null;
+        },
+
+        railPress(event) {
+            this.railPressAt = { x: event.clientX, y: event.clientY };
+        },
+
+        toggleColumnCollapse(event, columnId, fromRail = false) {
+            if (event.target.closest(HEADER_GESTURE_IGNORED) || (fromRail && event.detail > 1)) {
+                return;
+            }
+
+            if (fromRail) {
+                const press = this.railPressAt;
+
+                this.railPressAt = null;
+
+                if (press && Math.hypot(event.clientX - press.x, event.clientY - press.y) > MENU_DRAG_THRESHOLD) {
+                    return;
+                }
+            }
+
+            // The click that expands a rail must not let its double click collapse the header again.
+            if (Date.now() - this.railToggledAt < 500) {
+                return;
+            }
+
+            if (fromRail) {
+                this.railToggledAt = Date.now();
+            }
+
+            this.$wire.toggleBoardColumnCollapse(columnId);
+        },
+
+        expandFromCollapseAll(event, columnId) {
+            const press = this.railPressAt;
+
+            this.railPressAt = null;
+
+            if (event.target.closest(HEADER_GESTURE_IGNORED) || (press && Math.hypot(event.clientX - press.x, event.clientY - press.y) > MENU_DRAG_THRESHOLD)) {
+                return;
+            }
+
+            const alone = event.detail > 1;
+
+            clearTimeout(this.railClickTimer);
+            this.railClickTimer = setTimeout(() => {
+                this.railToggledAt = Date.now();
+                this.$wire.toggleBoardColumnCollapse(columnId, alone);
+            }, alone ? 0 : DOUBLE_CLICK_WINDOW);
+        },
+
+        collapseFromEmptySpace(event, columnId) {
+            if (!event.target.closest(EMPTY_SPACE_IGNORED)) {
+                this.toggleColumnCollapse(event, columnId);
+            }
+        },
+
+        suppressEmptySpaceSelection(event) {
+            if (event.detail > 1 && !event.target.closest(EMPTY_SPACE_IGNORED)) {
+                event.preventDefault();
+            }
+        },
+
+        openNewColumn(defaultColor = null, defaultStyle = '') {
+            this.addingColumn = true;
+            this.newColumnTouched = true;
+            this.newColumnColor = defaultColor;
+            this.newColumnDotStyle = defaultStyle;
+            this.newColumnColorPicked = false;
+            // WebKit ignores a focus on the next tick, right after the ghost column shows. One frame later it takes it.
+            this.$nextTick(() => requestAnimationFrame(() => {
+                const input = this.$refs.newColumnInput;
+                const board = input.closest('.ff-columns, .ff-lanes');
+
+                input.focus({ preventScroll: true });
+                board?.scrollTo({ left: board.scrollWidth });
+                input.closest('.ff-add-column-ghost').scrollIntoView({ block: 'nearest' });
+            }));
+        },
+
+        cancelNewColumn() {
+            this.addingColumn = false;
+            this.newColumnTouched = true;
+            this.newColumnName = '';
+            this.newColumnColor = null;
+            this.newColumnDotStyle = '';
+            this.choosingNewColumnColor = false;
+        },
+
+        closeNewColumnColors() {
+            this.choosingNewColumnColor = false;
+            this.$refs.newColumnDot?.focus({ preventScroll: true });
+        },
+
+        pickNewColumnColor(color, style) {
+            this.newColumnColorPicked = true;
+            this.newColumnColor = color;
+            this.newColumnDotStyle = style;
+            this.choosingNewColumnColor = false;
+            this.$refs.newColumnInput.focus({ preventScroll: true });
+        },
+
+        async submitNewColumn() {
+            if (this.addingColumnPending) {
+                return;
+            }
+
+            this.addingColumnPending = true;
+            this.newColumnTouched = true;
+
+            try {
+                await this.$wire.addBoardColumn(this.newColumnName, this.newColumnColorPicked ? this.newColumnColor : null);
+            } finally {
+                this.addingColumnPending = false;
+            }
+
+            this.newColumnTouched = false;
+
+            if (!this.$root.querySelector('.ff-add-column-error')) {
+                this.cancelNewColumn();
+            }
+        },
+
+        suppressDoubleClickSelection(event) {
+            if (event.detail > 1 && !event.target.closest(HEADER_GESTURE_IGNORED)) {
+                event.preventDefault();
+            }
+        },
+
+        // Filament opens a dropdown on mousedown, which would open the menu at the start of a header drag.
+        initColumnMenu(trigger) {
+            const root = trigger.closest('.fi-dropdown');
+
+            if (menusIgnoringMousedown.has(root)) {
+                return;
+            }
+
+            const dropdown = window.Alpine.$data(root);
+            const toggle = dropdown.toggle.bind(dropdown);
+
+            menusIgnoringMousedown.add(root);
+            dropdown.toggle = (event) => (event?.type === 'mousedown' ? undefined : toggle(event));
+        },
+
+        columnMenuPress(event) {
+            this.columnMenuPressAt = { x: event.clientX, y: event.clientY };
+        },
+
+        columnMenuClick(event) {
+            const press = this.columnMenuPressAt;
+
+            this.columnMenuPressAt = null;
+
+            if (event.detail > 1 || (press && Math.hypot(event.clientX - press.x, event.clientY - press.y) > MENU_DRAG_THRESHOLD)) {
+                return;
+            }
+
+            const root = event.currentTarget.closest('.fi-dropdown');
+
+            window.Alpine.$data(root).toggle(event);
+            requestAnimationFrame(() => focusMenuField(root.querySelector(':scope > .fi-dropdown-panel')));
+        },
+
+        focusSwatch(group) {
+            const swatches = swatchesOf(group);
+            const target = swatches.find((swatch) => swatch.getAttribute('aria-checked') === 'true') ?? swatches[0];
+
+            // WebKit applies x-show a frame after Alpine's next tick, and a hidden button refuses focus.
+            requestAnimationFrame(() => target?.focus({ preventScroll: true }));
+        },
+
+        swatchFocused(event) {
+            const group = event.target.closest('[role="radiogroup"]');
+
+            swatchesOf(group).forEach((swatch) => swatch.setAttribute('tabindex', swatch === event.target ? '0' : '-1'));
+        },
+
+        swatchKey(event) {
+            const swatches = swatchesOf(event.currentTarget);
+            const index = swatches.indexOf(event.target);
+            const last = swatches.length - 1;
+            const next = {
+                ArrowRight: index === last ? 0 : index + 1,
+                ArrowLeft: index === 0 ? last : index - 1,
+                ArrowDown: Math.min(index + SWATCH_COLUMNS, last),
+                ArrowUp: Math.max(index - SWATCH_COLUMNS, 0),
+                Home: 0,
+                End: last,
+            }[event.key];
+
+            if (index < 0 || next === undefined) {
+                return;
+            }
+
+            event.preventDefault();
+            swatches[next].focus({ preventScroll: true });
         },
 
         columnDrop(columnId) {

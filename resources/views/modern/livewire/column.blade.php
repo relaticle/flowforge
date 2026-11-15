@@ -2,8 +2,9 @@
 
 @php
     $total = $column['total'] ?? (isset($column['items']) ? count($column['items']) : 0);
-    $isCollapsed = ($config['collapseEmptyColumns'] ?? false) && $total === 0;
+    $isCollapsed = (bool) ($column['isCollapsed'] ?? false);
     $plainLabel = strip_tags((string) $column['label']);
+    $expandLabel = __('flowforge::flowforge.expand_column', ['column' => $plainLabel]);
     $trayLabel = __('flowforge::flowforge.column_label', [
         'column' => $plainLabel,
         'count' => $total,
@@ -20,16 +21,44 @@
     data-column-total="{{ $column['limitTotal'] ?? $total }}"
     @if (($column['limit'] ?? null) !== null) data-column-limit="{{ $column['limit'] }}" @endif
     @if ($column['isFull'] ?? false) data-full @endif
-    @if ($isCollapsed) data-collapsed title="{{ $plainLabel }}" @endif
+    @if ($isCollapsed) data-collapsed @endif
+    @if ($isCollapsed && ! ($column['canToggleCollapse'] ?? false))
+        x-tooltip="{ content: @js($plainLabel), theme: $store.theme }"
+    @endif
+    @if ($isCollapsed && ($column['canToggleCollapse'] ?? false))
+        role="button"
+        tabindex="0"
+        aria-label="{{ $expandLabel }}"
+        x-tooltip="{ content: @js($expandLabel), theme: $store.theme }"
+        x-on:keydown.enter.self.prevent="$el.click()"
+        x-on:keydown.space.self.prevent="$el.click()"
+        @if ($column['isCollapsedByAll'] ?? false)
+            x-on:click="expandFromCollapseAll($event, @js((string) $columnId))"
+        @else
+            x-on:click="toggleColumnCollapse($event, @js((string) $columnId), true)"
+        @endif
+        x-on:pointerdown="railPress($event)"
+        x-on:mousedown="suppressDoubleClickSelection($event)"
+    @endif
+    @if (! $isCollapsed && ($column['canToggleCollapse'] ?? false))
+        x-on:dblclick="collapseFromEmptySpace($event, @js((string) $columnId))"
+        x-on:mousedown="suppressEmptySpaceSelection($event)"
+    @endif
     x-bind:data-drop="columnDrop(@js((string) $columnId))"
 >
-    <x-flowforge::modern.column-header :columnId="(string) $columnId" :column="$column" :isCollapsed="$isCollapsed" />
+    @unless ($isCollapsed)
+        <x-flowforge::modern.column-header :columnId="(string) $columnId" :column="$column" />
+    @endunless
 
     <div
         class="ff-tray"
         role="region"
         aria-label="{{ $trayLabel }}"
     >
+        @if ($isCollapsed)
+            <x-flowforge::modern.column-heading :columnId="(string) $columnId" :column="$column" :isCollapsed="true" />
+        @endif
+
         @if (($column['limit'] ?? null) !== null)
             <p
                 x-cloak
@@ -47,7 +76,7 @@
                 @end.stop="handleSortableEnd($event)"
                 x-init="$nextTick(() => configureSortable($el))"
             @endif
-            @if(isset($column['total']) && $column['total'] > count($column['items']))
+            @if(! $isCollapsed && isset($column['total']) && $column['total'] > count($column['items']))
                 @scroll.throttle.100ms="handleColumnScroll($event, '{{ $columnId }}')"
             @endif
         >
@@ -59,7 +88,7 @@
                 />
             @endforeach
 
-            @if(isset($column['total']) && $column['total'] > count($column['items'] ?? []))
+            @if(! $isCollapsed && isset($column['total']) && $column['total'] > count($column['items'] ?? []))
                 <div class="ff-cards-more" x-intersect.margin.300px="handleSmoothScroll('{{ $columnId }}')">
                     <div
                         x-show="isLoadingColumn('{{ $columnId }}')"

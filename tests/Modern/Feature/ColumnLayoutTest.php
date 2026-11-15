@@ -37,6 +37,12 @@ test('a colored column shows a dot before its label', function () {
     Livewire::test(TestBoard::class)->assertSeeHtml('ff-column-dot');
 });
 
+test('a hex column color draws its dot in that exact color', function () {
+    $html = Livewire::test(TestBoard::class, ['hexCompleted' => true])->html();
+
+    expect($html)->toContain('style="--color-500:#ff5454"');
+});
+
 test('the header sits above the tray, outside it', function () {
     $html = Livewire::test(TestBoard::class)->html();
 
@@ -66,6 +72,7 @@ test('a collapsed rail titles itself with the plain column label', function () {
 
     $html = Livewire::test(TestBoard::class, ['htmlLabel' => true, 'collapseEmpty' => true])->html();
 
-    expect($html)->toContain('title="In Progress"')
-        ->and($html)->not->toContain('title="&lt;em&gt;');
+    expect($html)->toContain("content: 'In Progress'")
+        ->and($html)->not->toContain("content: '<em>")
+        ->and($html)->not->toContain('data-collapsed title=');
 });

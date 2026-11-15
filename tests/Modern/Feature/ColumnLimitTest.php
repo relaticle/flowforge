@@ -62,12 +62,20 @@ test('the column root exposes its limit for the drag script', function () {
         ->assertSeeHtml('data-column-total="2"');
 });
 
+test('the header add button names itself through a tooltip and never a native title', function () {
+    $html = Livewire::test(TestBoard::class, ['withCreateAction' => true])->html();
+
+    preg_match('/<div class="ff-column-actions">.*?<\/button>/s', $html, $header);
+
+    expect($header[0])->toContain('x-tooltip')->not->toContain('title=');
+});
+
 test('a full column refuses new cards', function () {
     $component = Livewire::test(TestBoard::class, ['todoLimit' => 2, 'withCreateAction' => true]);
     $todoRow = addRowButton($component->html(), 'todo');
 
     expect($todoRow)->toMatch('/\sdisabled\s/')
-        ->and($todoRow)->toContain('title="' . __('flowforge::flowforge.limit_reached') . '"')
+        ->and($todoRow)->toContain("content: '" . __('flowforge::flowforge.limit_reached') . "'")->not->toContain('title=')
         ->and(addRowButton($component->html(), 'in_progress'))->toContain('ff-add-row')->not->toMatch('/\sdisabled\s/');
 
     $component

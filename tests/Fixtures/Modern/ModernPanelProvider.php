@@ -28,10 +28,18 @@ class ModernPanelProvider extends PanelProvider
             ->spa()
             ->pages([
                 TestBoard::class,
+                TestAddColumnBoard::class,
+                TestAddColumnColorsBoard::class,
+                TestAddColumnGroupedBoard::class,
                 TestBrowserBoard::class,
                 TestClassicBoard::class,
+                TestCollapsibleBoard::class,
+                TestCollapsedAllBoard::class,
+                TestMenuBoard::class,
+                TestMenuStaticBoard::class,
                 TestContractBoard::class,
                 TestGroupedBoard::class,
+                TestCollapsibleGroupedBoard::class,
                 TestCardActionBoard::class,
                 TestCardActionConfirmBoard::class,
                 TestCardActionDefaultUrlBoard::class,

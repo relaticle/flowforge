@@ -21,6 +21,12 @@ return [
     'group_by' => 'Agrupar por',
     'no_grouping' => 'Ninguno',
     'show_more_lanes' => 'Mostrar más carriles',
+    'add_column' => 'Añadir columna',
+    'column_name_required' => 'Introduce un nombre.',
+    'column_name' => 'Nombre de la columna',
+    'column_color' => 'Color de la columna',
+    'expand_column' => 'Expandir :column',
+    'set_column_color' => 'Establecer el color en :color',
     'show_more_cards' => 'Mostrar :count más',
     'lane_write_failed' => 'No se pudo mover la tarjeta a ese carril.',
 ];

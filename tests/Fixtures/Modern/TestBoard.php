@@ -11,6 +11,7 @@ use Illuminate\Auth\Access\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
+use Illuminate\Validation\ValidationException;
 use Relaticle\Flowforge\Board;
 use Relaticle\Flowforge\Column;
 use Relaticle\Flowforge\Exceptions\CardMoveRejectedException;
@@ -23,6 +24,42 @@ class TestBoard extends BoardPage
     public bool $hideEverything = false;
 
     public bool $collapseEmpty = false;
+
+    public array $collapsedIds = [];
+
+    public bool $collapseAll = false;
+
+    public ?string $collapsedIdsAs = null;
+
+    public bool $collapsible = false;
+
+    public bool $withColumnActions = false;
+
+    public bool $withHeaderMenu = false;
+
+    public bool $nullMenuBlock = false;
+
+    public array $toggled = [];
+
+    public array $toggledAlone = [];
+
+    public bool $withAddColumn = false;
+
+    public array $addedColumns = [];
+
+    public array $addedColumnColors = [];
+
+    public bool $withAddColumnColors = false;
+
+    public ?string $addColumnDefault = null;
+
+    public ?string $rejectColumnName = null;
+
+    public ?string $addColumnTitle = null;
+
+    public ?string $addColumnHint = null;
+
+    public ?string $addColumnColorLabel = null;
 
     public bool $withHeaderToolbar = false;
 
@@ -39,6 +76,8 @@ class TestBoard extends BoardPage
     public bool $namedSummary = false;
 
     public bool $htmlLabel = false;
+
+    public bool $hexCompleted = false;
 
     public ?int $todoLimit = null;
 
@@ -67,7 +106,39 @@ class TestBoard extends BoardPage
     {
         return $board
             ->collapseEmptyColumns($this->collapseEmpty)
+            ->collapsedColumns(match ($this->collapsedIdsAs) {
+                'collection' => fn () => collect($this->collapsedIds),
+                'enum' => fn (): array => [StatusEnum::Active, ...$this->collapsedIds],
+                'closure' => fn (): array => $this->collapsedIds,
+                default => $this->collapsedIds,
+            })
+            ->collapseAllColumns($this->collapseAll)
+            ->collapsibleColumns($this->collapsible
+                ? function (string $columnId, bool $collapsed, bool $alone): void {
+                    $this->toggled[] = [$columnId, $collapsed];
+                    $this->toggledAlone = $alone ? [...$this->toggledAlone, $columnId] : $this->toggledAlone;
+                    $this->collapsedIds = $collapsed
+                        ? [...$this->collapsedIds, $columnId]
+                        : array_values(array_diff($this->collapsedIds, [$columnId]));
+                }
+                : null)
+            ->addColumnUsing($this->withAddColumn ? $this->addColumnClosure(...) : null)
+            ->addColumnColors($this->withAddColumnColors ? ['#ff5454' => 'Red', 'blue' => 'Blue'] : null)
+            ->addColumnDefaultColor($this->addColumnDefault)
+            ->addColumnLabel($this->addColumnTitle)
+            ->addColumnPlaceholder($this->addColumnHint)
+            ->addColumnColorLabel($this->addColumnColorLabel)
             ->headerToolbar($this->withHeaderToolbar)
+            ->columnActions(match (true) {
+                $this->withHeaderMenu => [Action::make('archiveColumn')->label('Archive column')->action(function (): void {})],
+                $this->withColumnActions => [Action::make('renameColumn')->action(function (): void {}), Action::make('clearColumn')->action(function (): void {})],
+                default => [],
+            })
+            ->columnHeaderMenu($this->withHeaderMenu
+                ? fn (array $column): ?HtmlString => $this->nullMenuBlock
+                    ? null
+                    : new HtmlString('<div class="ff-test-menu-block">Block for ' . $column['label'] . '<input class="ff-test-menu-input" size="7" value="Backlog" data-autofocus></div>')
+                : null)
             ->query($this->getEloquentQuery())
             ->recordTitleAttribute('title')
             ->searchable(['title'])
@@ -97,8 +168,19 @@ class TestBoard extends BoardPage
                 Column::make('hidden_column')->visible(fn () => $this->showAllColumns && ! $this->hideEverything)->label('Hidden Column'),
                 Column::make('archived')->label('Archived Column')->hidden(true),
                 Column::make('in_progress')->label($this->htmlLabel ? new HtmlString('<em>In Progress</em>') : 'In Progress')->color('blue')->visible(fn () => ! $this->hideEverything),
-                Column::make('completed')->label('Completed')->color('green')->visible(fn () => ! $this->hideEverything),
+                Column::make('completed')->label('Completed')->color($this->hexCompleted ? '#FF5454' : 'green')->visible(fn () => ! $this->hideEverything),
+                ...array_map(fn (string $name): Column => Column::make($name)->label($name), $this->addedColumns),
             ]);
+    }
+
+    protected function addColumnClosure(string $name, ?string $color): void
+    {
+        if ($name === $this->rejectColumnName) {
+            throw ValidationException::withMessages(['name' => 'Taken']);
+        }
+
+        $this->addedColumns[] = $name;
+        $this->addedColumnColors[] = $color;
     }
 
     protected function authorizeCardMove(Model $card, string $targetColumnId, ?string $toLaneId = null): void

@@ -21,6 +21,12 @@ return [
     'group_by' => 'Group by',
     'no_grouping' => 'None',
     'show_more_lanes' => 'Show more lanes',
+    'add_column' => 'Add column',
+    'column_name_required' => 'Enter a name.',
+    'column_name' => 'Column name',
+    'column_color' => 'Column color',
+    'expand_column' => 'Expand :column',
+    'set_column_color' => 'Set color to :color',
     'show_more_cards' => 'Show :count more',
     'lane_write_failed' => 'The card could not be moved to that lane.',
 ];
