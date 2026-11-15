@@ -17,7 +17,7 @@
         @disabled($isDisabled)
         @if ($disabled) title="{{ __('flowforge::flowforge.limit_reached') }}" @endif
     >
-        <x-filament::icon icon="heroicon-m-plus" :size="IconSize::Small" class="ff-add-row-icon" />
+        <x-filament::icon :alias="\Relaticle\Flowforge\View\FlowforgeIconAlias::ADD_CARD" icon="heroicon-m-plus" :size="IconSize::Small" class="ff-add-row-icon" />
         {{ __('flowforge::flowforge.add_card', ['card' => $cardLabel]) }}
     </button>
 @endif

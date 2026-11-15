@@ -3,6 +3,8 @@
 @php
     use Filament\Actions\Action;
     use Filament\Actions\ActionGroup;
+    use Filament\Support\Facades\FilamentIcon;
+    use Relaticle\Flowforge\View\FlowforgeIconAlias;
 
     $actions = array_values(array_filter($this->getBoardColumnActions($columnId), fn (Action | ActionGroup $action): bool => $action->isVisible()));
     $menuBlock = $isCollapsed ? null : $this->getBoard()->getColumnHeaderMenuBlock($column);
@@ -11,7 +13,7 @@
     $createAction = $this->getBoardCreateCardAction($columnId)
         ?->getClone()
         ->iconButton()
-        ->icon('heroicon-m-plus')
+        ->icon(FilamentIcon::resolve(FlowforgeIconAlias::ADD_CARD) ?? 'heroicon-m-plus')
         ->label(__('flowforge::flowforge.add_card', ['card' => $this->getBoard()->getCardLabel()]))
         ->disabled($column['isFull'] ?? false);
 

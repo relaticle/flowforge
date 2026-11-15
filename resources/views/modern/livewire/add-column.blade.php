@@ -70,6 +70,6 @@
         aria-label="{{ $label }}"
         x-on:click="openNewColumn(@js($defaultColor), @js($defaultStyle))"
     >
-        <x-filament::icon icon="heroicon-m-plus" :size="IconSize::Small" />
+        <x-filament::icon :alias="\Relaticle\Flowforge\View\FlowforgeIconAlias::ADD_COLUMN" icon="heroicon-m-plus" :size="IconSize::Small" />
     </button>
 </div>

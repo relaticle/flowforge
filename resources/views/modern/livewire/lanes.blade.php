@@ -70,7 +70,7 @@
                     aria-labelledby="{{ $laneTitleId }}"
                     x-bind:aria-expanded="! isLaneCollapsed(@js($laneKey))"
                 >
-                    <x-filament::icon icon="heroicon-m-chevron-down" class="ff-lane-chevron" />
+                    <x-filament::icon :alias="\Relaticle\Flowforge\View\FlowforgeIconAlias::LANE_TOGGLE" icon="heroicon-m-chevron-down" class="ff-lane-chevron" />
                 </button>
 
                 @if ($lane['avatar'])

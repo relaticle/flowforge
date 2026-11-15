@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use Filament\Support\Facades\FilamentIcon;
 use Livewire\Livewire;
 use Relaticle\Flowforge\Tests\Fixtures\Modern\Task;
 use Relaticle\Flowforge\Tests\Fixtures\Modern\TestBoard;
 use Relaticle\Flowforge\Tests\Fixtures\Modern\TestGroupedBoard;
+use Relaticle\Flowforge\View\FlowforgeIconAlias;
 
 function laneCellColumnOrder(string $html, string $laneId): array
 {
@@ -42,6 +44,16 @@ describe('add column tile', function () {
     test('the tile carries the host label as its tooltip', function () {
         Livewire::test(TestBoard::class, ['withAddColumn' => true, 'addColumnTitle' => 'Add stage'])
             ->assertSeeHtml('title="Add stage"');
+    });
+
+    test('the tile draws the icon the host maps to its alias', function () {
+        preg_match('/ d="([^"]+)"/', svg('heroicon-m-star')->toHtml(), $star);
+
+        FilamentIcon::register([FlowforgeIconAlias::ADD_COLUMN => 'heroicon-m-star']);
+
+        $html = Livewire::test(TestBoard::class, ['withAddColumn' => true])->html();
+
+        expect($html)->toContain($star[1]);
     });
 
     test('the input placeholder defaults to the column name text', function () {
