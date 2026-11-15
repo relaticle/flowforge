@@ -65,6 +65,7 @@
     .ff-lanes-heads {
         --_column-width: var(--ff-column-width, 300px);
         --_collapsed-width: 3rem;
+        --_dot-size: var(--ff-dot-size, 0.5rem);
     }
 
     .ff-lanes-heads {
@@ -223,8 +224,8 @@
 
     .ff-column-dot {
         flex-shrink: 0;
-        width: 0.5rem;
-        height: 0.5rem;
+        width: var(--_dot-size);
+        height: var(--_dot-size);
         background-color: var(--color-500);
         border-radius: 9999px;
     }
@@ -770,8 +771,8 @@
 
     .ff-add-column-dot {
         flex-shrink: 0;
-        width: 0.875rem;
-        height: 0.875rem;
+        width: var(--_dot-size);
+        height: var(--_dot-size);
         background-color: var(--color-500, var(--gray-400));
         border-radius: 9999px;
     }
