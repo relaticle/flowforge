@@ -26,15 +26,6 @@ describe('board rendering', function () {
             ->assertDontSeeHtml('<x-filament');
     });
 
-    test('keys every column and card so a morph never reuses another column', function () {
-        $task = Task::factory()->todo()->create();
-
-        Livewire::test(TestBoard::class)
-            ->assertSeeHtml('wire:key="column-todo"')
-            ->assertSeeHtml('wire:key="column-in_progress"')
-            ->assertSeeHtml("wire:key=\"card-{$task->getKey()}\"");
-    });
-
     test('renders board with unhidden column', function () {
         Livewire::test(TestBoard::class)
             ->assertStatus(200)

@@ -6,6 +6,7 @@ use Livewire\Livewire;
 use Relaticle\Flowforge\Services\DecimalPosition;
 use Relaticle\Flowforge\Tests\Fixtures\Modern\Task;
 use Relaticle\Flowforge\Tests\Fixtures\Modern\TestBoard;
+use Relaticle\Flowforge\Tests\Fixtures\TestBoard as ClassicTestBoard;
 
 describe('board rendering', function () {
     test('renders board with all columns', function () {
@@ -25,6 +26,18 @@ describe('board rendering', function () {
             ->assertDontSeeHtml('<x-flowforge')
             ->assertDontSeeHtml('<x-filament');
     });
+
+    test('keys every column and card so a morph never reuses another column', function (string $board, string $cardKey) {
+        $task = Task::factory()->todo()->create();
+
+        Livewire::test($board)
+            ->assertSeeHtml('wire:key="column-todo"')
+            ->assertSeeHtml('wire:key="column-in_progress"')
+            ->assertSeeHtml("wire:key=\"{$cardKey}{$task->getKey()}\"");
+    })->with([
+        'modern' => [TestBoard::class, 'card-board-'],
+        'classic' => [ClassicTestBoard::class, 'card-'],
+    ]);
 
     test('renders board with unhidden column', function () {
         Livewire::test(TestBoard::class)
