@@ -38,12 +38,12 @@ describe('add column tile', function () {
 
     test('the tile carries the default label as its tooltip', function () {
         Livewire::test(TestBoard::class, ['withAddColumn' => true])
-            ->assertSeeHtml('title="' . __('flowforge::flowforge.add_column') . '"');
+            ->assertSeeHtml("content: '" . __('flowforge::flowforge.add_column') . "'");
     });
 
     test('the tile carries the host label as its tooltip', function () {
         Livewire::test(TestBoard::class, ['withAddColumn' => true, 'addColumnTitle' => 'Add stage'])
-            ->assertSeeHtml('title="Add stage"');
+            ->assertSeeHtml("content: 'Add stage'");
     });
 
     test('the tile draws the icon the host maps to its alias', function () {

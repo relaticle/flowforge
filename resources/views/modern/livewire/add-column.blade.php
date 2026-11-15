@@ -66,7 +66,7 @@
     <button
         type="button"
         class="ff-add-column-button"
-        title="{{ $label }}"
+        x-tooltip="{ content: @js($label), theme: $store.theme }"
         aria-label="{{ $label }}"
         x-on:click="openNewColumn(@js($defaultColor), @js($defaultStyle))"
     >
